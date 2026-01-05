@@ -1,0 +1,27 @@
+{
+  "workingDirectory": "/Users/orcola/Projetos/Pessoais/campaign-platform-package 2",
+  "additionalWorkingDirectories": [
+    "/Users/orcola/Projetos/Pessoais/campaign-platform-package 2/apps/api"
+  ],
+  "autoApprove": [
+    "mkdir:*",
+    "pnpm install:*",
+    "pnpm build:*",
+    "pnpm dev:*",
+    "pnpm drizzle-kit generate:*",
+    "pnpm drizzle-kit push:*",
+    "pnpm drizzle-kit studio:*",
+    "git status:*",
+    "git diff:*",
+    "git log:*",
+    "git branch:*",
+    "curl:*",
+    "ls:*",
+    "cat:*",
+    "node:*",
+    "npm:*"
+  ],
+  "environmentVariables": {
+    "NODE_ENV": "development"
+  }
+}

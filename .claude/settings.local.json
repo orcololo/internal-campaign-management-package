@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(pnpm install:*)",
+      "Bash(exit)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm start)",
+      "Bash(timeout 15 pnpm start:*)",
+      "Bash(curl:*)",
+      "Bash(pnpm db:push)"
+    ]
+  }
+}
