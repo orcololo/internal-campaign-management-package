@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Transpile packages from the monorepo if needed
+  transpilePackages: [],
 };
 
 export default nextConfig;
