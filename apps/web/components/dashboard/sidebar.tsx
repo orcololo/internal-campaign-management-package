@@ -33,6 +33,7 @@ import {
   Users,
   BarChart3,
   Calendar,
+  FileText,
 } from "lucide-react";
 import { useMapsStore } from "@/store/maps-store";
 
@@ -47,6 +48,7 @@ const campaignNavItems = [
     href: "/calendar",
     badge: "3",
   },
+  { id: "reports", title: "Relatórios", icon: FileText, href: "/reports" },
 ];
 
 const mapsNavItems = [

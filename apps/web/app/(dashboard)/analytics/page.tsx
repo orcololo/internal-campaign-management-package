@@ -30,7 +30,9 @@ import { OverviewChart } from "@/components/features/analytics/overview-chart";
 import { VoterDemographics } from "@/components/features/analytics/voter-demographics";
 import { EngagementChart } from "@/components/features/analytics/engagement-chart";
 import { GeographicHeatmap } from "@/components/features/analytics/geographic-heatmap";
-import { chartData, demographicData } from "@/mock-data/analytics";
+import { MetricCard } from "@/components/composed/charts/metric-card";
+import { chartData, demographicData, dashboardMetrics } from "@/mock-data/analytics";
+import { Users, Calendar as CalendarIcon2, TrendingUp, MapPin } from "lucide-react";
 
 type DateRange = {
   from: Date | undefined;
@@ -156,6 +158,42 @@ export default function AnalyticsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Metric Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          title="Total de Eleitores"
+          value={dashboardMetrics.totalVoters}
+          change={dashboardMetrics.votersGrowth}
+          trend="up"
+          icon={Users}
+          iconColor="#3b82f6"
+        />
+        <MetricCard
+          title="Eventos Realizados"
+          value={dashboardMetrics.totalEvents}
+          change={Math.abs(dashboardMetrics.eventsChange)}
+          trend={dashboardMetrics.eventsChange >= 0 ? "up" : "down"}
+          icon={CalendarIcon2}
+          iconColor="#10b981"
+        />
+        <MetricCard
+          title="Taxa de Engajamento"
+          value={`${dashboardMetrics.engagementRate}%`}
+          change={8.2}
+          trend={dashboardMetrics.engagementTrend}
+          icon={TrendingUp}
+          iconColor="#8b5cf6"
+        />
+        <MetricCard
+          title="Cobertura Geográfica"
+          value={`${dashboardMetrics.geographicCoverage} áreas`}
+          change={12.5}
+          trend="up"
+          icon={MapPin}
+          iconColor="#f59e0b"
+        />
+      </div>
 
       {/* Charts Grid */}
       <div className="grid gap-6">

@@ -158,6 +158,7 @@ export const calendarApi = {
       organizer: "user-1", // Mock user
       attendees: [],
       campaignId: "campaign-1", // Mock campaign
+      reminders: [],
       createdBy: "user-1",
     });
 

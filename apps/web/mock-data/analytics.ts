@@ -21,6 +21,14 @@ export interface DemographicData {
     medium: number;
     low: number;
   };
+  byAge: Array<{
+    range: string;
+    count: number;
+  }>;
+  byGender: Array<{
+    gender: string;
+    count: number;
+  }>;
   byState: Array<{
     state: string;
     count: number;
@@ -75,6 +83,19 @@ export const demographicData: DemographicData = {
     medium: 92,
     low: 23,
   },
+  byAge: [
+    { range: "18-24", count: 28 },
+    { range: "25-34", count: 52 },
+    { range: "35-44", count: 48 },
+    { range: "45-54", count: 38 },
+    { range: "55-64", count: 22 },
+    { range: "65+", count: 12 },
+  ],
+  byGender: [
+    { gender: "Masculino", count: 98 },
+    { gender: "Feminino", count: 95 },
+    { gender: "Outro", count: 7 },
+  ],
   byState: [
     { state: "AP", count: 200 }, // All voters from Amapá
   ],

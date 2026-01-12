@@ -77,10 +77,12 @@ export function VoterDemographics({ data }: VoterDemographicsProps) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="support">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="support">Nível de Apoio</TabsTrigger>
-            <TabsTrigger value="contact">Dados de Contato</TabsTrigger>
-            <TabsTrigger value="location">Por Cidade</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="support">Apoio</TabsTrigger>
+            <TabsTrigger value="age">Idade</TabsTrigger>
+            <TabsTrigger value="gender">Gênero</TabsTrigger>
+            <TabsTrigger value="contact">Contato</TabsTrigger>
+            <TabsTrigger value="location">Cidade</TabsTrigger>
           </TabsList>
 
           <TabsContent value="support" className="mt-6">
@@ -116,6 +118,81 @@ export function VoterDemographics({ data }: VoterDemographicsProps) {
                   />
                   <p className="text-sm font-medium">{item.name}</p>
                   <p className="text-2xl font-bold">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="age" className="mt-6">
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.byAge}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted"
+                  />
+                  <XAxis
+                    dataKey="range"
+                    className="text-xs"
+                    stroke="hsl(var(--muted-foreground))"
+                  />
+                  <YAxis
+                    className="text-xs"
+                    stroke="hsl(var(--muted-foreground))"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--background))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
+                    }}
+                  />
+                  <Bar
+                    dataKey="count"
+                    fill="hsl(var(--chart-1))"
+                    radius={[8, 8, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="gender" className="mt-6">
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={data.byGender}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ gender, percent }) =>
+                      `${gender}: ${(percent * 100).toFixed(0)}%`
+                    }
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="count"
+                  >
+                    <Cell fill="#3b82f6" />
+                    <Cell fill="#ec4899" />
+                    <Cell fill="#8b5cf6" />
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-4 text-center">
+              {data.byGender.map((item, idx) => (
+                <div key={item.gender} className="space-y-1">
+                  <div
+                    className="mx-auto size-3 rounded-full"
+                    style={{
+                      backgroundColor:
+                        idx === 0 ? "#3b82f6" : idx === 1 ? "#ec4899" : "#8b5cf6",
+                    }}
+                  />
+                  <p className="text-sm font-medium">{item.gender}</p>
+                  <p className="text-2xl font-bold">{item.count}</p>
                 </div>
               ))}
             </div>

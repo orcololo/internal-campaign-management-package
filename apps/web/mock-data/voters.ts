@@ -266,8 +266,8 @@ function generateEmail(name: string): string {
   const cleaned = name
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, ".");
+    .replaceAll(/[\u0300-\u036f]/g, "")
+    .replaceAll(/\s+/g, ".");
   const domains = ["gmail.com", "hotmail.com", "yahoo.com.br", "outlook.com"];
   return `${cleaned}@${domains[Math.floor(Math.random() * domains.length)]}`;
 }
@@ -313,6 +313,16 @@ function generateCEP(): string {
   const base = 68900000 + Math.floor(Math.random() * 50000);
   const cep = base.toString();
   return `${cep.substring(0, 5)}-${cep.substring(5, 8)}`;
+}
+
+function generateReferralCode(name: string, index: number): string {
+  const cleaned = name
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-");
+  const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+  return `${cleaned.substring(0, 15)}-${random}`;
 }
 
 function generateVoter(index: number): Voter {
@@ -446,24 +456,24 @@ function generateVoter(index: number): Voter {
         ? `facebook.com/${name
             .toLowerCase()
             .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/\s/g, ".")}${index}`
+            .replaceAll(/[\u0300-\u036f]/g, "")
+            .replaceAll(/\s/g, ".")}${index}`
         : undefined,
     instagram:
       Math.random() > 0.2
         ? `@${name
             .toLowerCase()
             .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/\s/g, "_")}${index}`
+            .replaceAll(/[\u0300-\u036f]/g, "")
+            .replaceAll(/\s/g, "_")}${index}`
         : undefined,
     twitter:
       Math.random() > 0.5
         ? `@${name
             .toLowerCase()
             .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/\s/g, "_")}${index}`
+            .replaceAll(/[\u0300-\u036f]/g, "")
+            .replaceAll(/\s/g, "_")}${index}`
         : `@${name.split(" ")[0].toLowerCase()}${index}`,
 
     // Contact Preferences - ALL COMPLETE
@@ -645,6 +655,24 @@ function generateVoter(index: number): Voter {
     networkSize: Math.floor(Math.random() * 500) + 50,
     influenceRadius: Math.random() * 10 + 0.5, // 0.5-10.5 km
 
+    // Referral System - will be populated after all voters are created
+    referralCode: generateReferralCode(name, index),
+    referredBy: undefined,
+    referralDate: undefined,
+    referralStats: {
+      total: 0,
+      active: 0,
+      thisMonth: 0,
+      byLevel: {
+        MUITO_FAVORAVEL: 0,
+        FAVORAVEL: 0,
+        NEUTRO: 0,
+        DESFAVORAVEL: 0,
+        MUITO_DESFAVORAVEL: 0,
+        NAO_DEFINIDO: 0,
+      },
+    },
+
     // Audit fields
     createdAt: createdDate.toISOString(),
     updatedAt: createdDate.toISOString(),
@@ -652,9 +680,59 @@ function generateVoter(index: number): Voter {
 }
 
 // Generate 200 mock voters - all from Macapá, Amapá with complete data
-export const voters: Voter[] = Array.from({ length: 200 }, (_, i) =>
+const generatedVoters: Voter[] = Array.from({ length: 200 }, (_, i) =>
   generateVoter(i)
 );
+
+// Create referral relationships
+// First 10 voters are "influencers" with referrals
+const influencerIds = generatedVoters.slice(0, 10).map(v => v.id);
+
+// Assign referrals to influencers
+generatedVoters.forEach((voter, index) => {
+  // Skip the first 10 (influencers)
+  if (index >= 10 && index < 100) {
+    // 40% of remaining voters were referred
+    if (Math.random() > 0.6) {
+      const referrerId = getRandomItem(influencerIds);
+      voter.referredBy = referrerId;
+      voter.referralDate = new Date(
+        Date.now() - Math.random() * 180 * 24 * 60 * 60 * 1000 // Last 6 months
+      ).toISOString();
+    }
+  }
+});
+
+// Calculate referral stats for each voter
+generatedVoters.forEach(voter => {
+  const referrals = generatedVoters.filter(v => v.referredBy === voter.id);
+  const now = new Date();
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  
+  voter.referralStats = {
+    total: referrals.length,
+    active: referrals.filter(v => v.lastEngagementDate && 
+      new Date(v.lastEngagementDate) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    ).length,
+    thisMonth: referrals.filter(v => v.referralDate && 
+      new Date(v.referralDate) >= thisMonthStart
+    ).length,
+    byLevel: referrals.reduce((acc, v) => {
+      const level = v.supportLevel || "NAO_DEFINIDO";
+      acc[level] = (acc[level] || 0) + 1;
+      return acc;
+    }, {
+      MUITO_FAVORAVEL: 0,
+      FAVORAVEL: 0,
+      NEUTRO: 0,
+      DESFAVORAVEL: 0,
+      MUITO_DESFAVORAVEL: 0,
+      NAO_DEFINIDO: 0,
+    } as Record<SupportLevel, number>),
+  };
+});
+
+export const voters: Voter[] = generatedVoters;
 
 // Export for API client registration
 export default voters;

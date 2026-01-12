@@ -260,6 +260,12 @@ export function VoterDetail({ voter }: VoterDetailProps) {
         <div className="flex items-center gap-2">
           {!isEditing ? (
             <>
+              <Link href={`/voters/${voter.id}/referrals`}>
+                <Button variant="outline" size="sm">
+                  <Users className="mr-2 h-4 w-4" />
+                  Referenciados ({voter.referralStats.total})
+                </Button>
+              </Link>
               <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Editar Informações Adicionais

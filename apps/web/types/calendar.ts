@@ -18,6 +18,16 @@ export type EventStatus =
 
 export type EventPriority = "low" | "medium" | "high" | "urgent";
 
+export type ReminderType = "email" | "sms" | "notification";
+
+export interface EventReminder {
+  id: string;
+  type: ReminderType;
+  minutesBefore: number; // 15, 30, 60, 1440 (1 day), etc.
+  sent: boolean;
+  sentAt?: string;
+}
+
 export interface EventAttendee {
   id: string;
   name: string;
@@ -64,7 +74,9 @@ export interface CalendarEvent {
 
   // Campaign Integration
   campaignId: string;
-  relatedVoters?: string[]; // Voter IDs
+  relatedVoters?: string[]; // Voter IDs (deprecated - use linkedVoters)
+  linkedVoters?: string[]; // Voter IDs linked to this event
+  reminders: EventReminder[]; // Event reminders
   tags: string[];
 
   // Metadata
