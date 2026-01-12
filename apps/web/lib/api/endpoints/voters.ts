@@ -2,7 +2,9 @@ import { apiClient } from "../client";
 import { Voter, VoterFilters, VoterSortOptions } from "@/types/voters";
 import { ApiResponse } from "@/types/api";
 
-export interface GetVotersParams extends VoterFilters, Partial<VoterSortOptions> {
+export interface GetVotersParams
+  extends VoterFilters,
+    Partial<VoterSortOptions> {
   page?: number;
   perPage?: number;
 }
@@ -55,7 +57,10 @@ export const votersApi = {
   /**
    * Update an existing voter
    */
-  update: async (id: string, data: Partial<Voter>): Promise<ApiResponse<Voter>> => {
+  update: async (
+    id: string,
+    data: Partial<Voter>
+  ): Promise<ApiResponse<Voter>> => {
     return apiClient.patch<Voter>(`/voters/${id}`, data);
   },
 
@@ -69,10 +74,15 @@ export const votersApi = {
   /**
    * Bulk delete voters
    */
-  bulkDelete: async (ids: string[]): Promise<ApiResponse<{ success: boolean; count: number }>> => {
+  bulkDelete: async (
+    ids: string[]
+  ): Promise<ApiResponse<{ success: boolean; count: number }>> => {
     // Simulate bulk delete
-    return apiClient.post<{ success: boolean; count: number }>("/voters/bulk-delete", {
-      ids,
-    });
+    return apiClient.post<{ success: boolean; count: number }>(
+      "/voters/bulk-delete",
+      {
+        ids,
+      }
+    );
   },
 };

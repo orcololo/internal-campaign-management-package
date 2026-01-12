@@ -7,7 +7,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import Link from "next/link";
-import { getTags, hasWhatsApp, hasVehicleOwnership } from "@/lib/transformers/voter-transformer";
+import {
+  getTags,
+  hasWhatsApp,
+  hasVehicleOwnership,
+} from "@/lib/transformers/voter-transformer";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -1058,19 +1062,21 @@ export function VoterDetail({ voter }: VoterDetailProps) {
 
                     {(() => {
                       const tags = getTags(voter);
-                      return tags.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium text-muted-foreground">
-                            Tags
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {tags.map((tag) => (
-                              <Badge key={tag} variant="secondary">
-                                {tag}
-                              </Badge>
-                            ))}
+                      return (
+                        tags.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-muted-foreground">
+                              Tags
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {tags.map((tag) => (
+                                <Badge key={tag} variant="secondary">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                        )
                       );
                     })()}
 

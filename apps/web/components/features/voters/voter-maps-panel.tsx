@@ -692,18 +692,20 @@ export function VoterMapsPanel({
 
                       {(() => {
                         const tags = getTags(voter);
-                        return tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5">
-                            {tags.map((tag) => (
-                              <Badge
-                                key={tag}
-                                variant="secondary"
-                                className="text-xs"
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
+                        return (
+                          tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                              {tags.map((tag) => (
+                                <Badge
+                                  key={tag}
+                                  variant="secondary"
+                                  className="text-xs"
+                                >
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          )
                         );
                       })()}
 
@@ -782,23 +784,28 @@ export function VoterMapsPanel({
 
                   {(() => {
                     const tags = getTags(voter);
-                    return tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {tags.slice(0, 2).map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="secondary"
-                            className="text-[10px] h-5"
-                          >
-                            {tag}
-                          </Badge>
-                        ))}
-                        {tags.length > 2 && (
-                          <Badge variant="outline" className="text-[10px] h-5">
-                            +{tags.length - 2}
-                          </Badge>
-                        )}
-                      </div>
+                    return (
+                      tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {tags.slice(0, 2).map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="secondary"
+                              className="text-[10px] h-5"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                          {tags.length > 2 && (
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] h-5"
+                            >
+                              +{tags.length - 2}
+                            </Badge>
+                          )}
+                        </div>
+                      )
                     );
                   })()}
                 </div>

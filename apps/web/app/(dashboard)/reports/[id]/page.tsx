@@ -34,7 +34,11 @@ async function getVoters() {
   }
 }
 
-export default async function ViewReportPage({ params }: { params: { id: string } }) {
+export default async function ViewReportPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const report = savedReports.find((r) => r.id === params.id);
   const voters = await getVoters();
 

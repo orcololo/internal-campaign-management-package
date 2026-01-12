@@ -13,7 +13,7 @@ async function getVoter(id: string) {
     const response = await votersApi.getById(id);
     return response.data;
   } catch (error) {
-    console.error('Error fetching voter:', error);
+    console.error("Error fetching voter:", error);
     return null;
   }
 }

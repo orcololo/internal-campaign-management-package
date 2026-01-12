@@ -381,8 +381,14 @@ export function GeofenceMapView({
       el.style.boxShadow = "0 2px 4px rgba(0,0,0,0.3)";
       el.style.cursor = "pointer";
 
-      const lng = typeof voter.longitude === 'number' ? voter.longitude : parseFloat(voter.longitude);
-      const lat = typeof voter.latitude === 'number' ? voter.latitude : parseFloat(voter.latitude);
+      const lng =
+        typeof voter.longitude === "number"
+          ? voter.longitude
+          : parseFloat(voter.longitude);
+      const lat =
+        typeof voter.latitude === "number"
+          ? voter.latitude
+          : parseFloat(voter.latitude);
 
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat([lng, lat])
@@ -412,8 +418,14 @@ export function GeofenceMapView({
         el.style.border = "1px solid white";
         el.style.opacity = "0.4";
 
-        const lng = typeof voter.longitude === 'number' ? voter.longitude : parseFloat(voter.longitude);
-        const lat = typeof voter.latitude === 'number' ? voter.latitude : parseFloat(voter.latitude);
+        const lng =
+          typeof voter.longitude === "number"
+            ? voter.longitude
+            : parseFloat(voter.longitude);
+        const lat =
+          typeof voter.latitude === "number"
+            ? voter.latitude
+            : parseFloat(voter.latitude);
 
         new maplibregl.Marker({ element: el })
           .setLngLat([lng, lat])

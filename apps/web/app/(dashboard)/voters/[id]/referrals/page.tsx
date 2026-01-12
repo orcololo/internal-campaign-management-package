@@ -89,7 +89,7 @@ export default async function VoterReferralsPage({
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <ReferralLinkGenerator
-            referralCode={voter.referralCode || ''}
+            referralCode={voter.referralCode || ""}
             voterName={voter.name}
           />
         </div>
@@ -109,7 +109,8 @@ export default async function VoterReferralsPage({
                 <span className="text-lg font-bold">
                   {voter.referralStats.total > 0
                     ? Math.round(
-                        (voter.referralStats.active / voter.referralStats.total) *
+                        (voter.referralStats.active /
+                          voter.referralStats.total) *
                           100
                       )
                     : 0}
@@ -125,7 +126,9 @@ export default async function VoterReferralsPage({
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Melhor Mês</span>
+                <span className="text-sm text-muted-foreground">
+                  Melhor Mês
+                </span>
                 <span className="text-lg font-bold">
                   {Math.max(
                     voter.referralStats.thisMonth,
@@ -177,7 +180,11 @@ export default async function VoterReferralsPage({
                   Visualização de árvore de referenciamento em desenvolvimento
                 </p>
                 <p className="text-sm text-muted-foreground mt-2">
-                  {referrals.filter((r) => r.referralStats && r.referralStats.total > 0).length}{" "}
+                  {
+                    referrals.filter(
+                      (r) => r.referralStats && r.referralStats.total > 0
+                    ).length
+                  }{" "}
                   referenciados já estão indicando outras pessoas
                 </p>
               </div>

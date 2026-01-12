@@ -1,7 +1,10 @@
-import { realApiClient } from './real-client';
-import { transformVoter, transformVoters } from '@/lib/transformers/voter-transformer';
-import type { Voter } from '@/types/voters';
-import type { ApiResponse, PaginatedResponse } from '@/types/api';
+import { realApiClient } from "./real-client";
+import {
+  transformVoter,
+  transformVoters,
+} from "@/lib/transformers/voter-transformer";
+import type { Voter } from "@/types/voters";
+import type { ApiResponse, PaginatedResponse } from "@/types/api";
 
 export interface VoterFilters {
   page?: number;
@@ -13,7 +16,7 @@ export interface VoterFilters {
   state?: string;
   ageGroup?: string;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export interface BulkDeleteRequest {
@@ -70,22 +73,27 @@ export interface GeofencePolygonParams {
 
 /**
  * Voters API Client
- * 
+ *
  * Provides methods to interact with the voters backend API
  */
 export const votersApi = {
   /**
    * List voters with pagination and filters
    */
-  async list(filters?: VoterFilters): Promise<ApiResponse<PaginatedResponse<Voter>>> {
-    const response = await realApiClient.get<PaginatedResponse<Voter>>('/voters', {
-      params: filters,
-    });
-    
+  async list(
+    filters?: VoterFilters
+  ): Promise<ApiResponse<PaginatedResponse<Voter>>> {
+    const response = await realApiClient.get<PaginatedResponse<Voter>>(
+      "/voters",
+      {
+        params: filters,
+      }
+    );
+
     if (response.data?.data) {
       response.data.data = transformVoters(response.data.data);
     }
-    
+
     return response;
   },
 
@@ -93,7 +101,7 @@ export const votersApi = {
    * Get voter statistics
    */
   async getStatistics(): Promise<ApiResponse<any>> {
-    return realApiClient.get('/voters/statistics');
+    return realApiClient.get("/voters/statistics");
   },
 
   /**
@@ -101,11 +109,11 @@ export const votersApi = {
    */
   async getById(id: string): Promise<ApiResponse<Voter>> {
     const response = await realApiClient.get<Voter>(`/voters/${id}`);
-    
+
     if (response.data) {
       response.data = transformVoter(response.data);
     }
-    
+
     return response;
   },
 
@@ -113,12 +121,12 @@ export const votersApi = {
    * Create new voter
    */
   async create(data: Partial<Voter>): Promise<ApiResponse<Voter>> {
-    const response = await realApiClient.post<Voter>('/voters', data);
-    
+    const response = await realApiClient.post<Voter>("/voters", data);
+
     if (response.data) {
       response.data = transformVoter(response.data);
     }
-    
+
     return response;
   },
 
@@ -127,11 +135,11 @@ export const votersApi = {
    */
   async update(id: string, data: Partial<Voter>): Promise<ApiResponse<Voter>> {
     const response = await realApiClient.patch<Voter>(`/voters/${id}`, data);
-    
+
     if (response.data) {
       response.data = transformVoter(response.data);
     }
-    
+
     return response;
   },
 
@@ -145,15 +153,19 @@ export const votersApi = {
   /**
    * Bulk delete voters
    */
-  async bulkDelete(ids: string[]): Promise<ApiResponse<{ deleted: number; failed: number; errors: any[] }>> {
-    return realApiClient.post('/voters/bulk/delete', { ids });
+  async bulkDelete(
+    ids: string[]
+  ): Promise<ApiResponse<{ deleted: number; failed: number; errors: any[] }>> {
+    return realApiClient.post("/voters/bulk/delete", { ids });
   },
 
   /**
    * Bulk update voters
    */
-  async bulkUpdate(updates: Array<{ id: string; data: Partial<Voter> }>): Promise<ApiResponse<{ updated: number; failed: number; errors: any[] }>> {
-    return realApiClient.patch('/voters/bulk/update', { updates });
+  async bulkUpdate(
+    updates: Array<{ id: string; data: Partial<Voter> }>
+  ): Promise<ApiResponse<{ updated: number; failed: number; errors: any[] }>> {
+    return realApiClient.patch("/voters/bulk/update", { updates });
   },
 
   /**
@@ -166,7 +178,11 @@ export const votersApi = {
       autoGeocode?: boolean;
     }
   ): Promise<ApiResponse<ImportResult>> {
-    return realApiClient.uploadFile<ImportResult>('/voters/import/csv', file, options);
+    return realApiClient.uploadFile<ImportResult>(
+      "/voters/import/csv",
+      file,
+      options
+    );
   },
 
   /**
@@ -174,7 +190,7 @@ export const votersApi = {
    */
   async exportCsv(filters?: VoterFilters): Promise<void> {
     const params = new URLSearchParams();
-    
+
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -184,9 +200,11 @@ export const votersApi = {
     }
 
     const queryString = params.toString();
-    const endpoint = `/voters/export/csv${queryString ? `?${queryString}` : ''}`;
-    
-    await realApiClient.downloadFile(endpoint, 'voters-export.csv');
+    const endpoint = `/voters/export/csv${
+      queryString ? `?${queryString}` : ""
+    }`;
+
+    await realApiClient.downloadFile(endpoint, "voters-export.csv");
   },
 
   /**
@@ -199,8 +217,12 @@ export const votersApi = {
   /**
    * Batch geocode voters
    */
-  async batchGeocode(limit?: number): Promise<ApiResponse<{ geocoded: number; failed: number }>> {
-    const endpoint = `/voters/location/batch-geocode${limit ? `?limit=${limit}` : ''}`;
+  async batchGeocode(
+    limit?: number
+  ): Promise<ApiResponse<{ geocoded: number; failed: number }>> {
+    const endpoint = `/voters/location/batch-geocode${
+      limit ? `?limit=${limit}` : ""
+    }`;
     return realApiClient.post(endpoint);
   },
 
@@ -214,13 +236,15 @@ export const votersApi = {
       radius: String(params.radius),
       ...(params.limit && { limit: String(params.limit) }),
     });
-    
-    const response = await realApiClient.get<Voter[]>(`/voters/location/nearby?${queryParams}`);
-    
+
+    const response = await realApiClient.get<Voter[]>(
+      `/voters/location/nearby?${queryParams}`
+    );
+
     if (response.data) {
       response.data = transformVoters(response.data);
     }
-    
+
     return response;
   },
 
@@ -228,25 +252,33 @@ export const votersApi = {
    * Find voters in circular geofence
    */
   async findInGeofence(params: GeofenceParams): Promise<ApiResponse<Voter[]>> {
-    const response = await realApiClient.post<Voter[]>('/voters/location/geofence', params);
-    
+    const response = await realApiClient.post<Voter[]>(
+      "/voters/location/geofence",
+      params
+    );
+
     if (response.data) {
       response.data = transformVoters(response.data);
     }
-    
+
     return response;
   },
 
   /**
    * Find voters in polygon geofence
    */
-  async findInPolygon(params: GeofencePolygonParams): Promise<ApiResponse<Voter[]>> {
-    const response = await realApiClient.post<Voter[]>('/voters/location/geofence-polygon', params);
-    
+  async findInPolygon(
+    params: GeofencePolygonParams
+  ): Promise<ApiResponse<Voter[]>> {
+    const response = await realApiClient.post<Voter[]>(
+      "/voters/location/geofence-polygon",
+      params
+    );
+
     if (response.data) {
       response.data = transformVoters(response.data);
     }
-    
+
     return response;
   },
 
@@ -259,18 +291,22 @@ export const votersApi = {
     limit?: number
   ): Promise<ApiResponse<PaginatedResponse<Voter>>> {
     const params = new URLSearchParams();
-    if (page) params.append('page', String(page));
-    if (limit) params.append('limit', String(limit));
-    
+    if (page) params.append("page", String(page));
+    if (limit) params.append("limit", String(limit));
+
     const queryString = params.toString();
-    const endpoint = `/voters/${id}/referrals${queryString ? `?${queryString}` : ''}`;
-    
-    const response = await realApiClient.get<PaginatedResponse<Voter>>(endpoint);
-    
+    const endpoint = `/voters/${id}/referrals${
+      queryString ? `?${queryString}` : ""
+    }`;
+
+    const response = await realApiClient.get<PaginatedResponse<Voter>>(
+      endpoint
+    );
+
     if (response.data?.data) {
       response.data.data = transformVoters(response.data.data);
     }
-    
+
     return response;
   },
 
@@ -284,7 +320,9 @@ export const votersApi = {
   /**
    * Generate referral code
    */
-  async generateReferralCode(id: string): Promise<ApiResponse<{ referralCode: string; referralUrl: string }>> {
+  async generateReferralCode(
+    id: string
+  ): Promise<ApiResponse<{ referralCode: string; referralUrl: string }>> {
     return realApiClient.post(`/voters/${id}/referral-code`);
   },
 
@@ -298,12 +336,15 @@ export const votersApi = {
     phone?: string;
     [key: string]: any;
   }): Promise<ApiResponse<Voter>> {
-    const response = await realApiClient.post<Voter>('/voters/register-referral', data);
-    
+    const response = await realApiClient.post<Voter>(
+      "/voters/register-referral",
+      data
+    );
+
     if (response.data) {
       response.data = transformVoter(response.data);
     }
-    
+
     return response;
   },
 };

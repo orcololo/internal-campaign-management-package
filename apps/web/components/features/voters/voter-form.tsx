@@ -407,7 +407,10 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
     setIsSubmitting(true);
     try {
       if (mode === "edit" && voter) {
-        const updated = await updateVoter(voter.id, finalData as Partial<Voter>);
+        const updated = await updateVoter(
+          voter.id,
+          finalData as Partial<Voter>
+        );
         if (updated) {
           toast.success("Eleitor atualizado com sucesso!");
           router.push("/voters");

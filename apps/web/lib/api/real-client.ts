@@ -1,12 +1,12 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { ApiResponse } from '@/types/api';
+import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import { ApiResponse } from "@/types/api";
 
 // API base URL - defaults to localhost:3001 for development
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 // Use mock data by default for development
 // Set NEXT_PUBLIC_USE_MOCK=false in .env to use real API
-const useMock = process.env.NEXT_PUBLIC_USE_MOCK !== 'false';
+const useMock = process.env.NEXT_PUBLIC_USE_MOCK !== "false";
 
 class RealApiClient {
   private client: AxiosInstance;
@@ -16,7 +16,7 @@ class RealApiClient {
       baseURL: API_BASE_URL,
       timeout: 30000,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -39,20 +39,23 @@ class RealApiClient {
       (error) => {
         if (error.response?.status === 401) {
           // TODO: Redirect to login when auth is implemented
-          console.error('Unauthorized - please login');
+          console.error("Unauthorized - please login");
         }
         return Promise.reject(error);
       }
     );
   }
 
-  async get<T>(endpoint: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async get<T>(
+    endpoint: string,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     try {
       const response = await this.client.get<T>(endpoint, config);
       return {
         data: response.data,
         status: response.status,
-        message: 'Success',
+        message: "Success",
       };
     } catch (error: any) {
       throw this.handleError(error);
@@ -69,7 +72,7 @@ class RealApiClient {
       return {
         data: response.data,
         status: response.status,
-        message: 'Success',
+        message: "Success",
       };
     } catch (error: any) {
       throw this.handleError(error);
@@ -86,7 +89,7 @@ class RealApiClient {
       return {
         data: response.data,
         status: response.status,
-        message: 'Success',
+        message: "Success",
       };
     } catch (error: any) {
       throw this.handleError(error);
@@ -103,20 +106,23 @@ class RealApiClient {
       return {
         data: response.data,
         status: response.status,
-        message: 'Success',
+        message: "Success",
       };
     } catch (error: any) {
       throw this.handleError(error);
     }
   }
 
-  async delete<T>(endpoint: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async delete<T>(
+    endpoint: string,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     try {
       const response = await this.client.delete<T>(endpoint, config);
       return {
         data: response.data,
         status: response.status,
-        message: 'Success',
+        message: "Success",
       };
     } catch (error: any) {
       throw this.handleError(error);
@@ -132,7 +138,7 @@ class RealApiClient {
     additionalData?: Record<string, any>
   ): Promise<ApiResponse<T>> {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     if (additionalData) {
       Object.entries(additionalData).forEach(([key, value]) => {
@@ -143,13 +149,13 @@ class RealApiClient {
     try {
       const response = await this.client.post<T>(endpoint, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
       return {
         data: response.data,
         status: response.status,
-        message: 'Success',
+        message: "Success",
       };
     } catch (error: any) {
       throw this.handleError(error);
@@ -162,16 +168,16 @@ class RealApiClient {
   async downloadFile(endpoint: string, filename?: string): Promise<void> {
     try {
       const response = await this.client.get(endpoint, {
-        responseType: 'blob',
+        responseType: "blob",
       });
 
       // Create download link
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.setAttribute(
-        'download',
-        filename || this.getFilenameFromResponse(response) || 'download'
+        "download",
+        filename || this.getFilenameFromResponse(response) || "download"
       );
       document.body.appendChild(link);
       link.click();
@@ -183,11 +189,13 @@ class RealApiClient {
   }
 
   private getFilenameFromResponse(response: any): string | null {
-    const contentDisposition = response.headers['content-disposition'];
+    const contentDisposition = response.headers["content-disposition"];
     if (contentDisposition) {
-      const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+      const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(
+        contentDisposition
+      );
       if (matches && matches[1]) {
-        return matches[1].replace(/['"]/g, '');
+        return matches[1].replace(/['"]/g, "");
       }
     }
     return null;
@@ -200,10 +208,12 @@ class RealApiClient {
       return new Error(`API Error: ${message}`);
     } else if (error.request) {
       // Request made but no response
-      return new Error('No response from server. Please check your connection.');
+      return new Error(
+        "No response from server. Please check your connection."
+      );
     } else {
       // Something else happened
-      return new Error(error.message || 'An unexpected error occurred');
+      return new Error(error.message || "An unexpected error occurred");
     }
   }
 }

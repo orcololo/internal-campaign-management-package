@@ -27,20 +27,22 @@ export default function VotersPage() {
       );
 
       if (result.errors.length > 0) {
-        console.error('Erros na importação:', result.errors);
-        toast.error(`${result.errors.length} erros encontrados. Verifique o console.`);
+        console.error("Erros na importação:", result.errors);
+        toast.error(
+          `${result.errors.length} erros encontrados. Verifique o console.`
+        );
       }
     }
 
     // Reset file input
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
   const handleExport = async () => {
     await exportCsv();
-    toast.success('Exportação iniciada');
+    toast.success("Exportação iniciada");
   };
 
   return (
@@ -54,8 +56,8 @@ export default function VotersPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={handleExport}
             disabled={isLoading}
@@ -63,8 +65,8 @@ export default function VotersPage() {
             <Download className="mr-2 h-4 w-4" />
             Exportar
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading}

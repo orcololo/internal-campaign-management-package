@@ -1,4 +1,4 @@
-import type { Voter } from '@/types/voters';
+import type { Voter } from "@/types/voters";
 
 /**
  * Transforms voter data from backend format to frontend format
@@ -9,13 +9,13 @@ export function transformVoter(backendVoter: any): Voter {
     // Convert coordinates from string to number if needed
     latitude:
       backendVoter.latitude !== null && backendVoter.latitude !== undefined
-        ? typeof backendVoter.latitude === 'string'
+        ? typeof backendVoter.latitude === "string"
           ? parseFloat(backendVoter.latitude)
           : backendVoter.latitude
         : null,
     longitude:
       backendVoter.longitude !== null && backendVoter.longitude !== undefined
-        ? typeof backendVoter.longitude === 'string'
+        ? typeof backendVoter.longitude === "string"
           ? parseFloat(backendVoter.longitude)
           : backendVoter.longitude
         : null,
@@ -35,20 +35,20 @@ export function transformVoters(backendVoters: any[]): Voter[] {
  * Helper to check if hasWhatsapp is true (handles both boolean and 'SIM'/'NAO')
  */
 export function hasWhatsApp(voter: Voter): boolean {
-  if (typeof voter.hasWhatsapp === 'boolean') {
+  if (typeof voter.hasWhatsapp === "boolean") {
     return voter.hasWhatsapp;
   }
-  return voter.hasWhatsapp === 'SIM';
+  return voter.hasWhatsapp === "SIM";
 }
 
 /**
  * Helper to check if has vehicle ownership (handles both boolean and 'SIM'/'NAO')
  */
 export function hasVehicleOwnership(voter: Voter): boolean {
-  if (typeof voter.vehicleOwnership === 'boolean') {
+  if (typeof voter.vehicleOwnership === "boolean") {
     return voter.vehicleOwnership;
   }
-  return voter.vehicleOwnership === 'SIM';
+  return voter.vehicleOwnership === "SIM";
 }
 
 /**
@@ -69,7 +69,7 @@ export function getTopIssues(voter: Voter): string[] {
  */
 export function getIssuePositions(voter: Voter): Record<string, string> {
   if (!voter.issuePositions) return {};
-  if (typeof voter.issuePositions === 'object') return voter.issuePositions;
+  if (typeof voter.issuePositions === "object") return voter.issuePositions;
   try {
     return JSON.parse(voter.issuePositions);
   } catch {
@@ -106,7 +106,9 @@ export function getEventAttendance(voter: Voter): string[] {
 /**
  * Gets donation history as array (handles both string and array)
  */
-export function getDonationHistory(voter: Voter): Array<{ date: string; amount: number }> {
+export function getDonationHistory(
+  voter: Voter
+): Array<{ date: string; amount: number }> {
   if (!voter.donationHistory) return [];
   if (Array.isArray(voter.donationHistory)) return voter.donationHistory;
   try {
@@ -121,7 +123,7 @@ export function getDonationHistory(voter: Voter): Array<{ date: string; amount: 
  */
 export function getSeasonalActivity(voter: Voter): Record<string, number> {
   if (!voter.seasonalActivity) return {};
-  if (typeof voter.seasonalActivity === 'object') return voter.seasonalActivity;
+  if (typeof voter.seasonalActivity === "object") return voter.seasonalActivity;
   try {
     return JSON.parse(voter.seasonalActivity);
   } catch {

@@ -45,8 +45,7 @@ async function runSeed() {
     const allVoters = await db.select().from(voters).limit(200);
 
     const referralUpdates = allVoters.slice(0, 20).map((voter, index) => {
-      const referrerIndex =
-        Math.floor(Math.random() * (allVoters.length - 20)) + 20;
+      const referrerIndex = Math.floor(Math.random() * (allVoters.length - 20)) + 20;
       return {
         voterId: voter.id,
         referrerId: allVoters[referrerIndex].id,
@@ -72,9 +71,7 @@ async function runSeed() {
     console.log(`   - Total voters: ${macapaVotersSeed.length}`);
     console.log(`   - City: Macapá-AP`);
     console.log(`   - Referral relationships: ${referralUpdates.length}`);
-    console.log(
-      `\n🎯 All voters are located within Macapá-AP with realistic coordinates`,
-    );
+    console.log(`\n🎯 All voters are located within Macapá-AP with realistic coordinates`);
   } catch (error) {
     console.error('❌ Error during seed:', error);
     process.exit(1);

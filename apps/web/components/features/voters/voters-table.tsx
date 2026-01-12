@@ -75,7 +75,7 @@ function getSortIcon(
 
 export function VotersTable({ data: propData }: VotersTableProps) {
   const router = useRouter();
-  
+
   // Use store for data and actions
   const {
     voters: storeVoters,
@@ -97,54 +97,61 @@ export function VotersTable({ data: propData }: VotersTableProps) {
     clearSelection,
     clearError,
   } = useVotersStore();
-  
+
   // Use store data if available, otherwise fallback to props (for backward compatibility)
   const data = propData || storeVoters;
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState<string>("all");
   const [stateFilter, setStateFilter] = useState<string>("all");
   const [supportLevelFilter, setSupportLevelFilter] = useState<string>("all");
-  const [hasWhatsappFilter, setHasWhatsappFilter] = useState<boolean | null>(null);
-  const [hasLocationFilter, setHasLocationFilter] = useState<boolean | null>(null);
+  const [hasWhatsappFilter, setHasWhatsappFilter] = useState<boolean | null>(
+    null
+  );
+  const [hasLocationFilter, setHasLocationFilter] = useState<boolean | null>(
+    null
+  );
 
   const [sortField, setSortField] = useState<VoterSortField>("name");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
-  
+
   // Use local pagination state only if using prop data
   const [localCurrentPage, setLocalCurrentPage] = useState(1);
   const [localItemsPerPage, setLocalItemsPerPage] = useState(10);
-  
+
   // Determine if we're using store or local state
   const usingStore = !propData;
-  const currentPage = usingStore ? (storePage || 1) : localCurrentPage;
-  const itemsPerPage = usingStore ? (storePerPage || 20) : localItemsPerPage;
-  const totalPages = usingStore ? (storeTotalPages || 1) : Math.ceil((data?.length || 0) / itemsPerPage);
-  
+  const currentPage = usingStore ? storePage || 1 : localCurrentPage;
+  const itemsPerPage = usingStore ? storePerPage || 20 : localItemsPerPage;
+  const totalPages = usingStore
+    ? storeTotalPages || 1
+    : Math.ceil((data?.length || 0) / itemsPerPage);
+
   // Fetch voters on mount if using store
   useEffect(() => {
     if (usingStore) {
       fetchVoters({
         page: 1,
         limit: 20,
-        sortBy: 'createdAt',
-        sortOrder: 'desc',
+        sortBy: "createdAt",
+        sortOrder: "desc",
       });
     }
   }, [usingStore, fetchVoters]);
-  
+
   // Update filters in store
   useEffect(() => {
     if (usingStore) {
       const filters: Partial<VoterFilters> = {};
-      
+
       if (searchQuery) filters.search = searchQuery;
-      if (cityFilter !== 'all') filters.city = cityFilter;
-      if (stateFilter !== 'all') filters.state = stateFilter;
-      if (supportLevelFilter !== 'all') filters.supportLevel = supportLevelFilter;
-      
+      if (cityFilter !== "all") filters.city = cityFilter;
+      if (stateFilter !== "all") filters.state = stateFilter;
+      if (supportLevelFilter !== "all")
+        filters.supportLevel = supportLevelFilter;
+
       setFilters(filters);
-      
+
       // Debounce the fetch
       const timeout = setTimeout(() => {
         fetchVoters({
@@ -155,11 +162,22 @@ export function VotersTable({ data: propData }: VotersTableProps) {
           sortOrder,
         });
       }, 300);
-      
+
       return () => clearTimeout(timeout);
     }
-  }, [usingStore, searchQuery, cityFilter, stateFilter, supportLevelFilter, sortField, sortOrder, itemsPerPage, setFilters, fetchVoters]);
-  
+  }, [
+    usingStore,
+    searchQuery,
+    cityFilter,
+    stateFilter,
+    supportLevelFilter,
+    sortField,
+    sortOrder,
+    itemsPerPage,
+    setFilters,
+    fetchVoters,
+  ]);
+
   // Show error toast
   useEffect(() => {
     if (error) {
@@ -170,12 +188,16 @@ export function VotersTable({ data: propData }: VotersTableProps) {
 
   // Extract unique cities and states for filters
   const uniqueCities = useMemo(() => {
-    const cities = Array.from(new Set(data.map((v) => v.city).filter(Boolean))).sort();
+    const cities = Array.from(
+      new Set(data.map((v) => v.city).filter(Boolean))
+    ).sort();
     return cities;
   }, [data]);
 
   const uniqueStates = useMemo(() => {
-    const states = Array.from(new Set(data.map((v) => v.state).filter(Boolean))).sort();
+    const states = Array.from(
+      new Set(data.map((v) => v.state).filter(Boolean))
+    ).sort();
     return states;
   }, [data]);
 
@@ -185,7 +207,7 @@ export function VotersTable({ data: propData }: VotersTableProps) {
     if (usingStore) {
       return data;
     }
-    
+
     // Otherwise, do client-side filtering
     let result = [...data];
 
@@ -213,12 +235,16 @@ export function VotersTable({ data: propData }: VotersTableProps) {
 
     // Apply support level filter
     if (supportLevelFilter !== "all") {
-      result = result.filter((voter) => voter.supportLevel === supportLevelFilter);
+      result = result.filter(
+        (voter) => voter.supportLevel === supportLevelFilter
+      );
     }
 
     // Apply WhatsApp filter
     if (hasWhatsappFilter !== null) {
-      result = result.filter((voter) => voter.hasWhatsapp === hasWhatsappFilter);
+      result = result.filter(
+        (voter) => voter.hasWhatsapp === hasWhatsappFilter
+      );
     }
 
     // Apply location filter
@@ -257,7 +283,8 @@ export function VotersTable({ data: propData }: VotersTableProps) {
             (levels[b.supportLevel || "NAO_DEFINIDO"] || 0);
           break;
         case "createdAt":
-          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          comparison =
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
           break;
       }
       return sortOrder === "asc" ? comparison : -comparison;
@@ -276,13 +303,13 @@ export function VotersTable({ data: propData }: VotersTableProps) {
     sortField,
     sortOrder,
   ]);
-  
+
   const paginatedVoters = useMemo(() => {
     // If using store, data is already paginated
     if (usingStore) {
       return filteredAndSortedVoters;
     }
-    
+
     // Otherwise, paginate locally
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredAndSortedVoters.slice(startIndex, startIndex + itemsPerPage);
@@ -295,18 +322,20 @@ export function VotersTable({ data: propData }: VotersTableProps) {
       setSortField(field);
       setSortOrder("asc");
     }
-    
+
     // If using store, trigger refetch with new sort
     if (usingStore) {
       fetchVoters({
         search: searchQuery || undefined,
-        city: cityFilter !== 'all' ? cityFilter : undefined,
-        state: stateFilter !== 'all' ? stateFilter : undefined,
-        supportLevel: supportLevelFilter !== 'all' ? supportLevelFilter : undefined,
+        city: cityFilter !== "all" ? cityFilter : undefined,
+        state: stateFilter !== "all" ? stateFilter : undefined,
+        supportLevel:
+          supportLevelFilter !== "all" ? supportLevelFilter : undefined,
         page: currentPage,
         limit: itemsPerPage,
         sortBy: field,
-        sortOrder: sortField === field ? (sortOrder === "asc" ? "desc" : "asc") : "asc",
+        sortOrder:
+          sortField === field ? (sortOrder === "asc" ? "desc" : "asc") : "asc",
       });
     }
   };
@@ -375,47 +404,48 @@ export function VotersTable({ data: propData }: VotersTableProps) {
       setSelectedIds([]);
     }
   };
-  
+
   // Handle delete voter
   const handleDeleteVoter = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this voter?')) return;
-    
+    if (!confirm("Are you sure you want to delete this voter?")) return;
+
     if (usingStore) {
       const success = await deleteVoter(id);
       if (success) {
-        toast.success('Voter deleted successfully');
+        toast.success("Voter deleted successfully");
       }
     } else {
-      toast.error('Delete not available in offline mode');
+      toast.error("Delete not available in offline mode");
     }
   };
-  
+
   // Handle bulk delete
   const handleBulkDelete = async () => {
     if (!confirm(`Delete ${selectedIds.length} voters?`)) return;
-    
+
     if (usingStore) {
       const success = await bulkDelete(selectedIds);
       if (success) {
         toast.success(`${selectedIds.length} voters deleted`);
       }
     } else {
-      toast.error('Bulk delete not available in offline mode');
+      toast.error("Bulk delete not available in offline mode");
     }
   };
-  
+
   // Handle export
   const handleExport = async () => {
     if (usingStore) {
       await exportCsv({
         search: searchQuery || undefined,
-        city: cityFilter !== 'all' ? cityFilter : undefined,
-        state: stateFilter !== 'all' ? stateFilter : undefined,
-        supportLevel: supportLevelFilter !== 'all' ? supportLevelFilter : undefined,
+        city: cityFilter !== "all" ? cityFilter : undefined,
+        state: stateFilter !== "all" ? stateFilter : undefined,
+        supportLevel:
+          supportLevelFilter !== "all" ? supportLevelFilter : undefined,
       });
-      toast.success('Export started');
+      toast.success("Export started");
     } else {
-      toast.error('Export not available in offline mode');
+      toast.error("Export not available in offline mode");
     }
   };
 
@@ -503,7 +533,9 @@ export function VotersTable({ data: propData }: VotersTableProps) {
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
                       checked={supportLevelFilter === "MUITO_FAVORAVEL"}
-                      onCheckedChange={() => setSupportLevelFilter("MUITO_FAVORAVEL")}
+                      onCheckedChange={() =>
+                        setSupportLevelFilter("MUITO_FAVORAVEL")
+                      }
                     >
                       Muito Favorável
                     </DropdownMenuCheckboxItem>
@@ -521,13 +553,17 @@ export function VotersTable({ data: propData }: VotersTableProps) {
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
                       checked={supportLevelFilter === "DESFAVORAVEL"}
-                      onCheckedChange={() => setSupportLevelFilter("DESFAVORAVEL")}
+                      onCheckedChange={() =>
+                        setSupportLevelFilter("DESFAVORAVEL")
+                      }
                     >
                       Desfavorável
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
                       checked={supportLevelFilter === "MUITO_DESFAVORAVEL"}
-                      onCheckedChange={() => setSupportLevelFilter("MUITO_DESFAVORAVEL")}
+                      onCheckedChange={() =>
+                        setSupportLevelFilter("MUITO_DESFAVORAVEL")
+                      }
                     >
                       Muito Desfavorável
                     </DropdownMenuCheckboxItem>
@@ -557,20 +593,26 @@ export function VotersTable({ data: propData }: VotersTableProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
                 <DropdownMenuItem onClick={() => toggleSort("name")}>
-                  Nome {sortField === "name" && (sortOrder === "asc" ? "↑" : "↓")}
+                  Nome{" "}
+                  {sortField === "name" && (sortOrder === "asc" ? "↑" : "↓")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => toggleSort("email")}>
-                  Email {sortField === "email" && (sortOrder === "asc" ? "↑" : "↓")}
+                  Email{" "}
+                  {sortField === "email" && (sortOrder === "asc" ? "↑" : "↓")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => toggleSort("city")}>
-                  Cidade {sortField === "city" && (sortOrder === "asc" ? "↑" : "↓")}
+                  Cidade{" "}
+                  {sortField === "city" && (sortOrder === "asc" ? "↑" : "↓")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => toggleSort("supportLevel")}>
                   Apoio{" "}
-                  {sortField === "supportLevel" && (sortOrder === "asc" ? "↑" : "↓")}
+                  {sortField === "supportLevel" &&
+                    (sortOrder === "asc" ? "↑" : "↓")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => toggleSort("createdAt")}>
-                  Data {sortField === "createdAt" && (sortOrder === "asc" ? "↑" : "↓")}
+                  Data{" "}
+                  {sortField === "createdAt" &&
+                    (sortOrder === "asc" ? "↑" : "↓")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -594,7 +636,7 @@ export function VotersTable({ data: propData }: VotersTableProps) {
               <span>Delete {selectedIds.length}</span>
             </Button>
           )}
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -653,7 +695,9 @@ export function VotersTable({ data: propData }: VotersTableProps) {
           className="h-8 gap-1.5 bg-muted/50 border-border/50"
         >
           <SlidersHorizontal className="size-3.5" />
-          {hasActiveFilters && <span className="size-1.5 rounded-full bg-primary" />}
+          {hasActiveFilters && (
+            <span className="size-1.5 rounded-full bg-primary" />
+          )}
         </Button>
       </div>
 
@@ -750,119 +794,127 @@ export function VotersTable({ data: propData }: VotersTableProps) {
               ))
             ) : paginatedVoters.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-8 text-muted-foreground"
+                >
                   No voters found. Try adjusting your filters.
                 </TableCell>
               </TableRow>
             ) : (
               paginatedVoters.map((voter) => (
-              <TableRow
-                key={voter.id}
-                className="border-border/50 cursor-pointer hover:bg-muted/50"
-                onClick={() => router.push(`/voters/${voter.id}`)}
-              >
-                <TableCell>
-                  <div
-                    className="flex items-center gap-2.5"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Checkbox
-                      checked={selectedIds.includes(voter.id)}
-                      onCheckedChange={() => handleToggleSelectVoter(voter.id)}
-                      className="border-border/50 bg-background/70"
-                    />
-                    <Avatar className="size-6">
-                      <AvatarFallback className="text-xs">
-                        {voter.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()
-                          .slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="font-medium text-sm">{voter.name}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="max-w-[180px]">
-                  <span className="text-sm truncate block">
-                    {voter.email || "-"}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm whitespace-nowrap">
-                      {voter.phone || "-"}
+                <TableRow
+                  key={voter.id}
+                  className="border-border/50 cursor-pointer hover:bg-muted/50"
+                  onClick={() => router.push(`/voters/${voter.id}`)}
+                >
+                  <TableCell>
+                    <div
+                      className="flex items-center gap-2.5"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Checkbox
+                        checked={selectedIds.includes(voter.id)}
+                        onCheckedChange={() =>
+                          handleToggleSelectVoter(voter.id)
+                        }
+                        className="border-border/50 bg-background/70"
+                      />
+                      <Avatar className="size-6">
+                        <AvatarFallback className="text-xs">
+                          {voter.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase()
+                            .slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="font-medium text-sm">{voter.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="max-w-[180px]">
+                    <span className="text-sm truncate block">
+                      {voter.email || "-"}
                     </span>
-                    <WhatsAppBadge hasWhatsapp={voter.hasWhatsapp} />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-col">
-                    <span className="text-sm">
-                      {voter.city}, {voter.state}
-                    </span>
-                    {(voter.latitude || voter.longitude) && (
-                      <span className="text-xs text-muted-foreground">
-                        Com localização
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm whitespace-nowrap">
+                        {voter.phone || "-"}
                       </span>
+                      <WhatsAppBadge hasWhatsapp={voter.hasWhatsapp} />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="text-sm">
+                        {voter.city}, {voter.state}
+                      </span>
+                      {(voter.latitude || voter.longitude) && (
+                        <span className="text-xs text-muted-foreground">
+                          Com localização
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {voter.supportLevel && (
+                      <SupportLevelBadge level={voter.supportLevel} />
                     )}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {voter.supportLevel && (
-                    <SupportLevelBadge level={voter.supportLevel} />
-                  )}
-                </TableCell>
-                <TableCell>
-                  <span className="text-sm">
-                    {voter.electoralZone && voter.electoralSection
-                      ? `${voter.electoralZone}/${voter.electoralSection}`
-                      : "-"}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                      <Button variant="ghost" size="icon" className="size-8">
-                        <MoreHorizontal className="size-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/voters/${voter.id}`);
-                        }}
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm">
+                      {voter.electoralZone && voter.electoralSection
+                        ? `${voter.electoralZone}/${voter.electoralSection}`
+                        : "-"}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        asChild
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <Eye className="size-4 mr-2" />
-                        Ver detalhes
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/voters/${voter.id}/edit`);
-                        }}
-                      >
-                        <Edit className="size-4 mr-2" />
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-destructive focus:text-destructive"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteVoter(voter.id);
-                        }}
-                      >
-                        <Trash2 className="size-4 mr-2" />
-                        Deletar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))
+                        <Button variant="ghost" size="icon" className="size-8">
+                          <MoreHorizontal className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/voters/${voter.id}`);
+                          }}
+                        >
+                          <Eye className="size-4 mr-2" />
+                          Ver detalhes
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/voters/${voter.id}/edit`);
+                          }}
+                        >
+                          <Edit className="size-4 mr-2" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteVoter(voter.id);
+                          }}
+                        >
+                          <Trash2 className="size-4 mr-2" />
+                          Deletar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
@@ -873,8 +925,15 @@ export function VotersTable({ data: propData }: VotersTableProps) {
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>
             Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
-            {Math.min(currentPage * itemsPerPage, usingStore ? storeVoters.length : filteredAndSortedVoters.length)} de{" "}
-            {usingStore ? totalPages * itemsPerPage : filteredAndSortedVoters.length} eleitores
+            {Math.min(
+              currentPage * itemsPerPage,
+              usingStore ? storeVoters.length : filteredAndSortedVoters.length
+            )}{" "}
+            de{" "}
+            {usingStore
+              ? totalPages * itemsPerPage
+              : filteredAndSortedVoters.length}{" "}
+            eleitores
           </span>
           <div className="h-4 w-px bg-border hidden sm:block" />
           <div className="flex items-center gap-2">
