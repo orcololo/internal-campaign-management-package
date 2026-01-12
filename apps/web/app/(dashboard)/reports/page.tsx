@@ -3,4 +3,3 @@ import { ReportsPageClient } from "@/components/features/reports/reports-page-cl
 export default function ReportsPage() {
   return <ReportsPageClient />;
 }
-

@@ -49,9 +49,7 @@ export class SavedReportsService {
 
     // Build WHERE conditions
     // TODO: Add createdBy filter when users table is populated (Phase 10)
-    const whereConditions: any[] = [
-      isNull(savedReports.deletedAt),
-    ];
+    const whereConditions: any[] = [isNull(savedReports.deletedAt)];
 
     if (search) {
       whereConditions.push(
@@ -101,12 +99,7 @@ export class SavedReportsService {
     const [report] = await db
       .select()
       .from(savedReports)
-      .where(
-        and(
-          eq(savedReports.id, id),
-          isNull(savedReports.deletedAt),
-        ),
-      );
+      .where(and(eq(savedReports.id, id), isNull(savedReports.deletedAt)));
 
     if (!report) {
       throw new NotFoundException(`Report #${id} not found`);

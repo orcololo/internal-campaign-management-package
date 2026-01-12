@@ -87,9 +87,7 @@ export const reportsApi = {
   /**
    * Create a new saved report
    */
-  async createReport(
-    data: CreateReportDto
-  ): Promise<ApiResponse<SavedReport>> {
+  async createReport(data: CreateReportDto): Promise<ApiResponse<SavedReport>> {
     return apiClient.post<SavedReport>("/reports", data);
   },
 

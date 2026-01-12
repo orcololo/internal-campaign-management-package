@@ -60,7 +60,7 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
     try {
       const response = await reportsApi.fetchReports(filters);
       const reports = Array.isArray(response.data) ? response.data : [];
-      
+
       // Convert date strings to Date objects
       const normalizedReports = reports.map((r) => ({
         ...r,
@@ -68,7 +68,7 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
         updatedAt: new Date(r.updatedAt),
         lastUsedAt: r.lastUsedAt ? new Date(r.lastUsedAt) : undefined,
       }));
-      
+
       set({ savedReports: normalizedReports, isLoading: false });
     } catch (error: any) {
       const errorMsg = error.message || "Failed to fetch reports";

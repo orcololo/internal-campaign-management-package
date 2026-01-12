@@ -69,18 +69,19 @@ export function ReportsPageClient() {
     (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
   );
 
-  const mostUsedCount = savedReports.length > 0
-    ? Math.max(...savedReports.map((r) => r.usageCount))
-    : 0;
+  const mostUsedCount =
+    savedReports.length > 0
+      ? Math.max(...savedReports.map((r) => r.usageCount))
+      : 0;
 
-  const mostUsedReport = savedReports.length > 0
-    ? savedReports.sort((a, b) => b.usageCount - a.usageCount)[0]
-    : null;
+  const mostUsedReport =
+    savedReports.length > 0
+      ? savedReports.sort((a, b) => b.usageCount - a.usageCount)[0]
+      : null;
 
   const reportsUsedToday = savedReports.filter(
     (r) =>
-      r.lastUsedAt &&
-      r.lastUsedAt.toDateString() === new Date().toDateString()
+      r.lastUsedAt && r.lastUsedAt.toDateString() === new Date().toDateString()
   ).length;
 
   return (
