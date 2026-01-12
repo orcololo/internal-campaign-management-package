@@ -109,10 +109,7 @@ export class ReportsController {
     status: 404,
     description: 'Report not found',
   })
-  findOne(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.savedReportsService.findOne(id, userId);
   }
 
@@ -126,11 +123,7 @@ export class ReportsController {
     status: 404,
     description: 'Report not found',
   })
-  update(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-    @Body() dto: UpdateReportDto,
-  ) {
+  update(@Param('id') id: string, @CurrentUser('id') userId: string, @Body() dto: UpdateReportDto) {
     return this.savedReportsService.update(id, userId, dto);
   }
 
@@ -144,10 +137,7 @@ export class ReportsController {
     status: 404,
     description: 'Report not found',
   })
-  async remove(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
     await this.savedReportsService.remove(id, userId);
     return { message: 'Report deleted successfully' };
   }
@@ -180,10 +170,7 @@ export class ReportsController {
     status: 404,
     description: 'Report not found',
   })
-  executeReport(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  executeReport(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.reportsService.executeReport(id, userId);
   }
 
@@ -197,10 +184,7 @@ export class ReportsController {
     status: 404,
     description: 'Report not found',
   })
-  getSummary(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  getSummary(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.reportsService.getReportSummary(id, userId);
   }
 
@@ -214,10 +198,7 @@ export class ReportsController {
     status: 404,
     description: 'Report not found',
   })
-  async validateReport(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async validateReport(@Param('id') id: string, @CurrentUser('id') userId: string) {
     const report = await this.savedReportsService.findOne(id, userId);
     return this.reportsService.validateReport(report);
   }
@@ -272,17 +253,19 @@ export class ReportsController {
       case ExportFormat.PDF:
         const pdfSummary = dto.includeSummary ? summary : null;
         const columns = reportResult.data.length > 0 ? Object.keys(reportResult.data[0]) : [];
-        
+
         fileBuffer = await this.pdfGenerator.generate({
           reportName: reportResult.report.name,
           description: reportResult.report.description || undefined,
           data: reportResult.data,
           columns,
-          summary: pdfSummary ? {
-            total: pdfSummary.summary.total,
-            supportLevel: pdfSummary.summary.supportLevelBreakdown,
-            cityBreakdown: pdfSummary.summary.cityBreakdown,
-          } : undefined,
+          summary: pdfSummary
+            ? {
+                total: pdfSummary.summary.total,
+                supportLevel: pdfSummary.summary.supportLevelBreakdown,
+                cityBreakdown: pdfSummary.summary.cityBreakdown,
+              }
+            : undefined,
           generatedBy: 'Sistema',
         });
         fileName = `${reportResult.report.name}_${Date.now()}.pdf`;
@@ -329,10 +312,7 @@ export class ReportsController {
     status: 404,
     description: 'Job not found',
   })
-  async getExportStatus(
-    @Param('jobId') jobId: string,
-    @Res() res: Response,
-  ) {
+  async getExportStatus(@Param('jobId') jobId: string, @Res() res: Response) {
     const job = await this.exportQueue.getJob(jobId);
 
     if (!job) {
@@ -348,7 +328,7 @@ export class ReportsController {
     // If job is completed, check if we have the result
     if (state === 'completed') {
       const result: ExportJobResult = job.returnvalue;
-      
+
       if (result && result.fileBuffer) {
         // Return download info
         return res.status(HttpStatus.OK).json({
@@ -384,10 +364,7 @@ export class ReportsController {
     status: 404,
     description: 'Job not found or not completed',
   })
-  async downloadExport(
-    @Param('jobId') jobId: string,
-    @Res() res: Response,
-  ) {
+  async downloadExport(@Param('jobId') jobId: string, @Res() res: Response) {
     const job = await this.exportQueue.getJob(jobId);
 
     if (!job) {

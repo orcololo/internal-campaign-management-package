@@ -46,7 +46,9 @@ export class ExcelGeneratorService {
 
       // Add title if provided
       if (options.title) {
-        worksheet.mergeCells(`A${currentRow}:${this.getColumnLetter(options.columns.length)}${currentRow}`);
+        worksheet.mergeCells(
+          `A${currentRow}:${this.getColumnLetter(options.columns.length)}${currentRow}`,
+        );
         const titleCell = worksheet.getCell(`A${currentRow}`);
         titleCell.value = options.title;
         titleCell.font = { size: 16, bold: true, color: { argb: 'FF1E40AF' } };
@@ -62,7 +64,9 @@ export class ExcelGeneratorService {
 
       // Add summary section if provided
       if (options.includeSummary && options.summary) {
-        worksheet.mergeCells(`A${currentRow}:${this.getColumnLetter(options.columns.length)}${currentRow}`);
+        worksheet.mergeCells(
+          `A${currentRow}:${this.getColumnLetter(options.columns.length)}${currentRow}`,
+        );
         const summaryHeaderCell = worksheet.getCell(`A${currentRow}`);
         summaryHeaderCell.value = 'Resumo';
         summaryHeaderCell.font = { size: 12, bold: true };
@@ -155,9 +159,7 @@ export class ExcelGeneratorService {
       const buffer = await workbook.xlsx.writeBuffer();
       return Buffer.from(buffer);
     } catch (error) {
-      throw new InternalServerErrorException(
-        `Failed to generate Excel: ${error.message}`,
-      );
+      throw new InternalServerErrorException(`Failed to generate Excel: ${error.message}`);
     }
   }
 

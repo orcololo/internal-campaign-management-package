@@ -8,6 +8,7 @@
 ## Overview
 
 Phase 2 adds comprehensive export capabilities to the Reports module with:
+
 - **3 export formats**: PDF, CSV, Excel
 - **Background processing**: Bull queue for large exports (>5000 records)
 - **Immediate exports**: Small datasets generated synchronously
@@ -21,9 +22,11 @@ Phase 2 adds comprehensive export capabilities to the Reports module with:
 ### Export Services (3 files)
 
 #### 1. PDF Generator Service
+
 **Location:** `apps/api/src/reports/export/pdf-generator.service.ts` (160 lines)
 
 **Features:**
+
 - Puppeteer-based PDF generation
 - Handlebars templating system
 - Professional styling with colors, borders, headers
@@ -32,15 +35,18 @@ Phase 2 adds comprehensive export capabilities to the Reports module with:
 - Custom HTML support
 
 **Key Methods:**
+
 ```typescript
 generate(options: PdfGenerationOptions): Promise<Buffer>
 generateFromHtml(html: string): Promise<Buffer>
 ```
 
-#### 2. CSV Generator Service  
+#### 2. CSV Generator Service
+
 **Location:** `apps/api/src/reports/export/csv-generator.service.ts` (140 lines)
 
 **Features:**
+
 - UTF-8 BOM for Excel compatibility
 - Brazilian delimiter (semicolon) by default
 - Auto-detect columns from data
@@ -48,6 +54,7 @@ generateFromHtml(html: string): Promise<Buffer>
 - Temporary file handling
 
 **Key Methods:**
+
 ```typescript
 generate(options: CsvGenerationOptions): Promise<Buffer>
 generateFromObjects(data: any[], columnTitles?: Record<string, string>): Promise<Buffer>
@@ -55,9 +62,11 @@ generateWithOptions(data: any[], options: {...}): Promise<Buffer>
 ```
 
 #### 3. Excel Generator Service
+
 **Location:** `apps/api/src/reports/export/excel-generator.service.ts` (215 lines)
 
 **Features:**
+
 - ExcelJS for rich formatting
 - Header styling (bold, colored, white text on blue background)
 - Alternating row colors
@@ -68,6 +77,7 @@ generateWithOptions(data: any[], options: {...}): Promise<Buffer>
 - Summary section support
 
 **Key Methods:**
+
 ```typescript
 generate(options: ExcelGenerationOptions): Promise<Buffer>
 generateFromObjects(data: any[], options?: {...}): Promise<Buffer>
@@ -76,9 +86,11 @@ generateFromObjects(data: any[], options?: {...}): Promise<Buffer>
 ### Template (1 file)
 
 #### 4. Handlebars Template
+
 **Location:** `apps/api/src/reports/templates/report-template.hbs` (240 lines)
 
 **Features:**
+
 - Responsive HTML/CSS layout
 - Header with title and description
 - Metadata section (generation date, record count, user)
@@ -91,9 +103,11 @@ generateFromObjects(data: any[], options?: {...}): Promise<Buffer>
 ### Queue Processing (1 file)
 
 #### 5. Export Report Processor
+
 **Location:** `apps/api/src/reports/processors/export-report.processor.ts` (170 lines)
 
 **Features:**
+
 - Bull queue processor (`@Processor('export-report')`)
 - Job progress tracking (0% → 100%)
 - Format-specific generation (PDF, CSV, Excel)
@@ -101,6 +115,7 @@ generateFromObjects(data: any[], options?: {...}): Promise<Buffer>
 - Job result with file buffer
 
 **Process Flow:**
+
 1. Receive job (10% progress)
 2. Execute report query (40% progress)
 3. Get summary statistics (50% progress)
@@ -110,13 +125,14 @@ generateFromObjects(data: any[], options?: {...}): Promise<Buffer>
 ### DTOs (1 file)
 
 #### 6. Export Report DTO
+
 **Location:** `apps/api/src/reports/dto/export-report.dto.ts` (35 lines)
 
 ```typescript
 export enum ExportFormat {
-  PDF = 'pdf',
-  CSV = 'csv',
-  EXCEL = 'excel',
+  PDF = "pdf",
+  CSV = "csv",
+  EXCEL = "excel",
 }
 
 export class ExportReportDto {
@@ -136,14 +152,17 @@ export class ExportReportDto {
 ### Updated Files (2 files)
 
 #### 7. Reports Controller (Updated)
+
 **Location:** `apps/api/src/reports/reports.controller.ts`
 
 **New Endpoints:**
+
 - `POST /reports/:id/export` - Generate export (immediate or queued)
 - `GET /reports/exports/:jobId/status` - Check job status
 - `GET /reports/exports/:jobId/download` - Download completed export
 
 **Threshold Logic:**
+
 ```typescript
 private readonly EXPORT_THRESHOLD = 5000;
 
@@ -159,9 +178,11 @@ res.send(fileBuffer);
 ```
 
 #### 8. Reports Module (Updated)
+
 **Location:** `apps/api/src/reports/reports.module.ts`
 
 **Bull Configuration:**
+
 ```typescript
 BullModule.forRootAsync({
   imports: [ConfigModule],
@@ -180,6 +201,7 @@ BullModule.registerQueue({ name: 'export-report' }),
 ```
 
 **New Providers:**
+
 - PdfGeneratorService
 - CsvGeneratorService
 - ExcelGeneratorService
@@ -190,18 +212,21 @@ BullModule.registerQueue({ name: 'export-report' }),
 ## API Endpoints
 
 ### Export Report
+
 **POST** `/reports/:id/export`
 
 **Request Body:**
+
 ```json
 {
-  "format": "pdf",          // "pdf" | "csv" | "excel"
-  "includeSummary": true,   // Optional, default: true
-  "includeFilters": true    // Optional, default: true (Excel only)
+  "format": "pdf", // "pdf" | "csv" | "excel"
+  "includeSummary": true, // Optional, default: true
+  "includeFilters": true // Optional, default: true (Excel only)
 }
 ```
 
 **Response (Small Dataset - Immediate):**
+
 ```
 HTTP 200 OK
 Content-Type: application/pdf
@@ -211,6 +236,7 @@ Content-Disposition: attachment; filename="report_name_1234567890.pdf"
 ```
 
 **Response (Large Dataset - Queued):**
+
 ```json
 {
   "message": "Export job queued successfully",
@@ -222,9 +248,11 @@ Content-Disposition: attachment; filename="report_name_1234567890.pdf"
 ```
 
 ### Check Job Status
+
 **GET** `/reports/exports/:jobId/status`
 
 **Response (In Progress):**
+
 ```json
 {
   "status": "active",
@@ -240,6 +268,7 @@ Content-Disposition: attachment; filename="report_name_1234567890.pdf"
 ```
 
 **Response (Completed):**
+
 ```json
 {
   "status": "completed",
@@ -255,9 +284,11 @@ Content-Disposition: attachment; filename="report_name_1234567890.pdf"
 ```
 
 ### Download Export
+
 **GET** `/reports/exports/:jobId/download`
 
 **Response:**
+
 ```
 HTTP 200 OK
 Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
@@ -293,18 +324,20 @@ Content-Disposition: attachment; filename="report_name_1705012800000.xlsx"
 **Using External Redis** (not Docker)
 
 **.env:**
+
 ```bash
 REDIS_URL="redis://default:password@host:14162"
 ```
 
 **Module Configuration:**
+
 ```typescript
 BullModule.forRootAsync({
   useFactory: async (configService: ConfigService) => ({
-    redis: configService.get<string>('REDIS_URL'),
+    redis: configService.get<string>("REDIS_URL"),
     // ...
   }),
-})
+});
 ```
 
 **No docker-compose changes needed** - using cloud Redis instance.
@@ -314,6 +347,7 @@ BullModule.forRootAsync({
 ## Usage Examples
 
 ### Export as PDF (Immediate)
+
 ```bash
 curl -X POST http://localhost:3001/reports/abc-123/export \
   -H "Content-Type: application/json" \
@@ -325,6 +359,7 @@ curl -X POST http://localhost:3001/reports/abc-123/export \
 ```
 
 ### Export as Excel (Large - Queued)
+
 ```bash
 # 1. Request export
 curl -X POST http://localhost:3001/reports/abc-123/export \
@@ -347,6 +382,7 @@ curl http://localhost:3001/reports/exports/67890/download \
 ```
 
 ### Export as CSV
+
 ```bash
 curl -X POST http://localhost:3001/reports/abc-123/export \
   -H "Content-Type: application/json" \
@@ -361,6 +397,7 @@ curl -X POST http://localhost:3001/reports/abc-123/export \
 ## Export Features by Format
 
 ### PDF Export
+
 - ✅ Professional template with company branding
 - ✅ Summary statistics section
 - ✅ Metadata header (date, user, record count)
@@ -370,6 +407,7 @@ curl -X POST http://localhost:3001/reports/abc-123/export \
 - ✅ Print-optimized styling
 
 ### CSV Export
+
 - ✅ UTF-8 BOM for Excel compatibility
 - ✅ Brazilian delimiter (`;`) by default
 - ✅ Proper encoding for special characters (ç, ã, õ, etc.)
@@ -377,6 +415,7 @@ curl -X POST http://localhost:3001/reports/abc-123/export \
 - ✅ Custom column titles support
 
 ### Excel Export
+
 - ✅ Professional styling
   - Bold, white text on blue background for headers
   - Alternating row colors (white/light gray)
@@ -392,14 +431,16 @@ curl -X POST http://localhost:3001/reports/abc-123/export \
 ## Background Processing (Bull Queue)
 
 ### Queue Configuration
+
 - **Queue Name:** `export-report`
 - **Redis:** External cloud instance (not Docker)
 - **Job Retention:** Keep completed and failed jobs
 - **Retry Logic:** 3 attempts with exponential backoff (2s, 4s, 8s)
 
 ### Threshold Logic
+
 ```typescript
-EXPORT_THRESHOLD = 5000 // records
+EXPORT_THRESHOLD = 5000; // records
 
 if (recordCount > 5000) {
   // Queue job (returns immediately with jobId)
@@ -411,12 +452,14 @@ if (recordCount > 5000) {
 ```
 
 ### Job Lifecycle
+
 1. **Queued** - Job added to queue, waiting for worker
 2. **Active** - Worker processing job (progress: 10-100%)
 3. **Completed** - File generated, ready for download
 4. **Failed** - Error occurred (check `failedReason`)
 
 ### Progress Tracking
+
 - **10%** - Job received, starting
 - **40%** - Report data fetched
 - **50%** - Summary statistics calculated
@@ -427,6 +470,7 @@ if (recordCount > 5000) {
 ## File Output Examples
 
 ### PDF Output Structure
+
 ```
 ┌─────────────────────────────────────┐
 │     Relatório de Eleitores          │  (Title - Large, Blue)
@@ -448,6 +492,7 @@ if (recordCount > 5000) {
 ```
 
 ### Excel Output Structure
+
 ```
 ┌─────────────────────────────────────────────────┐
 │            Relatório de Eleitores               │ (Title - Merged, Centered, Blue BG)
@@ -465,6 +510,7 @@ if (recordCount > 5000) {
 ```
 
 ### CSV Output Structure
+
 ```csv
 Nome;Cidade;Apoio;Email
 João Silva;São Paulo;Alto;joao@mail.com
@@ -477,6 +523,7 @@ Pedro Oliveira;Belo Horizonte;Alto;pedro@mail.com
 ## Testing Checklist
 
 ### ✅ Compilation
+
 - [x] No TypeScript errors
 - [x] All imports resolved
 - [x] Type safety maintained
@@ -484,6 +531,7 @@ Pedro Oliveira;Belo Horizonte;Alto;pedro@mail.com
 ### Manual Testing Required
 
 #### PDF Export
+
 - [ ] Small dataset (<5000) - immediate download
 - [ ] Large dataset (>5000) - job queued
 - [ ] Summary section displays correctly
@@ -493,6 +541,7 @@ Pedro Oliveira;Belo Horizonte;Alto;pedro@mail.com
 - [ ] Footer appears on all pages
 
 #### CSV Export
+
 - [ ] Opens correctly in Excel (no encoding issues)
 - [ ] Semicolon delimiter works in Brazilian Excel
 - [ ] Special characters preserved
@@ -500,6 +549,7 @@ Pedro Oliveira;Belo Horizonte;Alto;pedro@mail.com
 - [ ] Empty dataset handled gracefully
 
 #### Excel Export
+
 - [ ] Header styling applied (blue background, white text)
 - [ ] Alternating row colors visible
 - [ ] Auto-filter works (dropdown arrows on headers)
@@ -509,6 +559,7 @@ Pedro Oliveira;Belo Horizonte;Alto;pedro@mail.com
 - [ ] Large datasets (10k+ rows) generate successfully
 
 #### Queue System
+
 - [ ] Small exports bypass queue
 - [ ] Large exports create job
 - [ ] Job status endpoint returns correct state
@@ -524,23 +575,26 @@ Pedro Oliveira;Belo Horizonte;Alto;pedro@mail.com
 ### Export Generation Times (Approximate)
 
 | Format | 100 records | 1,000 records | 5,000 records | 10,000 records |
-|--------|-------------|---------------|---------------|----------------|
+| ------ | ----------- | ------------- | ------------- | -------------- |
 | CSV    | < 1s        | < 1s          | 2-3s          | 5-7s           |
 | Excel  | < 1s        | 1-2s          | 5-8s          | 12-15s         |
 | PDF    | 2-3s        | 5-7s          | 20-25s        | 45-60s         |
 
 **Notes:**
+
 - PDF is slowest due to Puppeteer browser launch
 - Excel includes styling overhead
 - CSV is fastest (raw data only)
 - Times vary based on column count and data complexity
 
 ### Memory Usage
+
 - **CSV**: ~1MB per 10k records
 - **Excel**: ~3MB per 10k records
 - **PDF**: ~5MB per 10k records
 
 ### Threshold Recommendations
+
 - **Immediate**: ≤ 5,000 records (< 30s generation time)
 - **Queued**: > 5,000 records (30s+ generation time)
 
@@ -549,6 +603,7 @@ Pedro Oliveira;Belo Horizonte;Alto;pedro@mail.com
 ## Next Steps
 
 ### Week 5: Frontend Integration
+
 - [ ] Create export UI (format selector, options)
 - [ ] Implement download button
 - [ ] Show job status progress bar
@@ -556,6 +611,7 @@ Pedro Oliveira;Belo Horizonte;Alto;pedro@mail.com
 - [ ] Toast notifications for completion/errors
 
 ### Future Enhancements
+
 - [ ] Email export when complete (large files)
 - [ ] Schedule exports (daily, weekly reports)
 - [ ] Export history (track past exports)
@@ -569,9 +625,11 @@ Pedro Oliveira;Belo Horizonte;Alto;pedro@mail.com
 ## Troubleshooting
 
 ### PDF Generation Fails
+
 **Issue:** `Failed to launch Puppeteer`
 
 **Solution:**
+
 ```bash
 # Install Chromium dependencies (Linux)
 sudo apt-get install -y chromium-browser
@@ -581,25 +639,31 @@ PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false pnpm add puppeteer
 ```
 
 ### CSV Encoding Issues in Excel
+
 **Issue:** Special characters appear as `�`
 
-**Solution:** 
+**Solution:**
+
 - Ensure UTF-8 BOM is present (already implemented)
 - Use semicolon delimiter for Brazilian Excel
 - Open with "Import from text" in Excel if direct open fails
 
 ### Excel File Corrupted
+
 **Issue:** "Excel cannot open the file"
 
 **Solution:**
+
 - Check ExcelJS version (should be ^4.4.0)
 - Verify data doesn't contain null/undefined
 - Test with small dataset first
 
 ### Queue Jobs Stuck
+
 **Issue:** Jobs stay in "active" state
 
 **Solution:**
+
 ```bash
 # Check Redis connection
 redis-cli -u $REDIS_URL ping

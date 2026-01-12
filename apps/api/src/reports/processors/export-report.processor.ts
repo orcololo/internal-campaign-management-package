@@ -49,9 +49,7 @@ export class ExportReportProcessor {
   async handleExport(job: Job<ExportJobData>): Promise<ExportJobResult> {
     const { reportId, userId, format, includeSummary, includeFilters } = job.data;
 
-    this.logger.log(
-      `Processing export job ${job.id} for report ${reportId} in format ${format}`,
-    );
+    this.logger.log(`Processing export job ${job.id} for report ${reportId} in format ${format}`);
 
     try {
       // Update job progress
@@ -89,8 +87,7 @@ export class ExportReportProcessor {
         case ExportFormat.EXCEL:
           fileBuffer = await this.generateExcel(reportResult, summary, includeFilters);
           fileName = `${reportResult.report.name}_${Date.now()}.xlsx`;
-          mimeType =
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+          mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
           break;
 
         default:
@@ -117,8 +114,7 @@ export class ExportReportProcessor {
    */
   private async generatePdf(reportResult: any, summary: any): Promise<Buffer> {
     // Extract column names from data
-    const columns =
-      reportResult.data.length > 0 ? Object.keys(reportResult.data[0]) : [];
+    const columns = reportResult.data.length > 0 ? Object.keys(reportResult.data[0]) : [];
 
     return this.pdfGenerator.generate({
       reportName: reportResult.report.name,
@@ -157,14 +153,11 @@ export class ExportReportProcessor {
   ): Promise<Buffer> {
     if (reportResult.data.length === 0) {
       // Create empty workbook with message
-      return this.excelGenerator.generateFromObjects(
-        [{ mensagem: 'Nenhum dado encontrado' }],
-        {
-          sheetName: reportResult.report.name,
-          title: reportResult.report.name,
-          includeFilters: false,
-        },
-      );
+      return this.excelGenerator.generateFromObjects([{ mensagem: 'Nenhum dado encontrado' }], {
+        sheetName: reportResult.report.name,
+        title: reportResult.report.name,
+        includeFilters: false,
+      });
     }
 
     return this.excelGenerator.generateFromObjects(reportResult.data, {

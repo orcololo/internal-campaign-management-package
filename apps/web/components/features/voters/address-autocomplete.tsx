@@ -75,11 +75,19 @@ export function AddressAutocomplete({
         if (!inputRef.current) return;
 
         // Initialize autocomplete with Brazilian bias
-        const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
-          componentRestrictions: { country: "br" },
-          fields: ["formatted_address", "address_components", "geometry", "place_id"],
-          types: ["address"],
-        });
+        const autocomplete = new google.maps.places.Autocomplete(
+          inputRef.current,
+          {
+            componentRestrictions: { country: "br" },
+            fields: [
+              "formatted_address",
+              "address_components",
+              "geometry",
+              "place_id",
+            ],
+            types: ["address"],
+          }
+        );
 
         autocompleteRef.current = autocomplete;
 
@@ -186,7 +194,9 @@ export function AddressAutocomplete({
         <Label className="text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-2">
           <MapPin className="h-4 w-4" />
           {label}
-          {isLoading && <Loader2 className="h-3 w-3 animate-spin text-gray-400" />}
+          {isLoading && (
+            <Loader2 className="h-3 w-3 animate-spin text-gray-400" />
+          )}
         </Label>
       )}
       <Input

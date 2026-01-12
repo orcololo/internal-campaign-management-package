@@ -9,7 +9,7 @@ import type { SavedReport } from '@/database/schemas/saved-report.schema';
 
 /**
  * Reports Service
- * 
+ *
  * Executes reports by applying filters and sorts to voter data.
  * Uses QueryBuilder to convert report config into SQL queries.
  */
@@ -34,8 +34,8 @@ export class ReportsService {
     await this.savedReportsService.incrementUsageCount(reportId, userId);
 
     // Build query from report config
-    const whereClause = this.queryBuilder.buildWhereClause(report.filters as any || []);
-    const orderByClause = this.queryBuilder.buildOrderByClause(report.sorting as any || []);
+    const whereClause = this.queryBuilder.buildWhereClause((report.filters as any) || []);
+    const orderByClause = this.queryBuilder.buildOrderByClause((report.sorting as any) || []);
     const selectClause = this.queryBuilder.buildSelectClause(report.columns);
 
     // Build base query
@@ -76,11 +76,7 @@ export class ReportsService {
   /**
    * Preview report data with pagination
    */
-  async previewReport(
-    reportId: string,
-    userId: string,
-    previewDto: PreviewReportDto,
-  ) {
+  async previewReport(reportId: string, userId: string, previewDto: PreviewReportDto) {
     const db = this.databaseService.getDb();
 
     const { page = 1, perPage = 50 } = previewDto;
@@ -89,8 +85,8 @@ export class ReportsService {
     const report = await this.savedReportsService.findOne(reportId, userId);
 
     // Build query from report config
-    const whereClause = this.queryBuilder.buildWhereClause(report.filters as any || []);
-    const orderByClause = this.queryBuilder.buildOrderByClause(report.sorting as any || []);
+    const whereClause = this.queryBuilder.buildWhereClause((report.filters as any) || []);
+    const orderByClause = this.queryBuilder.buildOrderByClause((report.sorting as any) || []);
     const selectClause = this.queryBuilder.buildSelectClause(report.columns);
 
     // Build base query for data
@@ -115,9 +111,7 @@ export class ReportsService {
     dataQuery = dataQuery.limit(perPage).offset((page - 1) * perPage) as any;
 
     // Build count query
-    let countQuery = db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(voters);
+    let countQuery = db.select({ count: sql<number>`count(*)::int` }).from(voters);
 
     if (whereClause) {
       countQuery = countQuery.where(sql`${whereClause} AND ${softDeleteCondition}`) as any;
@@ -156,7 +150,7 @@ export class ReportsService {
     const report = await this.savedReportsService.findOne(reportId, userId);
 
     // Build query from report config
-    const whereClause = this.queryBuilder.buildWhereClause(report.filters as any || []);
+    const whereClause = this.queryBuilder.buildWhereClause((report.filters as any) || []);
     const softDeleteCondition = isNull(voters.deletedAt);
 
     // Build count query

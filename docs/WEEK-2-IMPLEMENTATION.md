@@ -19,6 +19,7 @@ Successfully implemented the complete **Reports Module** backend with dynamic qu
 **Location:** `apps/api/src/reports/dto/`
 
 #### [create-report.dto.ts](apps/api/src/reports/dto/create-report.dto.ts)
+
 - `CreateReportDto` - Create new report
 - `FilterDto` - Individual filter configuration
 - `SortDto` - Sort rule configuration
@@ -28,17 +29,20 @@ Successfully implemented the complete **Reports Module** backend with dynamic qu
 - Swagger documentation
 
 #### [update-report.dto.ts](apps/api/src/reports/dto/update-report.dto.ts)
+
 - `UpdateReportDto` - Update existing report
 - Extends CreateReportDto with PartialType
 - All fields optional
 
 #### [filter-report.dto.ts](apps/api/src/reports/dto/filter-report.dto.ts)
+
 - `FilterReportDto` - List reports with filters
 - Pagination (page, perPage)
 - Search (name + description)
 - Filter by reportType, isShared
 
 #### [preview-report.dto.ts](apps/api/src/reports/dto/preview-report.dto.ts)
+
 - `PreviewReportDto` - Preview report data
 - Pagination for preview results
 
@@ -47,9 +51,11 @@ Successfully implemented the complete **Reports Module** backend with dynamic qu
 ### 2. Services
 
 #### [query-builder.service.ts](apps/api/src/reports/query-builder.service.ts) - 270 lines
+
 **Purpose:** Convert filters/sorts into Drizzle ORM SQL
 
 **Key Methods:**
+
 - `buildWhereClause(filters)` - Converts filters to SQL WHERE
 - `buildOrderByClause(sortRules)` - Converts sorts to SQL ORDER BY
 - `buildSelectClause(columns)` - Builds column selection
@@ -57,6 +63,7 @@ Successfully implemented the complete **Reports Module** backend with dynamic qu
 - `getAvailableFields()` - Returns all available fields
 
 **Supported Filter Operators (15):**
+
 1. `equals` - Field equals value
 2. `not_equals` - Field not equals value
 3. `contains` - Field contains substring (ILIKE)
@@ -74,6 +81,7 @@ Successfully implemented the complete **Reports Module** backend with dynamic qu
 15. `is_not_null` - Field is not NULL
 
 **Supported Fields (46):**
+
 - Personal: name, cpf, rg, email, phone, whatsapp, birthDate, gender, occupation
 - Address: zipCode, address, addressNumber, neighborhood, city, state, latitude, longitude
 - Electoral: electoralZone, electoralSection, voterId
@@ -86,9 +94,11 @@ Successfully implemented the complete **Reports Module** backend with dynamic qu
 ---
 
 #### [saved-reports.service.ts](apps/api/src/reports/saved-reports.service.ts) - 227 lines
+
 **Purpose:** CRUD operations for saved reports
 
 **Key Methods:**
+
 - `create(userId, dto)` - Create new report
 - `findAll(userId, filters)` - List reports with pagination/search
 - `findOne(id, userId)` - Get single report
@@ -100,6 +110,7 @@ Successfully implemented the complete **Reports Module** backend with dynamic qu
 - `getRecentlyUsed(userId, limit)` - Recent reports
 
 **Features:**
+
 - Soft delete (deletedAt field)
 - Usage tracking (usageCount, lastUsedAt)
 - Search in name + description
@@ -110,15 +121,18 @@ Successfully implemented the complete **Reports Module** backend with dynamic qu
 ---
 
 #### [reports.service.ts](apps/api/src/reports/reports.service.ts) - 197 lines
+
 **Purpose:** Execute reports and generate results
 
 **Key Methods:**
+
 - `executeReport(reportId, userId)` - Run report, return all data
 - `previewReport(reportId, userId, dto)` - Preview with pagination
 - `getReportSummary(reportId, userId)` - Statistics summary
 - `validateReport(report)` - Validate config
 
 **Features:**
+
 - Automatic usage tracking on execution
 - Soft delete filtering (excludes deleted voters)
 - Dynamic query building via QueryBuilder
@@ -130,26 +144,28 @@ Successfully implemented the complete **Reports Module** backend with dynamic qu
 ### 3. Controller
 
 #### [reports.controller.ts](apps/api/src/reports/reports.controller.ts) - 193 lines
+
 **Purpose:** REST API endpoints for reports
 
 **Endpoints:**
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/reports` | Create new report | ✅ Mock |
-| GET | `/reports` | List reports | ✅ Mock |
-| GET | `/reports/statistics` | User statistics | ✅ Mock |
-| GET | `/reports/most-used` | Most used reports | ✅ Mock |
-| GET | `/reports/recently-used` | Recently used | ✅ Mock |
-| GET | `/reports/:id` | Get report by ID | ✅ Mock |
-| PATCH | `/reports/:id` | Update report | ✅ Mock |
-| DELETE | `/reports/:id` | Delete report | ✅ Mock |
-| POST | `/reports/:id/preview` | Preview data | ✅ Mock |
-| POST | `/reports/:id/execute` | Execute report | ✅ Mock |
-| GET | `/reports/:id/summary` | Summary stats | ✅ Mock |
-| GET | `/reports/:id/validate` | Validate config | ✅ Mock |
+| Method | Endpoint                 | Description       | Auth    |
+| ------ | ------------------------ | ----------------- | ------- |
+| POST   | `/reports`               | Create new report | ✅ Mock |
+| GET    | `/reports`               | List reports      | ✅ Mock |
+| GET    | `/reports/statistics`    | User statistics   | ✅ Mock |
+| GET    | `/reports/most-used`     | Most used reports | ✅ Mock |
+| GET    | `/reports/recently-used` | Recently used     | ✅ Mock |
+| GET    | `/reports/:id`           | Get report by ID  | ✅ Mock |
+| PATCH  | `/reports/:id`           | Update report     | ✅ Mock |
+| DELETE | `/reports/:id`           | Delete report     | ✅ Mock |
+| POST   | `/reports/:id/preview`   | Preview data      | ✅ Mock |
+| POST   | `/reports/:id/execute`   | Execute report    | ✅ Mock |
+| GET    | `/reports/:id/summary`   | Summary stats     | ✅ Mock |
+| GET    | `/reports/:id/validate`  | Validate config   | ✅ Mock |
 
 **Features:**
+
 - MockAuthGuard for all endpoints
 - @CurrentUser decorator for userId
 - ParseIntPipe for ID validation
@@ -161,6 +177,7 @@ Successfully implemented the complete **Reports Module** backend with dynamic qu
 ### 4. Module
 
 #### [reports.module.ts](apps/api/src/reports/reports.module.ts)
+
 - Imports DatabaseModule
 - Declares controller and 3 services
 - Exports services for use in other modules
@@ -170,6 +187,7 @@ Successfully implemented the complete **Reports Module** backend with dynamic qu
 ### 5. App Module Update
 
 #### [app.module.ts](apps/api/src/app.module.ts)
+
 - Added ReportsModule import
 - Registered in imports array
 
@@ -178,6 +196,7 @@ Successfully implemented the complete **Reports Module** backend with dynamic qu
 ## 🔧 API Usage Examples
 
 ### 1. Create a Report
+
 ```bash
 POST /reports
 Content-Type: application/json
@@ -210,6 +229,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "id": 1,
@@ -230,11 +250,13 @@ Content-Type: application/json
 ---
 
 ### 2. List Reports
+
 ```bash
 GET /reports?page=1&perPage=20&search=Favoráveis&reportType=VOTERS
 ```
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -260,6 +282,7 @@ GET /reports?page=1&perPage=20&search=Favoráveis&reportType=VOTERS
 ---
 
 ### 3. Preview Report
+
 ```bash
 POST /reports/1/preview
 Content-Type: application/json
@@ -271,6 +294,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "report": {
@@ -300,11 +324,13 @@ Content-Type: application/json
 ---
 
 ### 4. Execute Report (All Data)
+
 ```bash
 POST /reports/1/execute
 ```
 
 **Response:**
+
 ```json
 {
   "report": {
@@ -325,11 +351,13 @@ POST /reports/1/execute
 ---
 
 ### 5. Get Report Summary
+
 ```bash
 GET /reports/1/summary
 ```
 
 **Response:**
+
 ```json
 {
   "report": {
@@ -353,11 +381,13 @@ GET /reports/1/summary
 ---
 
 ### 6. Get Statistics
+
 ```bash
 GET /reports/statistics
 ```
 
 **Response:**
+
 ```json
 {
   "total": 7,
@@ -372,6 +402,7 @@ GET /reports/statistics
 ---
 
 ### 7. Update Report
+
 ```bash
 PATCH /reports/1
 Content-Type: application/json
@@ -385,11 +416,13 @@ Content-Type: application/json
 ---
 
 ### 8. Delete Report
+
 ```bash
 DELETE /reports/1
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Report deleted successfully"
@@ -401,6 +434,7 @@ DELETE /reports/1
 ## 🧪 Testing Checklist
 
 ### Query Builder Tests
+
 - [ ] Test all 15 filter operators
 - [ ] Test invalid field names
 - [ ] Test sort ASC/DESC
@@ -409,6 +443,7 @@ DELETE /reports/1
 - [ ] Test edge cases (null values, empty arrays)
 
 ### SavedReports Service Tests
+
 - [ ] Create report
 - [ ] List with pagination
 - [ ] Search by name/description
@@ -419,6 +454,7 @@ DELETE /reports/1
 - [ ] Statistics aggregation
 
 ### Reports Service Tests
+
 - [ ] Execute report with filters
 - [ ] Preview with pagination
 - [ ] Summary statistics
@@ -426,6 +462,7 @@ DELETE /reports/1
 - [ ] Soft delete exclusion
 
 ### Controller Tests
+
 - [ ] All endpoints return correct status codes
 - [ ] MockAuthGuard applied
 - [ ] userId from @CurrentUser decorator
@@ -437,6 +474,7 @@ DELETE /reports/1
 ## 📊 Filter Examples
 
 ### Simple Equality
+
 ```json
 {
   "field": "supportLevel",
@@ -446,6 +484,7 @@ DELETE /reports/1
 ```
 
 ### Text Search
+
 ```json
 {
   "field": "name",
@@ -455,6 +494,7 @@ DELETE /reports/1
 ```
 
 ### Multiple Values
+
 ```json
 {
   "field": "city",
@@ -464,6 +504,7 @@ DELETE /reports/1
 ```
 
 ### Numeric Range
+
 ```json
 {
   "field": "interactionCount",
@@ -473,6 +514,7 @@ DELETE /reports/1
 ```
 
 ### Date Range
+
 ```json
 {
   "field": "createdAt",
@@ -482,6 +524,7 @@ DELETE /reports/1
 ```
 
 ### Null Check
+
 ```json
 {
   "field": "email",
@@ -495,26 +538,31 @@ DELETE /reports/1
 ## 🎯 Architecture Highlights
 
 ### Service Separation
+
 - **QueryBuilderService:** SQL generation (pure logic, testable)
 - **SavedReportsService:** Database CRUD (data layer)
 - **ReportsService:** Business logic (orchestration)
 
 ### Type Safety
+
 - Full TypeScript types from Drizzle schemas
 - Validated DTOs with class-validator
 - InferSelectModel/InferInsertModel
 
 ### Mock Auth Integration
+
 - All endpoints use MockAuthGuard
 - Easy swap to real auth later
 - @CurrentUser decorator for userId
 
 ### Soft Delete
+
 - All queries filter `deletedAt IS NULL`
 - Reports and voters support soft delete
 - Preserve data integrity
 
 ### Performance
+
 - Parallel queries (data + count)
 - Indexed columns (createdAt, userId)
 - Pagination everywhere
@@ -524,6 +572,7 @@ DELETE /reports/1
 ## 🚀 Next Steps
 
 ### Week 3: Export Services
+
 - [ ] Install puppeteer, exceljs, csv-writer
 - [ ] Implement PdfGeneratorService
 - [ ] Implement CsvGeneratorService
@@ -533,6 +582,7 @@ DELETE /reports/1
 - [ ] Support format parameter (pdf, csv, excel)
 
 ### Week 4: Queue System (Optional)
+
 - [ ] Setup Redis in docker-compose.yml
 - [ ] Install @nestjs/bull and bull
 - [ ] Create ExportReportProcessor
@@ -540,6 +590,7 @@ DELETE /reports/1
 - [ ] Threshold logic (>5000 records → queue)
 
 ### Week 5: Frontend Integration
+
 - [ ] Create API client (lib/api/reports.ts)
 - [ ] Update reports store
 - [ ] Remove mock data
@@ -553,6 +604,7 @@ DELETE /reports/1
 **Status:** 100% Complete ✅
 
 **Files Created:** 9
+
 - 4 DTO files
 - 3 Service files
 - 1 Controller file

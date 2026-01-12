@@ -12,32 +12,29 @@
 ### 1. Reports Module Structure (9 Files Created)
 
 #### DTOs (4 files)
+
 - **create-report.dto.ts** (160 lines) - Request validation for creating reports
   - `FilterDto` with 15 operators
   - `SortDto` with ASC/DESC
   - `CreateReportDto` with filters, sorting, columns
-  
 - **update-report.dto.ts** (60 lines) - Partial update validation
   - All fields optional (manually defined, no PartialType)
-  
 - **filter-report.dto.ts** (40 lines) - Query parameters for listing
   - Pagination, search, isPublic filter
-  
 - **preview-report.dto.ts** (25 lines) - Preview pagination
   - Simple page/perPage parameters
 
 #### Services (3 files)
+
 - **query-builder.service.ts** (270 lines) - Dynamic SQL generation
   - 15 filter operators: equals, not_equals, contains, in, between, is_null, etc.
   - 46 voter fields supported
   - Multi-field sorting
   - Column selection
-  
 - **saved-reports.service.ts** (223 lines) - CRUD operations
   - 9 methods: create, findAll, findOne, update, remove, incrementUsageCount, getStatistics, getMostUsed, getRecentlyUsed
   - Soft delete with deletedAt
   - Usage tracking with usageCount and lastUsedAt
-  
 - **reports.service.ts** (242 lines) - Report execution engine
   - 4 methods: executeReport, previewReport, getReportSummary, validateReport
   - Full execution returns all matching voters
@@ -46,12 +43,12 @@
   - Validation checks field names
 
 #### Controller & Module (2 files)
+
 - **reports.controller.ts** (200 lines) - REST API endpoints
   - 12 endpoints with MockAuthGuard
   - CRUD operations (POST, GET, PATCH, DELETE)
   - Execution operations (preview, execute, summary, validate)
   - Statistics operations (statistics, most-used, recently-used)
-  
 - **reports.module.ts** (12 lines) - Module configuration
   - Imports DatabaseModule
   - Provides 3 services
@@ -74,6 +71,7 @@
 ## API Endpoints Summary
 
 ### CRUD Operations
+
 - `POST /reports` - Create new report
 - `GET /reports` - List reports (with filters)
 - `GET /reports/:id` - Get single report
@@ -81,12 +79,14 @@
 - `DELETE /reports/:id` - Delete report (soft)
 
 ### Execution Operations
+
 - `POST /reports/:id/preview` - Preview with pagination
 - `POST /reports/:id/execute` - Execute full report
 - `GET /reports/:id/summary` - Get summary statistics
 - `GET /reports/:id/validate` - Validate report config
 
 ### Statistics Operations
+
 - `GET /reports/statistics` - User's report statistics
 - `GET /reports/most-used` - Top 5 most used reports
 - `GET /reports/recently-used` - 5 recently used reports
@@ -96,27 +96,32 @@
 ## Technical Decisions
 
 ### 1. Database Access Pattern
+
 - **Decision:** Use DatabaseService instead of @Inject('DATABASE')
 - **Reason:** Consistency with existing codebase pattern
 - **Implementation:** All services call `const db = this.databaseService.getDb()` in each method
 
 ### 2. Type Casting for Schema→DTO Conversion
+
 - **Decision:** Use `as any` when passing report.filters and report.sorting to QueryBuilder
 - **Reason:** Bridge type mismatch between loose JSONB storage (string) and strict DTO types (enum)
 - **Location:** reports.service.ts in executeReport, previewReport, getReportSummary
 - **Safety:** Safe because saved_reports enforces valid values at creation time
 
 ### 3. UpdateReportDto Without PartialType
+
 - **Decision:** Manually define all optional fields instead of using PartialType
 - **Reason:** Avoid adding @nestjs/mapped-types dependency
 - **Trade-off:** More code but zero additional dependencies
 
 ### 4. UUID for Report IDs
+
 - **Decision:** Use string (UUID) not number for report IDs
 - **Reason:** Consistent with saved_report.schema (id: uuid())
 - **Impact:** Controller uses string params, not ParseIntPipe
 
 ### 5. Soft Delete Pattern
+
 - **Decision:** Set deletedAt timestamp instead of hard delete
 - **Reason:** Data retention, audit trail, recovery capability
 - **Implementation:** All queries include `isNull(savedReports.deletedAt)` filter
@@ -126,26 +131,32 @@
 ## Issues Resolved
 
 ### 1. Schema Field Mismatches
+
 **Problem:** DTOs used userId/sort/isShared/reportType but schema has different fields  
 **Solution:** Changed userId→createdBy, sort→sorting, isShared→isPublic, removed reportType
 
 ### 2. Voter Schema Assumptions
+
 **Problem:** QueryBuilder included 10+ fields that don't exist in voter schema  
 **Solution:** Updated getVoterColumn() to only include 46 actual fields
 
 ### 3. Database Injection Pattern
+
 **Problem:** Initially used `@Inject('DATABASE')` but codebase uses DatabaseService  
 **Solution:** Changed all services to use DatabaseService with getDb() calls
 
 ### 4. Type Mismatch (ReportFilter vs FilterDto)
+
 **Problem:** Schema uses `operator: string`, DTO uses `operator: FilterOperator` enum  
 **Solution:** Added `as any` type casting at schema→DTO boundary (6 locations)
 
 ### 5. Missing Dependency
+
 **Problem:** UpdateReportDto used PartialType from @nestjs/mapped-types (not installed)  
 **Solution:** Manually defined all fields as optional with decorators
 
 ### 6. Python Script Side Effect
+
 **Problem:** Automated fix inserted `const db` declaration inside validateReport return type  
 **Solution:** Manually restored correct signature `Promise<{ valid: boolean; errors: string[] }>`
 
@@ -174,27 +185,35 @@
 ## Supported Voter Fields (46 Total)
 
 ### Personal Info (7)
+
 name, cpf, email, phone, whatsapp, gender, birthYear
 
 ### Address (8)
+
 street, number, complement, neighborhood, city, state, cep, votingLocation
 
 ### Electoral (5)
+
 electoralZone, electoralSection, registrationNumber, voterTitle, electoralSituation
 
 ### Education & Work (3)
+
 educationLevel, profession, occupation
 
 ### Social Segmentation (7)
+
 ageGroup, incomeRange, familySize, hasChildren, maritalStatus, housingType, religion
 
 ### Political Info (6)
+
 supportLevel, partyPreference, votingHistory, politicalLeaning, issuesOfInterest, votingIntention
 
 ### Engagement (7)
+
 engagementLevel, lastContact, contactFrequency, preferredContactMethod, eventParticipation, volunteerStatus, influencerScore
 
 ### Referral (3)
+
 referralSource, referralCode, referredBy
 
 ---
@@ -202,11 +221,13 @@ referralSource, referralCode, referredBy
 ## Testing Checklist
 
 ### ✅ Compilation
+
 - [x] No TypeScript errors
 - [x] All imports resolved
 - [x] Type safety maintained
 
 ### ⏳ Functionality (Manual Testing Required)
+
 - [ ] Start API server: `npm run dev`
 - [ ] Test POST /reports - Create report
 - [ ] Test GET /reports - List reports
@@ -222,6 +243,7 @@ referralSource, referralCode, referredBy
 - [ ] Test GET /reports/recently-used - Recently used reports
 
 ### ⏳ Filter Operators Testing
+
 - [ ] Test equals operator
 - [ ] Test contains operator
 - [ ] Test in operator
@@ -237,23 +259,27 @@ referralSource, referralCode, referredBy
 ## Architecture Highlights
 
 ### Clean Architecture
+
 - **DTOs** - Input validation and type safety
 - **Services** - Business logic separation (SavedReportsService for CRUD, ReportsService for execution)
 - **QueryBuilder** - Reusable SQL generation logic
 - **Controller** - Thin layer for HTTP handling
 
 ### Type Safety
+
 - Strong TypeScript types throughout
 - Drizzle ORM for type-safe queries
 - class-validator for runtime validation
 - Swagger decorators for API documentation
 
 ### Multi-Tenancy Ready
+
 - All queries filter by userId (createdBy)
 - Future enhancement: Add campaignId context
 - Soft delete for data retention
 
 ### Performance Considerations
+
 - Pagination in findAll (default 20 per page)
 - Parallel queries in findAll (data + count)
 - Usage tracking with usageCount and lastUsedAt
@@ -264,6 +290,7 @@ referralSource, referralCode, referredBy
 ## Next Steps
 
 ### Immediate (Testing Phase)
+
 1. **Start API server** - `cd apps/api && npm run dev`
 2. **Import Postman collection** - Test all 12 endpoints
 3. **Create sample reports** - Test with real voter data
@@ -271,6 +298,7 @@ referralSource, referralCode, referredBy
 5. **Check error handling** - Test with invalid data
 
 ### Week 3: Export Services
+
 1. Install dependencies: `pnpm add puppeteer handlebars exceljs csv-writer`
 2. Create PdfGeneratorService (templates + HTML rendering)
 3. Create CsvGeneratorService (UTF-8 BOM for Excel compatibility)
@@ -279,6 +307,7 @@ referralSource, referralCode, referredBy
 6. Test exports with sample reports
 
 ### Week 4: Queue System (Optional)
+
 1. Setup Redis in docker-compose.yml
 2. Install @nestjs/bull and bull
 3. Create ExportReportProcessor (background jobs)
@@ -286,6 +315,7 @@ referralSource, referralCode, referredBy
 5. Implement threshold logic (>5000 records → queue)
 
 ### Week 5: Frontend Integration
+
 1. Create lib/api/reports.ts client methods
 2. Update reports store to use real API
 3. Remove mock data from frontend components
@@ -293,6 +323,7 @@ referralSource, referralCode, referredBy
 5. End-to-end testing
 
 ### Week 13-14: Authentication (Future)
+
 1. Replace MockAuthGuard with JwtAuthGuard
 2. Integrate with Keycloak
 3. Add RBAC (CANDIDATO, ESTRATEGISTA, LIDERANCA, ESCRITORIO)
@@ -303,6 +334,7 @@ referralSource, referralCode, referredBy
 ## Files Modified or Created
 
 ### New Files (11 total)
+
 ```
 apps/api/src/reports/
 ├── dto/
@@ -322,6 +354,7 @@ docs/
 ```
 
 ### Updated Files (1 total)
+
 ```
 apps/api/src/
 └── app.module.ts (added ReportsModule import)
@@ -332,18 +365,23 @@ apps/api/src/
 ## Lessons Learned
 
 ### 1. Schema-First Approach
+
 Always verify actual database schema before writing DTOs and services. Assumptions about field names led to multiple rounds of fixes.
 
 ### 2. Database Access Pattern Consistency
+
 Check existing codebase patterns before implementing. Using DatabaseService instead of @Inject saved refactoring time.
 
 ### 3. Type Casting at Boundaries
+
 Sometimes type casting (`as any`) is pragmatic when bridging storage layer (flexible JSONB) with application layer (strict types).
 
 ### 4. Automated Fixes Have Trade-offs
+
 Python scripts are powerful for batch fixes but require manual validation for edge cases (e.g., validateReport signature).
 
 ### 5. Documentation as You Go
+
 Writing comprehensive docs alongside implementation (WEEK-2-IMPLEMENTATION.md) helps catch design issues early.
 
 ---

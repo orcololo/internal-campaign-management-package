@@ -14,47 +14,52 @@ The voters API and frontend are **mostly aligned** but have **one critical missi
 ## ✅ What's Already Aligned
 
 ### 1. **Core CRUD Operations** ✅
-| Feature | Frontend | Backend | Status |
-|---------|----------|---------|--------|
-| Create voter | ✅ | ✅ POST `/voters` | ✅ Aligned |
-| List voters | ✅ | ✅ GET `/voters` | ✅ Aligned |
-| Get single voter | ✅ | ✅ GET `/voters/:id` | ✅ Aligned |
-| Update voter | ✅ | ✅ PATCH `/voters/:id` | ✅ Aligned |
-| Delete voter | ✅ | ✅ DELETE `/voters/:id` | ✅ Aligned |
+
+| Feature          | Frontend | Backend                 | Status     |
+| ---------------- | -------- | ----------------------- | ---------- |
+| Create voter     | ✅       | ✅ POST `/voters`       | ✅ Aligned |
+| List voters      | ✅       | ✅ GET `/voters`        | ✅ Aligned |
+| Get single voter | ✅       | ✅ GET `/voters/:id`    | ✅ Aligned |
+| Update voter     | ✅       | ✅ PATCH `/voters/:id`  | ✅ Aligned |
+| Delete voter     | ✅       | ✅ DELETE `/voters/:id` | ✅ Aligned |
 
 ---
 
 ### 2. **Bulk Operations** ✅
-| Feature | Frontend | Backend | Status |
-|---------|----------|---------|--------|
-| Bulk delete | ✅ | ✅ POST `/voters/bulk/delete` | ✅ Aligned |
-| Bulk update | ✅ | ✅ PATCH `/voters/bulk/update` | ✅ Aligned |
+
+| Feature     | Frontend | Backend                        | Status     |
+| ----------- | -------- | ------------------------------ | ---------- |
+| Bulk delete | ✅       | ✅ POST `/voters/bulk/delete`  | ✅ Aligned |
+| Bulk update | ✅       | ✅ PATCH `/voters/bulk/update` | ✅ Aligned |
 
 ---
 
 ### 3. **Location Features** ✅
-| Feature | Frontend | Backend | Status |
-|---------|----------|---------|--------|
-| Geocode address | ✅ | ✅ POST `/voters/:id/geocode` | ✅ Aligned |
-| Find nearby voters | ✅ | ✅ GET `/voters/location/nearby` | ✅ Aligned |
-| Geofence filtering | ✅ | ✅ POST `/voters/location/geofence` | ✅ Aligned |
-| Group by proximity | ✅ | ✅ POST `/voters/location/group-by-proximity` | ✅ Aligned |
-| Batch geocode | ✅ | ✅ POST `/voters/location/batch-geocode` | ✅ Aligned |
+
+| Feature            | Frontend | Backend                                       | Status     |
+| ------------------ | -------- | --------------------------------------------- | ---------- |
+| Geocode address    | ✅       | ✅ POST `/voters/:id/geocode`                 | ✅ Aligned |
+| Find nearby voters | ✅       | ✅ GET `/voters/location/nearby`              | ✅ Aligned |
+| Geofence filtering | ✅       | ✅ POST `/voters/location/geofence`           | ✅ Aligned |
+| Group by proximity | ✅       | ✅ POST `/voters/location/group-by-proximity` | ✅ Aligned |
+| Batch geocode      | ✅       | ✅ POST `/voters/location/batch-geocode`      | ✅ Aligned |
 
 ---
 
 ### 4. **Import/Export** ✅
-| Feature | Frontend | Backend | Status |
-|---------|----------|---------|--------|
-| Import CSV | ✅ | ✅ POST `/voters/import/csv` | ✅ Aligned |
-| Export CSV | ✅ | ✅ GET `/voters/export/csv` | ✅ Aligned |
+
+| Feature    | Frontend | Backend                      | Status     |
+| ---------- | -------- | ---------------------------- | ---------- |
+| Import CSV | ✅       | ✅ POST `/voters/import/csv` | ✅ Aligned |
+| Export CSV | ✅       | ✅ GET `/voters/export/csv`  | ✅ Aligned |
 
 ---
 
 ### 5. **Analytics** ✅
-| Feature | Frontend | Backend | Status |
-|---------|----------|---------|--------|
-| Get statistics | ✅ | ✅ GET `/voters/statistics` | ✅ Aligned |
+
+| Feature        | Frontend | Backend                     | Status     |
+| -------------- | -------- | --------------------------- | ---------- |
+| Get statistics | ✅       | ✅ GET `/voters/statistics` | ✅ Aligned |
 
 ---
 
@@ -63,40 +68,51 @@ The voters API and frontend are **mostly aligned** but have **one critical missi
 All core voter fields are aligned between frontend and backend:
 
 **Basic Info:**
+
 - ✅ name, cpf, dateOfBirth, gender
 
 **Contact:**
+
 - ✅ phone, whatsapp, email
 
 **Address:**
+
 - ✅ address, addressNumber, addressComplement, neighborhood, city, state, zipCode
 - ✅ latitude, longitude
 
 **Electoral:**
+
 - ✅ electoralTitle, electoralZone, electoralSection, votingLocation
 
 **Social:**
+
 - ✅ educationLevel, occupation, incomeLevel, maritalStatus, religion, ethnicity
 
 **Political:**
+
 - ✅ supportLevel, politicalParty, votingHistory, topIssues, issuePositions
 - ✅ influencerScore, persuadability, turnoutLikelihood
 
 **Engagement:**
+
 - ✅ registrationDate, lastEngagementDate, engagementTrend
 - ✅ contactFrequency, responseRate, eventAttendance
 - ✅ volunteerStatus, donationHistory, engagementScore
 
 **Demographics Extended:**
+
 - ✅ ageGroup, householdType, employmentStatus, vehicleOwnership, internetAccess
 
 **Communication Preferences:**
+
 - ✅ communicationStyle, contentPreference, bestContactTime, bestContactDay
 
 **Social Network:**
+
 - ✅ socialMediaFollowers, communityRole, networkSize, influenceRadius
 
 **Misc:**
+
 - ✅ tags, notes, hasWhatsapp, preferredContact
 
 ---
@@ -108,6 +124,7 @@ All core voter fields are aligned between frontend and backend:
 The frontend has a complete **Referral System** implementation, but it's **completely missing from the backend**.
 
 #### Frontend Has:
+
 - ✅ Referral page: `/voters/[id]/referrals`
 - ✅ Components:
   - `ReferralsStats` - Display referral statistics
@@ -116,6 +133,7 @@ The frontend has a complete **Referral System** implementation, but it's **compl
   - `VoterDetail` - Shows referral info
 
 #### Frontend Data Model:
+
 ```typescript
 interface ReferralStats {
   total: number;
@@ -126,16 +144,17 @@ interface ReferralStats {
 
 interface Voter {
   // ... other fields
-  
+
   // Referral System
-  referralCode: string;          // Unique code (e.g., "JOAO-SILVA-ABC123")
-  referredBy?: string;           // ID of referrer voter
-  referralDate?: string;         // Date referred
-  referralStats: ReferralStats;  // Referral statistics
+  referralCode: string; // Unique code (e.g., "JOAO-SILVA-ABC123")
+  referredBy?: string; // ID of referrer voter
+  referralDate?: string; // Date referred
+  referralStats: ReferralStats; // Referral statistics
 }
 ```
 
 #### Backend Has:
+
 - ❌ No `referralCode` field in schema
 - ❌ No `referredBy` field in schema
 - ❌ No `referralDate` field in schema
@@ -155,14 +174,14 @@ interface Voter {
 Add to `voter.schema.ts`:
 
 ```typescript
-export const voters = pgTable('voters', {
+export const voters = pgTable("voters", {
   // ... existing fields
-  
+
   // Referral System
-  referralCode: varchar('referral_code', { length: 50 }).unique(), // JOAO-SILVA-ABC123
-  referredBy: uuid('referred_by').references(() => voters.id), // Self-reference
-  referralDate: timestamp('referral_date'),
-  
+  referralCode: varchar("referral_code", { length: 50 }).unique(), // JOAO-SILVA-ABC123
+  referredBy: uuid("referred_by").references(() => voters.id), // Self-reference
+  referralDate: timestamp("referral_date"),
+
   // Note: referralStats is computed, not stored
 });
 ```
@@ -173,7 +192,7 @@ Create `0005_add_referral_fields.sql`:
 
 ```sql
 -- Add referral system fields
-ALTER TABLE voters 
+ALTER TABLE voters
   ADD COLUMN referral_code VARCHAR(50) UNIQUE,
   ADD COLUMN referred_by UUID REFERENCES voters(id) ON DELETE SET NULL,
   ADD COLUMN referral_date TIMESTAMP;
@@ -183,9 +202,9 @@ CREATE INDEX idx_voters_referral_code ON voters(referral_code);
 CREATE INDEX idx_voters_referred_by ON voters(referred_by);
 
 -- Generate referral codes for existing voters
-UPDATE voters 
+UPDATE voters
 SET referral_code = UPPER(
-  REPLACE(SUBSTRING(name FROM 1 FOR 10), ' ', '-') || '-' || 
+  REPLACE(SUBSTRING(name FROM 1 FOR 10), ' ', '-') || '-' ||
   SUBSTRING(MD5(RANDOM()::TEXT) FROM 1 FOR 6)
 )
 WHERE referral_code IS NULL;
@@ -196,23 +215,23 @@ WHERE referral_code IS NULL;
 Create `dto/referral.dto.ts`:
 
 ```typescript
-import { IsString, IsUUID, IsOptional } from 'class-validator';
+import { IsString, IsUUID, IsOptional } from "class-validator";
 
 export class CreateReferralDto {
   @IsString()
   referralCode: string;
-  
+
   @IsString()
   name: string;
-  
+
   @IsOptional()
   @IsString()
   email?: string;
-  
+
   @IsOptional()
   @IsString()
   phone?: string;
-  
+
   // ... other basic voter fields
 }
 
@@ -237,7 +256,7 @@ async generateReferralCode(voterId: string): Promise<string> {
   if (voter.referralCode) {
     return voter.referralCode;
   }
-  
+
   const code = this.createReferralCode(voter.name);
   await this.update(voterId, { referralCode: code });
   return code;
@@ -258,14 +277,14 @@ async getReferrals(voterId: string): Promise<Voter[]> {
  */
 async getReferralStats(voterId: string): Promise<ReferralStatsDto> {
   const referrals = await this.getReferrals(voterId);
-  
+
   const now = new Date();
   const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  
+
   return {
     total: referrals.length,
     active: referrals.filter(r => !r.deletedAt).length,
-    thisMonth: referrals.filter(r => 
+    thisMonth: referrals.filter(r =>
       r.referralDate && r.referralDate >= firstDayOfMonth
     ).length,
     byLevel: referrals.reduce((acc, r) => {
@@ -288,26 +307,26 @@ async registerReferral(
     .select()
     .from(voters)
     .where(eq(voters.referralCode, referralCode));
-  
+
   if (!referrer) {
     throw new NotFoundException('Invalid referral code');
   }
-  
+
   // Create new voter with referral link
   const newVoter = await this.create({
     ...data,
     referredBy: referrer.id,
     referralDate: new Date(),
   });
-  
+
   // Increment referrer's count
   await this.db
     .update(voters)
-    .set({ 
-      referredVoters: sql`${voters.referredVoters} + 1` 
+    .set({
+      referredVoters: sql`${voters.referredVoters} + 1`
     })
     .where(eq(voters.id, referrer.id));
-  
+
   return newVoter;
 }
 
@@ -319,9 +338,9 @@ private createReferralCode(name: string): string {
     .substring(0, 10)
     .toUpperCase()
     .replace(/[^A-Z]/g, '-');
-  
+
   const random = Math.random().toString(36).substring(2, 8).toUpperCase();
-  
+
   return `${slug}-${random}`;
 }
 ```
@@ -393,6 +412,7 @@ To fully align the backend with the frontend:
 **Priority: HIGH** ⚠️
 
 The referral system is already fully implemented in the frontend with:
+
 - Dedicated page (`/voters/[id]/referrals`)
 - 3 custom components
 - Complete UI/UX flow
@@ -420,15 +440,15 @@ Users can see the interface but it won't work with real data until backend is im
 
 ### Alignment Score: 90% ✅
 
-| Category | Status | Notes |
-|----------|--------|-------|
-| Core CRUD | ✅ 100% | All operations working |
-| Bulk Operations | ✅ 100% | Delete and update working |
-| Location Features | ✅ 100% | All 5 endpoints present |
-| Import/Export | ✅ 100% | CSV working |
-| Analytics | ✅ 100% | Statistics endpoint present |
-| Data Model | ✅ 95% | Only referral fields missing |
-| **Referral System** | ❌ 0% | **Completely missing in backend** |
+| Category            | Status  | Notes                             |
+| ------------------- | ------- | --------------------------------- |
+| Core CRUD           | ✅ 100% | All operations working            |
+| Bulk Operations     | ✅ 100% | Delete and update working         |
+| Location Features   | ✅ 100% | All 5 endpoints present           |
+| Import/Export       | ✅ 100% | CSV working                       |
+| Analytics           | ✅ 100% | Statistics endpoint present       |
+| Data Model          | ✅ 95%  | Only referral fields missing      |
+| **Referral System** | ❌ 0%   | **Completely missing in backend** |
 
 ---
 
@@ -442,7 +462,8 @@ The referral system could be a powerful feature for campaign growth, allowing vo
 
 ---
 
-**Next Steps:** 
+**Next Steps:**
+
 1. Review this analysis
 2. Decide priority for referral system implementation
 3. If approved, implement in Week 2 (after core reports system)

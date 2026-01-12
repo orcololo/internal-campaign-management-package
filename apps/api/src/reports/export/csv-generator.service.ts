@@ -75,9 +75,7 @@ export class CsvGeneratorService {
 
       return Buffer.from(csvWithBOM, 'utf-8');
     } catch (error) {
-      throw new InternalServerErrorException(
-        `Failed to generate CSV: ${error.message}`,
-      );
+      throw new InternalServerErrorException(`Failed to generate CSV: ${error.message}`);
     }
   }
 
@@ -88,10 +86,7 @@ export class CsvGeneratorService {
    * @param columnTitles Optional custom column titles (key -> title mapping)
    * @returns CSV as Buffer
    */
-  async generateFromObjects(
-    data: any[],
-    columnTitles?: Record<string, string>,
-  ): Promise<Buffer> {
+  async generateFromObjects(data: any[], columnTitles?: Record<string, string>): Promise<Buffer> {
     if (!data || data.length === 0) {
       throw new InternalServerErrorException('No data provided for CSV generation');
     }

@@ -9,15 +9,16 @@
 ## 📋 Completed Tasks
 
 ### 1. ✅ Reports Tables Migration
+
 **File:** `apps/api/drizzle/0004_create_reports_tables.sql`
 
 Created comprehensive migration with:
+
 - **saved_reports table** (14 columns, 5 indexes)
   - Report configurations (filters, sorting, columns as JSONB)
   - Ownership & sharing settings
   - Usage statistics tracking
   - Soft delete support
-  
 - **report_exports table** (15 columns, 5 indexes)
   - Export tracking (PDF, CSV, Excel)
   - Processing status (pending, processing, completed, failed)
@@ -31,9 +32,11 @@ Created comprehensive migration with:
 ### 2. ✅ Drizzle Schema Files
 
 #### saved-report.schema.ts
+
 **Location:** `apps/api/src/database/schemas/saved-report.schema.ts`
 
 **Features:**
+
 - Full TypeScript types with Drizzle ORM
 - `ReportFilter` interface (field, operator, value, logicalOperator)
 - `ReportSort` interface (field, direction)
@@ -43,9 +46,11 @@ Created comprehensive migration with:
 - Type exports: `SavedReport`, `NewSavedReport`
 
 #### report-export.schema.ts
+
 **Location:** `apps/api/src/database/schemas/report-export.schema.ts`
 
 **Features:**
+
 - Export tracking with status enum
 - Format enum (pdf, csv, excel)
 - References to `savedReports` and `users` tables
@@ -56,11 +61,13 @@ Created comprehensive migration with:
 ---
 
 ### 3. ✅ Mock Authentication Service
+
 **File:** `apps/api/src/common/mock-auth.service.ts`
 
 **Purpose:** Development without Keycloak dependency
 
 **Methods:**
+
 - `getMockUser()` - Returns default CANDIDATO user
 - `getMockUserWithRole(role)` - Get user with specific role
 - `getMockTenantId()` - Get mock tenant ID
@@ -68,6 +75,7 @@ Created comprehensive migration with:
 - `getAllMockUsers()` - Get all role variations
 
 **Mock User Interface:**
+
 ```typescript
 {
   id: 'mock-user-123',
@@ -82,9 +90,11 @@ Created comprehensive migration with:
 ---
 
 ### 4. ✅ Mock Authentication Guard
+
 **File:** `apps/api/src/common/guards/mock-auth.guard.ts`
 
 **Features:**
+
 - `MockAuthGuard` - Injects mock user into request
 - `MockRolesGuard` - Validates required roles
 - `@Roles()` decorator - Specify allowed roles
@@ -92,12 +102,13 @@ Created comprehensive migration with:
 - Easy migration path to JwtAuthGuard
 
 **Usage Example:**
+
 ```typescript
-@Controller('reports')
+@Controller("reports")
 @UseGuards(MockAuthGuard)
 export class ReportsController {
   @Get()
-  @Roles('CANDIDATO', 'ESTRATEGISTA')
+  @Roles("CANDIDATO", "ESTRATEGISTA")
   async findAll(@CurrentUser() user: MockUser) {
     // user is automatically available
   }
@@ -107,11 +118,13 @@ export class ReportsController {
 ---
 
 ### 5. ✅ Current User Decorator
+
 **File:** `apps/api/src/common/decorators/current-user.decorator.ts`
 
 **Purpose:** Extract user from request
 
 **Usage:**
+
 ```typescript
 @Get()
 async findAll(@CurrentUser() user: MockUser) { }
@@ -124,9 +137,11 @@ async findAll(@CurrentUser('id') userId: string) { }
 ---
 
 ### 6. ✅ Schema Exports Updated
+
 **File:** `apps/api/src/database/schemas/index.ts`
 
 Added exports:
+
 - `export * from './saved-report.schema';`
 - `export * from './report-export.schema';`
 
@@ -137,12 +152,14 @@ Added exports:
 ### ✅ Existing Schemas Verified
 
 1. **users** (`user.schema.ts`)
+
    - Full RBAC with 4 roles
    - Keycloak integration ready
    - Soft delete support
    - ✅ Ready for reports integration
 
 2. **voters** (`voter.schema.ts`)
+
    - 60+ fields for segmentation
    - Enums: gender, education, income, marital status, support level
    - Address & geolocation fields
@@ -150,6 +167,7 @@ Added exports:
    - ✅ Ready for reports filtering
 
 3. **events** (`event.schema.ts`)
+
    - Event types: COMICIO, REUNIAO, VISITA, etc.
    - Status: AGENDADO, EM_ANDAMENTO, CONCLUIDO, etc.
    - Date/time fields
@@ -157,12 +175,14 @@ Added exports:
    - ✅ Ready for calendar module
 
 4. **geofences** (`geofence.schema.ts`)
+
    - Circle and Polygon types
    - GeoJSON support
    - Associated location data
    - ✅ Ready for geographic features
 
 5. **analytics** (`analytics.schema.ts`)
+
    - Pre-built analytics tracking
    - ✅ Ready for dashboard
 
@@ -177,6 +197,7 @@ Added exports:
 ### Reports Module Implementation
 
 1. **Create Module Structure**
+
 ```bash
 mkdir -p apps/api/src/reports/dto
 mkdir -p apps/api/src/reports/export
@@ -185,12 +206,14 @@ mkdir -p apps/api/src/reports/templates
 ```
 
 2. **Implement DTOs**
+
    - `create-report.dto.ts`
    - `update-report.dto.ts`
    - `export-report.dto.ts`
    - `filter-report.dto.ts`
 
 3. **Implement Services**
+
    - `query-builder.service.ts` - Convert filters to SQL
    - `reports.service.ts` - Execute queries
    - `saved-reports.service.ts` - CRUD operations
@@ -220,6 +243,7 @@ pnpm db:studio
 ```
 
 ### Expected Results:
+
 - ✅ `saved_reports` table created with 5 indexes
 - ✅ `report_exports` table created with 5 indexes
 - ✅ Foreign keys to `users` table
@@ -279,14 +303,14 @@ testMockAuth() {
 
 ```typescript
 // Create a test controller
-@Controller('test')
+@Controller("test")
 @UseGuards(MockAuthGuard)
 export class TestController {
   @Get()
-  @Roles('CANDIDATO')
+  @Roles("CANDIDATO")
   async test(@CurrentUser() user: MockUser) {
     return {
-      message: 'Mock auth working!',
+      message: "Mock auth working!",
       user: user,
     };
   }
@@ -294,6 +318,7 @@ export class TestController {
 ```
 
 Test with curl:
+
 ```bash
 curl http://localhost:3000/test
 # Should return mock user data without authentication
@@ -306,6 +331,7 @@ curl http://localhost:3000/test
 When ready to implement Keycloak (Week 13-14):
 
 ### 1. Replace Guard:
+
 ```typescript
 // Before (Development)
 @UseGuards(MockAuthGuard)
@@ -315,15 +341,17 @@ When ready to implement Keycloak (Week 13-14):
 ```
 
 ### 2. Update User Type:
+
 ```typescript
 // Before
-import { MockUser } from '@/common/mock-auth.service';
+import { MockUser } from "@/common/mock-auth.service";
 
 // After
-import { User } from '@/database/schemas/user.schema';
+import { User } from "@/database/schemas/user.schema";
 ```
 
 ### 3. Replace Service:
+
 ```typescript
 // Remove MockAuthService injection
 // Add JwtStrategy and AuthService

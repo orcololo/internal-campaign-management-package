@@ -1,4 +1,13 @@
-import { IsString, IsOptional, IsObject, IsEnum, IsArray, ValidateNested, MinLength, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsObject,
+  IsEnum,
+  IsArray,
+  ValidateNested,
+  MinLength,
+  MaxLength,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import type { ReportFilter, ReportSort } from '@/database/schemas/saved-report.schema';

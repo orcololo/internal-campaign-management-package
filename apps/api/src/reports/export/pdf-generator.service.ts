@@ -46,9 +46,7 @@ export class PdfGeneratorService {
       this.template = Handlebars.compile(templateContent);
       return this.template;
     } catch (error) {
-      throw new InternalServerErrorException(
-        `Failed to load PDF template: ${error.message}`,
-      );
+      throw new InternalServerErrorException(`Failed to load PDF template: ${error.message}`);
     }
   }
 
@@ -118,15 +116,13 @@ export class PdfGeneratorService {
         await browser.close();
       }
     } catch (error) {
-      throw new InternalServerErrorException(
-        `Failed to generate PDF: ${error.message}`,
-      );
+      throw new InternalServerErrorException(`Failed to generate PDF: ${error.message}`);
     }
   }
 
   /**
    * Generate PDF with custom HTML
-   * 
+   *
    * @param html Custom HTML content
    * @returns PDF as Buffer
    */
@@ -162,9 +158,7 @@ export class PdfGeneratorService {
         await browser.close();
       }
     } catch (error) {
-      throw new InternalServerErrorException(
-        `Failed to generate PDF from HTML: ${error.message}`,
-      );
+      throw new InternalServerErrorException(`Failed to generate PDF from HTML: ${error.message}`);
     }
   }
 }

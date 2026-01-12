@@ -55,9 +55,7 @@ export const reportExports = pgTable('report_exports', {
   appliedFilters: jsonb('applied_filters').$type<ReportFilter[]>(),
 
   // Processing Status
-  status: varchar('status', { length: 20 })
-    .notNull()
-    .default('pending'), // 'pending' | 'processing' | 'completed' | 'failed'
+  status: varchar('status', { length: 20 }).notNull().default('pending'), // 'pending' | 'processing' | 'completed' | 'failed'
   processingTime: integer('processing_time'), // milliseconds
   errorMessage: text('error_message'),
 

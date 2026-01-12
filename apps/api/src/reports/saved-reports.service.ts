@@ -9,7 +9,7 @@ import { FilterReportDto } from './dto/filter-report.dto';
 
 /**
  * SavedReports Service
- * 
+ *
  * Handles CRUD operations for saved reports.
  * Includes soft delete, search, filtering, and usage tracking.
  */
@@ -34,10 +34,7 @@ export class SavedReportsService {
       usageCount: 0,
     };
 
-    const [report] = await db
-      .insert(savedReports)
-      .values(newReport)
-      .returning();
+    const [report] = await db.insert(savedReports).values(newReport).returning();
 
     return report;
   }
@@ -121,11 +118,7 @@ export class SavedReportsService {
   /**
    * Update a saved report
    */
-  async update(
-    id: string,
-    userId: string,
-    dto: UpdateReportDto,
-  ): Promise<SavedReport> {
+  async update(id: string, userId: string, dto: UpdateReportDto): Promise<SavedReport> {
     const db = this.databaseService.getDb();
 
     // Verify report exists
@@ -160,10 +153,7 @@ export class SavedReportsService {
     // Verify report exists
     await this.findOne(id, userId);
 
-    await db
-      .update(savedReports)
-      .set({ deletedAt: new Date() })
-      .where(eq(savedReports.id, id));
+    await db.update(savedReports).set({ deletedAt: new Date() }).where(eq(savedReports.id, id));
   }
 
   /**

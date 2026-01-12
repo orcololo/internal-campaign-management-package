@@ -1,12 +1,30 @@
 import { Injectable } from '@nestjs/common';
-import { SQL, sql, eq, ne, like, notLike, inArray, notInArray, gt, gte, lt, lte, and, or, isNull, isNotNull, between } from 'drizzle-orm';
+import {
+  SQL,
+  sql,
+  eq,
+  ne,
+  like,
+  notLike,
+  inArray,
+  notInArray,
+  gt,
+  gte,
+  lt,
+  lte,
+  and,
+  or,
+  isNull,
+  isNotNull,
+  between,
+} from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
 import { FilterDto, SortDto, FilterOperator, SortDirection } from './dto/create-report.dto';
 import { voters } from '@/database/schemas/voter.schema';
 
 /**
  * QueryBuilder Service
- * 
+ *
  * Converts filter and sort DTOs into Drizzle ORM queries.
  * Supports 15 filter operators for dynamic report generation.
  */

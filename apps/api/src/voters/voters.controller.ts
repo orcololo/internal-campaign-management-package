@@ -192,10 +192,7 @@ export class VotersController {
       maxDistanceKm?: number;
     },
   ) {
-    return this.votersService.groupByProximity(
-      body.locations,
-      body.maxDistanceKm || 5,
-    );
+    return this.votersService.groupByProximity(body.locations, body.maxDistanceKm || 5);
   }
 
   @Post('location/batch-geocode')
@@ -238,10 +235,7 @@ export class VotersController {
   @ApiResponse({ status: 201, description: 'Returns import results' })
   @ApiResponse({ status: 400, description: 'Bad request - invalid CSV format' })
   @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
-  async importCsv(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() importDto: ImportVotersDto,
-  ) {
+  async importCsv(@UploadedFile() file: Express.Multer.File, @Body() importDto: ImportVotersDto) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
@@ -273,16 +267,8 @@ export class VotersController {
   @ApiParam({ name: 'id', description: 'Voter UUID' })
   @ApiResponse({ status: 200, description: 'Returns list of referred voters with pagination' })
   @ApiResponse({ status: 404, description: 'Voter not found' })
-  async getReferrals(
-    @Param('id') id: string,
-    @Query() query: QueryReferralsDto,
-  ) {
-    return this.votersService.getReferrals(
-      id,
-      query.page,
-      query.perPage,
-      query.supportLevel,
-    );
+  async getReferrals(@Param('id') id: string, @Query() query: QueryReferralsDto) {
+    return this.votersService.getReferrals(id, query.page, query.perPage, query.supportLevel);
   }
 
   @Get(':id/referral-stats')

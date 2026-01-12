@@ -8,6 +8,7 @@
 ## Overview
 
 Phase 4 completes the voters module with comprehensive management features:
+
 - **CRUD Operations**: Full create, read, update, delete functionality
 - **Google Maps Integration**: Address autocomplete and map visualization
 - **Import/Export**: CSV import/export with validation
@@ -23,7 +24,8 @@ The voters module was already feature-complete with extensive functionality. Pha
 
 ### Backend (Already Complete)
 
-**Files:** 
+**Files:**
+
 - `apps/api/src/voters/voters.controller.ts` (350 lines)
 - `apps/api/src/voters/voters.service.ts` (900+ lines)
 - 6 DTO files in `apps/api/src/voters/dto/`
@@ -31,6 +33,7 @@ The voters module was already feature-complete with extensive functionality. Pha
 **Endpoints (24 total):**
 
 #### Basic CRUD
+
 - `POST /voters` - Create voter
 - `GET /voters` - List voters (with pagination & filters)
 - `GET /voters/statistics` - Get voter statistics
@@ -39,10 +42,12 @@ The voters module was already feature-complete with extensive functionality. Pha
 - `DELETE /voters/:id` - Delete voter (soft delete)
 
 #### Bulk Operations
+
 - `POST /voters/bulk/delete` - Bulk delete voters
 - `PATCH /voters/bulk/update` - Bulk update voters
 
 #### Location Features
+
 - `POST /voters/:id/geocode` - Geocode voter address
 - `GET /voters/location/nearby` - Find voters near location
 - `POST /voters/location/geofence` - Find voters in geofence (circle)
@@ -50,10 +55,12 @@ The voters module was already feature-complete with extensive functionality. Pha
 - `POST /voters/location/batch-geocode` - Batch geocode voters
 
 #### Import/Export
+
 - `POST /voters/import/csv` - Import voters from CSV
 - `GET /voters/export/csv` - Export voters to CSV
 
 #### Referral System
+
 - `GET /voters/:id/referrals` - Get list of referred voters
 - `GET /voters/:id/referral-stats` - Get referral statistics
 - `POST /voters/:id/referral-code` - Generate/retrieve referral code
@@ -62,6 +69,7 @@ The voters module was already feature-complete with extensive functionality. Pha
 ### Frontend (Existing Components)
 
 **Components in `apps/web/components/features/voters/`:**
+
 - `voter-form.tsx` (1887 lines) - Multi-step form with validation
 - `voters-table.tsx` - Data table with sorting, filtering
 - `voter-map-view.tsx` (304 lines) - MapLibre map with markers
@@ -81,6 +89,7 @@ The voters module was already feature-complete with extensive functionality. Pha
 **File:** `apps/web/components/features/voters/address-autocomplete.tsx` (200 lines)
 
 **Features:**
+
 - Google Places Autocomplete API integration
 - Brazilian address bias (`componentRestrictions: { country: 'br' }`)
 - Extracts structured address components:
@@ -93,6 +102,7 @@ The voters module was already feature-complete with extensive functionality. Pha
 - TypeScript typed with `AddressDetails` interface
 
 **Usage Example:**
+
 ```tsx
 import { AddressAutocomplete } from "@/components/features/voters/address-autocomplete";
 
@@ -110,7 +120,7 @@ import { AddressAutocomplete } from "@/components/features/voters/address-autoco
   label="Endereço Completo"
   placeholder="Digite o endereço..."
   error={formErrors.address}
-/>
+/>;
 ```
 
 ---
@@ -120,6 +130,7 @@ import { AddressAutocomplete } from "@/components/features/voters/address-autoco
 ### 1. CRUD Operations ✅
 
 **Create Voter:**
+
 ```bash
 POST /voters
 Content-Type: application/json
@@ -137,11 +148,13 @@ Content-Type: application/json
 ```
 
 **List Voters (with filters):**
+
 ```bash
 GET /voters?page=1&limit=20&supportLevel=FAVORAVEL&city=São Paulo
 ```
 
 **Update Voter:**
+
 ```bash
 PATCH /voters/:id
 Content-Type: application/json
@@ -153,6 +166,7 @@ Content-Type: application/json
 ```
 
 **Delete Voter (soft delete):**
+
 ```bash
 DELETE /voters/:id
 ```
@@ -162,12 +176,14 @@ DELETE /voters/:id
 ### 2. Google Maps Integration ✅
 
 #### Address Autocomplete
+
 - **Component:** `AddressAutocomplete`
 - **API:** Google Places Autocomplete
 - **Bias:** Brazilian addresses
 - **Returns:** Structured address + coordinates
 
 #### Map Visualization
+
 - **Component:** `VoterMapView`
 - **Library:** MapLibre GL JS
 - **Features:**
@@ -179,6 +195,7 @@ DELETE /voters/:id
   - Dark/light theme support
 
 **Support Level Colors:**
+
 - `MUITO_FAVORAVEL` - Green (#22c55e)
 - `FAVORAVEL` - Lime (#84cc16)
 - `NEUTRO` - Amber (#f59e0b)
@@ -191,9 +208,11 @@ DELETE /voters/:id
 ### 3. Import/Export ✅
 
 #### CSV Import
+
 **Endpoint:** `POST /voters/import/csv`
 
 **Features:**
+
 - Multipart/form-data file upload
 - CSV parsing with validation
 - Skip duplicates option
@@ -212,6 +231,7 @@ DELETE /voters/:id
   ```
 
 **CSV Format:**
+
 ```csv
 name,cpf,email,phone,address,city,state,supportLevel
 João Silva,123.456.789-00,joao@mail.com,(11) 98765-4321,Rua A 123,São Paulo,SP,FAVORAVEL
@@ -219,9 +239,11 @@ Maria Santos,987.654.321-00,maria@mail.com,(21) 91234-5678,Av B 456,Rio de Janei
 ```
 
 #### CSV/Excel Export
+
 **Endpoint:** `GET /voters/export/csv`
 
 **Features:**
+
 - Exports filtered voters
 - UTF-8 BOM for Excel compatibility
 - Brazilian delimiter (semicolon)
@@ -233,6 +255,7 @@ Maria Santos,987.654.321-00,maria@mail.com,(21) 91234-5678,Av B 456,Rio de Janei
 ### 4. Bulk Operations ✅
 
 #### Bulk Delete
+
 **Endpoint:** `POST /voters/bulk/delete`
 
 ```bash
@@ -245,6 +268,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "deleted": 3,
@@ -254,6 +278,7 @@ Content-Type: application/json
 ```
 
 #### Bulk Update
+
 **Endpoint:** `PATCH /voters/bulk/update`
 
 ```bash
@@ -275,6 +300,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "updated": 2,
@@ -284,6 +310,7 @@ Content-Type: application/json
 ```
 
 **Use Cases:**
+
 - Select multiple voters in table (checkboxes)
 - Change support level for all selected
 - Add/remove tags in bulk
@@ -297,9 +324,11 @@ Content-Type: application/json
 Complete viral growth tracking system.
 
 #### Generate Referral Code
+
 **Endpoint:** `POST /voters/:id/referral-code`
 
 **Response:**
+
 ```json
 {
   "referralCode": "JOAO-ABC123",
@@ -308,6 +337,7 @@ Complete viral growth tracking system.
 ```
 
 #### Register via Referral
+
 **Endpoint:** `POST /voters/register-referral`
 
 ```bash
@@ -323,6 +353,7 @@ Content-Type: application/json
 ```
 
 **Flow:**
+
 1. Voter João generates referral link
 2. João shares link with Maria
 3. Maria clicks link (opens form with ?ref=JOAO-ABC123)
@@ -331,9 +362,11 @@ Content-Type: application/json
 6. João's referral stats updated
 
 #### Get Referrals
+
 **Endpoint:** `GET /voters/:id/referrals`
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -351,9 +384,11 @@ Content-Type: application/json
 ```
 
 #### Get Referral Stats
+
 **Endpoint:** `GET /voters/:id/referral-stats`
 
 **Response:**
+
 ```json
 {
   "totalReferrals": 15,
@@ -373,11 +408,13 @@ Content-Type: application/json
 ### 6. Location Features ✅
 
 #### Geocode Address
+
 **Endpoint:** `POST /voters/:id/geocode`
 
 Converts voter's address to coordinates using Google Geocoding API.
 
 **Response:**
+
 ```json
 {
   "latitude": -23.5505,
@@ -387,6 +424,7 @@ Converts voter's address to coordinates using Google Geocoding API.
 ```
 
 #### Find Nearby Voters
+
 **Endpoint:** `GET /voters/location/nearby`
 
 ```bash
@@ -396,6 +434,7 @@ GET /voters/location/nearby?lat=-23.5505&lng=-46.6333&radius=5&limit=50
 Returns voters within 5km radius of coordinates.
 
 #### Filter by Geofence (Circle)
+
 **Endpoint:** `POST /voters/location/geofence`
 
 ```bash
@@ -410,6 +449,7 @@ Content-Type: application/json
 ```
 
 #### Filter by Geofence (Polygon)
+
 **Endpoint:** `POST /voters/location/geofence-polygon`
 
 ```bash
@@ -429,6 +469,7 @@ Content-Type: application/json
 Uses point-in-polygon algorithm to filter voters.
 
 #### Batch Geocode
+
 **Endpoint:** `POST /voters/location/batch-geocode?limit=10`
 
 Geocodes up to 10 voters missing coordinates. Useful for fixing imported data.
@@ -438,11 +479,13 @@ Geocodes up to 10 voters missing coordinates. Useful for fixing imported data.
 ## Data Model
 
 ### Voter Schema
+
 **Table:** `voters`
 
 **Fields (70+ total):**
 
 #### Personal Info
+
 - `id` (UUID) - Primary key
 - `name` (varchar) - Full name
 - `cpf` (varchar) - Brazilian ID (unique)
@@ -451,10 +494,12 @@ Geocodes up to 10 voters missing coordinates. Useful for fixing imported data.
 - `gender` (enum) - M/F/O
 
 #### Contact
+
 - `phone` (varchar) - Phone number
 - `whatsapp` (varchar) - WhatsApp number
 
 #### Address
+
 - `address` (varchar) - Full address
 - `street`, `number`, `complement`
 - `neighborhood`, `city`, `state`, `cep`
@@ -462,6 +507,7 @@ Geocodes up to 10 voters missing coordinates. Useful for fixing imported data.
 - `placeId` - Google Place ID
 
 #### Electoral
+
 - `electoralZone` (varchar)
 - `electoralSection` (varchar)
 - `registrationNumber` (varchar)
@@ -470,6 +516,7 @@ Geocodes up to 10 voters missing coordinates. Useful for fixing imported data.
 - `votingLocation` (varchar)
 
 #### Social Segmentation
+
 - `ageGroup` (enum) - 18-24, 25-34, etc.
 - `incomeRange` (enum) - 0-2, 2-5, 5-10, 10+ salários
 - `familySize` (int)
@@ -482,6 +529,7 @@ Geocodes up to 10 voters missing coordinates. Useful for fixing imported data.
 - `occupation` (varchar)
 
 #### Political
+
 - `supportLevel` (enum) - MUITO_FAVORAVEL, FAVORAVEL, NEUTRO, etc.
 - `partyPreference` (varchar)
 - `votingHistory` (jsonb)
@@ -490,6 +538,7 @@ Geocodes up to 10 voters missing coordinates. Useful for fixing imported data.
 - `votingIntention` (enum)
 
 #### Engagement
+
 - `engagementLevel` (enum) - Alto, Médio, Baixo
 - `lastContact` (timestamp)
 - `contactFrequency` (enum)
@@ -499,11 +548,13 @@ Geocodes up to 10 voters missing coordinates. Useful for fixing imported data.
 - `influencerScore` (int) - 0-100
 
 #### Referral
+
 - `referralSource` (varchar) - Where they heard about campaign
 - `referralCode` (varchar) - Unique referral code (generated)
 - `referredBy` (UUID) - FK to voters(id)
 
 #### System
+
 - `tags` (text[]) - Custom tags
 - `notes` (text) - Internal notes
 - `createdAt`, `updatedAt`, `deletedAt` - Timestamps
@@ -513,9 +564,11 @@ Geocodes up to 10 voters missing coordinates. Useful for fixing imported data.
 ## Frontend Components
 
 ### VoterForm (Multi-Step)
+
 **File:** `voter-form.tsx` (1887 lines)
 
 **Steps:**
+
 1. Basic Info - Name, CPF, email, phone
 2. Contact - WhatsApp, preferred method
 3. Address - Autocomplete, coordinates
@@ -525,6 +578,7 @@ Geocodes up to 10 voters missing coordinates. Useful for fixing imported data.
 7. Engagement - Last contact, events
 
 **Features:**
+
 - react-hook-form + zod validation
 - Step-by-step wizard
 - Progress indicator
@@ -534,9 +588,11 @@ Geocodes up to 10 voters missing coordinates. Useful for fixing imported data.
 - Google Maps integration (with new component)
 
 ### VotersTable
+
 **File:** `voters-table.tsx`
 
 **Features:**
+
 - TanStack Table
 - Sorting, filtering, pagination
 - Bulk selection (checkboxes)
@@ -546,9 +602,11 @@ Geocodes up to 10 voters missing coordinates. Useful for fixing imported data.
 - Search by name/CPF/email
 
 ### VoterMapView
+
 **File:** `voter-map-view.tsx` (304 lines)
 
 **Features:**
+
 - MapLibre GL JS
 - Interactive markers
 - Color-coded by support level
@@ -561,19 +619,23 @@ Geocodes up to 10 voters missing coordinates. Useful for fixing imported data.
 ### Referral Components
 
 #### ReferralLinkGenerator
+
 **File:** `referral-link-generator.tsx`
 
 Generates and displays referral link with copy button.
 
 #### ReferralsList
+
 **File:** `referrals-list.tsx`
 
 Table of voters referred by selected voter.
 
 #### ReferralsStats
+
 **File:** `referrals-stats.tsx`
 
 Dashboard cards showing:
+
 - Total referrals
 - Conversion rate
 - Referrals by support level
@@ -586,6 +648,7 @@ Dashboard cards showing:
 ### ✅ Backend Verification
 
 #### CRUD Operations
+
 - [x] Create voter - POST /voters
 - [x] List voters - GET /voters
 - [x] Get voter - GET /voters/:id
@@ -594,14 +657,17 @@ Dashboard cards showing:
 - [x] Statistics - GET /voters/statistics
 
 #### Bulk Operations
+
 - [x] Bulk delete - POST /voters/bulk/delete
 - [x] Bulk update - PATCH /voters/bulk/update
 
 #### Import/Export
+
 - [x] CSV import - POST /voters/import/csv
 - [x] CSV export - GET /voters/export/csv
 
 #### Location Features
+
 - [x] Geocode - POST /voters/:id/geocode
 - [x] Nearby search - GET /voters/location/nearby
 - [x] Geofence circle - POST /voters/location/geofence
@@ -609,6 +675,7 @@ Dashboard cards showing:
 - [x] Batch geocode - POST /voters/location/batch-geocode
 
 #### Referral System
+
 - [x] Generate code - POST /voters/:id/referral-code
 - [x] Get referrals - GET /voters/:id/referrals
 - [x] Get stats - GET /voters/:id/referral-stats
@@ -617,33 +684,30 @@ Dashboard cards showing:
 ### Manual Testing Required
 
 #### Frontend Components
+
 - [ ] **VoterForm** - Create new voter through UI
   - Test all 7 steps
   - Validation works
   - Address autocomplete works
   - Form submission succeeds
-  
 - [ ] **AddressAutocomplete** - New component
   - Google Maps loads
   - Autocomplete suggestions appear
   - Address details extracted correctly
   - Coordinates populated
   - Fallback works without API key
-  
 - [ ] **VotersTable**
   - Sorting by columns
   - Filtering works
   - Pagination works
   - Bulk selection
   - Export to CSV
-  
 - [ ] **VoterMapView**
   - Map renders
   - Markers appear
   - Click marker opens popup
   - Colors match support levels
   - Theme switching works
-  
 - [ ] **Referral System**
   - Generate referral link
   - Copy link works
@@ -651,11 +715,13 @@ Dashboard cards showing:
   - Stats display correctly
 
 #### Import/Export
+
 - [ ] Import CSV with 50+ voters
 - [ ] Export 1000+ voters to CSV
 - [ ] Open exported CSV in Excel (encoding OK)
 
 #### Bulk Operations
+
 - [ ] Select 10 voters and delete
 - [ ] Select 20 voters and update support level
 
@@ -674,6 +740,7 @@ All endpoints are documented with Swagger/OpenAPI annotations:
   - ESCRITORIO - Read-only mostly
 
 **Roles per Endpoint:**
+
 ```typescript
 @Post()
 @Roles(UserRole.CANDIDATO, UserRole.ESTRATEGISTA, UserRole.LIDERANCA)
@@ -692,7 +759,9 @@ Access Swagger at: `http://localhost:3001/api` (once server is running)
 ## Performance Considerations
 
 ### Database Indexes
+
 Recommended indexes on `voters` table:
+
 ```sql
 CREATE INDEX idx_voters_cpf ON voters(cpf);
 CREATE INDEX idx_voters_email ON voters(email);
@@ -705,16 +774,19 @@ CREATE INDEX idx_voters_deleted_at ON voters(deleted_at);
 ```
 
 ### Pagination
+
 - Default: 20 per page
 - Max: 100 per page
 - Use cursor-based pagination for very large datasets
 
 ### Geofence Queries
+
 - Use PostGIS `ST_DWithin` for circle queries (fast)
 - Use `ST_Contains` for polygon queries
 - Index: `GIST(ST_MakePoint(longitude, latitude))`
 
 ### Import Performance
+
 - Batch insert 100 records at a time
 - Async geocoding (don't block import)
 - Skip duplicate check for faster imports (optional)
@@ -724,17 +796,20 @@ CREATE INDEX idx_voters_deleted_at ON voters(deleted_at);
 ## Security Notes
 
 ### Data Protection
+
 - CPF validation (Brazilian ID format)
 - Email validation
 - Phone number validation (Brazilian format)
 - Soft delete (paranoid mode) - data retained
 
 ### RBAC
+
 - Role checks on every endpoint
 - Campaign scope (multi-tenancy ready)
 - User can only see voters from their campaign
 
 ### Input Validation
+
 - class-validator decorators on all DTOs
 - Zod schemas on frontend
 - Sanitization of user input
@@ -745,6 +820,7 @@ CREATE INDEX idx_voters_deleted_at ON voters(deleted_at);
 ## Next Steps
 
 ### Week 7: Geofences Implementation (Phase 5)
+
 - [ ] Geofences table schema
 - [ ] CRUD endpoints for geofences
 - [ ] Drawing tools integration
@@ -752,6 +828,7 @@ CREATE INDEX idx_voters_deleted_at ON voters(deleted_at);
 - [ ] Geofence analytics
 
 ### Future Enhancements
+
 - [ ] WhatsApp integration (send messages)
 - [ ] SMS campaigns
 - [ ] Email campaigns
@@ -766,34 +843,42 @@ CREATE INDEX idx_voters_deleted_at ON voters(deleted_at);
 ## Troubleshooting
 
 ### Google Maps Not Loading
+
 **Issue:** Address autocomplete not working
 
 **Solution:**
+
 1. Check `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in `.env`
 2. Enable Places API in Google Cloud Console
 3. Verify API key has no restrictions blocking localhost
 
 ### Import Fails
+
 **Issue:** CSV import returns errors
 
 **Solution:**
+
 - Check CSV encoding (UTF-8)
 - Verify column headers match expected format
 - Check for duplicate CPFs
 - Validate phone/email formats
 
 ### Map Markers Not Appearing
+
 **Issue:** Voters don't show on map
 
 **Solution:**
+
 - Verify voters have `latitude` and `longitude`
 - Run batch geocode: `POST /voters/location/batch-geocode?limit=100`
 - Check browser console for MapLibre errors
 
 ### Referral Code Not Generating
+
 **Issue:** `POST /voters/:id/referral-code` fails
 
 **Solution:**
+
 - Verify voter exists and is not soft-deleted
 - Check `referralCode` column in database schema
 - Ensure unique constraint on `referralCode`

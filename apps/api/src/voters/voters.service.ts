@@ -220,19 +220,16 @@ export class VotersService {
   /**
    * Find voters near a location (within radius)
    */
-  async findNearLocation(
-    latitude: number,
-    longitude: number,
-    radiusKm: number,
-    limit = 50,
-  ) {
+  async findNearLocation(latitude: number, longitude: number, radiusKm: number, limit = 50) {
     const db = this.databaseService.getDb();
 
     // Get all voters with coordinates
     const allVoters = await db
       .select()
       .from(voters)
-      .where(and(isNull(voters.deletedAt), isNotNull(voters.latitude), isNotNull(voters.longitude)));
+      .where(
+        and(isNull(voters.deletedAt), isNotNull(voters.latitude), isNotNull(voters.longitude)),
+      );
 
     // Filter by distance and calculate distance for each
     const votersWithDistance = allVoters
@@ -276,7 +273,9 @@ export class VotersService {
     const allVoters = await db
       .select()
       .from(voters)
-      .where(and(isNull(voters.deletedAt), isNotNull(voters.latitude), isNotNull(voters.longitude)));
+      .where(
+        and(isNull(voters.deletedAt), isNotNull(voters.latitude), isNotNull(voters.longitude)),
+      );
 
     // Filter by geofence
     const votersInGeofence = allVoters.filter((voter) => {
@@ -294,11 +293,7 @@ export class VotersService {
         );
       } else if (geofenceType === 'POLYGON') {
         const polygonData = geofenceData as PolygonGeofenceData;
-        return this.mapsService.isPointInPolygon(
-          voterLat,
-          voterLng,
-          polygonData.polygon,
-        );
+        return this.mapsService.isPointInPolygon(voterLat, voterLng, polygonData.polygon);
       }
 
       return false;
@@ -324,7 +319,9 @@ export class VotersService {
     const allVoters = await db
       .select()
       .from(voters)
-      .where(and(isNull(voters.deletedAt), isNotNull(voters.latitude), isNotNull(voters.longitude)));
+      .where(
+        and(isNull(voters.deletedAt), isNotNull(voters.latitude), isNotNull(voters.longitude)),
+      );
 
     const groupedVoters = locations.map((location) => {
       const nearby = allVoters
@@ -364,13 +361,7 @@ export class VotersService {
     const votersToGeocode = await db
       .select()
       .from(voters)
-      .where(
-        and(
-          isNull(voters.deletedAt),
-          isNull(voters.latitude),
-          isNotNull(voters.address),
-        ),
-      )
+      .where(and(isNull(voters.deletedAt), isNull(voters.latitude), isNotNull(voters.address)))
       .limit(limit);
 
     const results = {
@@ -405,10 +396,7 @@ export class VotersService {
     const db = this.databaseService.getDb();
 
     // Get all active voters
-    const allVoters = await db
-      .select()
-      .from(voters)
-      .where(isNull(voters.deletedAt));
+    const allVoters = await db.select().from(voters).where(isNull(voters.deletedAt));
 
     // Calculate statistics
     const stats = {
@@ -431,24 +419,24 @@ export class VotersService {
       byElectoralZone: this.groupBy(allVoters, 'electoralZone'),
 
       contact: {
-        withEmail: allVoters.filter(v => v.email).length,
-        withPhone: allVoters.filter(v => v.phone).length,
-        withWhatsapp: allVoters.filter(v => v.hasWhatsapp === 'SIM').length,
+        withEmail: allVoters.filter((v) => v.email).length,
+        withPhone: allVoters.filter((v) => v.phone).length,
+        withWhatsapp: allVoters.filter((v) => v.hasWhatsapp === 'SIM').length,
       },
 
       location: {
-        withCoordinates: allVoters.filter(v => v.latitude && v.longitude).length,
-        withoutCoordinates: allVoters.filter(v => !v.latitude || !v.longitude).length,
+        withCoordinates: allVoters.filter((v) => v.latitude && v.longitude).length,
+        withoutCoordinates: allVoters.filter((v) => !v.latitude || !v.longitude).length,
       },
 
       age: this.calculateAgeStats(allVoters),
 
       recentlyAdded: {
-        last7Days: allVoters.filter(v => {
+        last7Days: allVoters.filter((v) => {
           const daysDiff = (Date.now() - new Date(v.createdAt).getTime()) / (1000 * 60 * 60 * 24);
           return daysDiff <= 7;
         }).length,
-        last30Days: allVoters.filter(v => {
+        last30Days: allVoters.filter((v) => {
           const daysDiff = (Date.now() - new Date(v.createdAt).getTime()) / (1000 * 60 * 60 * 24);
           return daysDiff <= 30;
         }).length,
@@ -461,19 +449,25 @@ export class VotersService {
   /**
    * Helper: Group voters by a field
    */
-  private groupBy<T extends Record<string, any>>(voters: T[], field: keyof T): Record<string, number> {
-    return voters.reduce((acc, voter) => {
-      const value = voter[field] || 'NOT_SPECIFIED';
-      acc[value as string] = (acc[value as string] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+  private groupBy<T extends Record<string, any>>(
+    voters: T[],
+    field: keyof T,
+  ): Record<string, number> {
+    return voters.reduce(
+      (acc, voter) => {
+        const value = voter[field] || 'NOT_SPECIFIED';
+        acc[value as string] = (acc[value as string] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }
 
   /**
    * Helper: Calculate age statistics
    */
   private calculateAgeStats<T extends { dateOfBirth?: string | null }>(voters: T[]) {
-    const votersWithAge = voters.filter(v => v.dateOfBirth);
+    const votersWithAge = voters.filter((v) => v.dateOfBirth);
 
     if (votersWithAge.length === 0) {
       return {
@@ -482,7 +476,7 @@ export class VotersService {
       };
     }
 
-    const ages = votersWithAge.map(v => {
+    const ages = votersWithAge.map((v) => {
       const birthDate = new Date(v.dateOfBirth!);
       const today = new Date();
       let age = today.getFullYear() - birthDate.getFullYear();
@@ -496,11 +490,11 @@ export class VotersService {
     const averageAge = Math.round(ages.reduce((a, b) => a + b, 0) / ages.length);
 
     const ageRanges = {
-      '16-24': ages.filter(age => age >= 16 && age <= 24).length,
-      '25-34': ages.filter(age => age >= 25 && age <= 34).length,
-      '35-44': ages.filter(age => age >= 35 && age <= 44).length,
-      '45-59': ages.filter(age => age >= 45 && age <= 59).length,
-      '60+': ages.filter(age => age >= 60).length,
+      '16-24': ages.filter((age) => age >= 16 && age <= 24).length,
+      '25-34': ages.filter((age) => age >= 25 && age <= 34).length,
+      '35-44': ages.filter((age) => age >= 35 && age <= 44).length,
+      '45-59': ages.filter((age) => age >= 45 && age <= 59).length,
+      '60+': ages.filter((age) => age >= 60).length,
     };
 
     return {
@@ -534,10 +528,7 @@ export class VotersService {
           continue;
         }
 
-        await db
-          .update(voters)
-          .set({ deletedAt: new Date() })
-          .where(eq(voters.id, id));
+        await db.update(voters).set({ deletedAt: new Date() }).where(eq(voters.id, id));
 
         result.deleted++;
       } catch (error) {
@@ -626,7 +617,7 @@ export class VotersService {
           'nome completo': 'name',
           cpf: 'cpf',
           'data de nascimento': 'dateOfBirth',
-          'data_nascimento': 'dateOfBirth',
+          data_nascimento: 'dateOfBirth',
           sexo: 'gender',
           genero: 'gender',
           telefone: 'phone',
@@ -635,9 +626,9 @@ export class VotersService {
           email: 'email',
           'e-mail': 'email',
           endereco: 'address',
-          'endereço': 'address',
+          endereço: 'address',
           numero: 'addressNumber',
-          'número': 'addressNumber',
+          número: 'addressNumber',
           complemento: 'addressComplement',
           bairro: 'neighborhood',
           cidade: 'city',
@@ -651,18 +642,18 @@ export class VotersService {
           zona: 'electoralZone',
           'zona eleitoral': 'electoralZone',
           secao: 'electoralSection',
-          'seção': 'electoralSection',
+          seção: 'electoralSection',
           'local de votacao': 'votingLocation',
           'local de votação': 'votingLocation',
           escolaridade: 'educationLevel',
           profissao: 'occupation',
-          'profissão': 'occupation',
+          profissão: 'occupation',
           ocupacao: 'occupation',
-          'ocupação': 'occupation',
+          ocupação: 'occupation',
           renda: 'incomeLevel',
           'estado civil': 'maritalStatus',
           religiao: 'religion',
-          'religião': 'religion',
+          religião: 'religion',
           etnia: 'ethnicity',
           facebook: 'facebook',
           instagram: 'instagram',
@@ -680,7 +671,7 @@ export class VotersService {
           'contato preferido': 'preferredContact',
           notas: 'notes',
           observacoes: 'notes',
-          'observações': 'notes',
+          observações: 'notes',
           tags: 'tags',
         };
 
@@ -901,7 +892,7 @@ export class VotersService {
       CASADO: 'CASADO',
       DIVORCIADO: 'DIVORCIADO',
       VIUVO: 'VIUVO',
-      'VIÚVO': 'VIUVO',
+      VIÚVO: 'VIUVO',
       'UNIAO ESTAVEL': 'UNIAO_ESTAVEL',
       'UNIÃO ESTÁVEL': 'UNIAO_ESTAVEL',
     };
@@ -915,10 +906,10 @@ export class VotersService {
       'MUITO FAVORAVEL': 'MUITO_FAVORAVEL',
       'MUITO FAVORÁVEL': 'MUITO_FAVORAVEL',
       FAVORAVEL: 'FAVORAVEL',
-      'FAVORÁVEL': 'FAVORAVEL',
+      FAVORÁVEL: 'FAVORAVEL',
       NEUTRO: 'NEUTRO',
       DESFAVORAVEL: 'DESFAVORAVEL',
-      'DESFAVORÁVEL': 'DESFAVORAVEL',
+      DESFAVORÁVEL: 'DESFAVORAVEL',
       'MUITO DESFAVORAVEL': 'MUITO_DESFAVORAVEL',
       'MUITO DESFAVORÁVEL': 'MUITO_DESFAVORAVEL',
     };
@@ -928,7 +919,9 @@ export class VotersService {
   /**
    * Format voter data - convert string coordinates back to numbers
    */
-  private formatVoter<T extends Record<string, any>>(voter: T): T & { latitude: number | null; longitude: number | null } {
+  private formatVoter<T extends Record<string, any>>(
+    voter: T,
+  ): T & { latitude: number | null; longitude: number | null } {
     return {
       ...voter,
       latitude: voter.latitude ? parseFloat(voter.latitude) : null,
@@ -954,10 +947,7 @@ export class VotersService {
     const code = await this.createUniqueReferralCode(voter.name);
 
     // Update voter with new code
-    await db
-      .update(voters)
-      .set({ referralCode: code })
-      .where(eq(voters.id, voterId));
+    await db.update(voters).set({ referralCode: code }).where(eq(voters.id, voterId));
 
     return code;
   }
@@ -970,10 +960,7 @@ export class VotersService {
     const offset = (page - 1) * perPage;
 
     // Build conditions
-    const conditions = [
-      eq(voters.referredBy, voterId),
-      isNull(voters.deletedAt),
-    ];
+    const conditions = [eq(voters.referredBy, voterId), isNull(voters.deletedAt)];
 
     if (supportLevel) {
       conditions.push(eq(voters.supportLevel, supportLevel as any));
@@ -995,7 +982,7 @@ export class VotersService {
       .where(and(...conditions));
 
     return {
-      data: referrals.map(v => this.formatVoter(v)),
+      data: referrals.map((v) => this.formatVoter(v)),
       meta: {
         total: count,
         page,
@@ -1012,27 +999,27 @@ export class VotersService {
     const db = this.databaseService.getDb();
 
     // Get all referrals (including deleted for total count)
-    const allReferrals = await db
-      .select()
-      .from(voters)
-      .where(eq(voters.referredBy, voterId));
+    const allReferrals = await db.select().from(voters).where(eq(voters.referredBy, voterId));
 
     // Get active referrals only
-    const activeReferrals = allReferrals.filter(r => !r.deletedAt);
+    const activeReferrals = allReferrals.filter((r) => !r.deletedAt);
 
     // Calculate this month's referrals
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const thisMonthReferrals = activeReferrals.filter(
-      r => r.referralDate && new Date(r.referralDate) >= firstDayOfMonth
+      (r) => r.referralDate && new Date(r.referralDate) >= firstDayOfMonth,
     );
 
     // Group by support level
-    const byLevel = activeReferrals.reduce((acc, r) => {
-      const level = r.supportLevel || 'NAO_DEFINIDO';
-      acc[level] = (acc[level] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const byLevel = activeReferrals.reduce(
+      (acc, r) => {
+        const level = r.supportLevel || 'NAO_DEFINIDO';
+        acc[level] = (acc[level] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     return {
       total: allReferrals.length,
@@ -1052,10 +1039,7 @@ export class VotersService {
     const [referrer] = await db
       .select()
       .from(voters)
-      .where(and(
-        eq(voters.referralCode, referralCode),
-        isNull(voters.deletedAt)
-      ));
+      .where(and(eq(voters.referralCode, referralCode), isNull(voters.deletedAt)));
 
     if (!referrer) {
       throw new NotFoundException('Invalid referral code');
