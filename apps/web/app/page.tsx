@@ -140,7 +140,10 @@ export default function HomePage() {
                           <p className="text-sm text-muted-foreground">
                             {activity.description}
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p
+                            className="text-xs text-muted-foreground"
+                            suppressHydrationWarning
+                          >
                             {format(new Date(activity.timestamp), "PPp", {
                               locale: ptBR,
                             })}

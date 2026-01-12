@@ -3,6 +3,7 @@ import { eq, and, isNull, ilike, or, sql, isNotNull, asc, desc } from 'drizzle-o
 import { DatabaseService } from '../database/database.service';
 import { voters } from '../database/schemas';
 import { MapsService } from '../maps/maps.service';
+import { ViaCepService } from '../common/services/viacep.service';
 import { CreateVoterDto } from './dto/create-voter.dto';
 import { UpdateVoterDto } from './dto/update-voter.dto';
 import { QueryVotersDto } from './dto/query-voters.dto';
@@ -14,10 +15,21 @@ export class VotersService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly mapsService: MapsService,
+    private readonly viaCepService: ViaCepService,
   ) {}
 
   async create(createVoterDto: CreateVoterDto) {
     const db = this.databaseService.getDb();
+
+    // Auto-geocode if ZIP code and address number are provided but no coordinates
+    if (
+      createVoterDto.zipCode &&
+      createVoterDto.addressNumber &&
+      !createVoterDto.latitude &&
+      !createVoterDto.longitude
+    ) {
+      await this.autoGeocodeFromCep(createVoterDto);
+    }
 
     const values: Record<string, any> = {
       ...createVoterDto,
@@ -165,6 +177,16 @@ export class VotersService {
 
     // Check if voter exists
     await this.findOne(id);
+
+    // Auto-geocode if address information is provided but coordinates are not
+    if (
+      updateVoterDto.zipCode &&
+      updateVoterDto.addressNumber &&
+      !updateVoterDto.latitude &&
+      !updateVoterDto.longitude
+    ) {
+      await this.autoGeocodeFromCep(updateVoterDto);
+    }
 
     const values: Record<string, any> = {
       ...updateVoterDto,
@@ -965,6 +987,59 @@ export class VotersService {
       contentPreference: parseJsonField(voter.contentPreference),
       bestContactDay: parseJsonField(voter.bestContactDay),
     };
+  }
+
+  /**
+   * Auto-geocode voter address using ViaCEP and Google Maps
+   * Mutates the DTO to add address details and coordinates
+   */
+  private async autoGeocodeFromCep(dto: CreateVoterDto | UpdateVoterDto): Promise<void> {
+    if (!dto.zipCode) return;
+
+    try {
+      // Get address data from ViaCEP
+      const viaCepData = await this.viaCepService.getAddressFromCep(dto.zipCode);
+
+      if (!viaCepData) {
+        console.log(`[AutoGeocode] ViaCEP data not found for CEP: ${dto.zipCode}`);
+        return;
+      }
+
+      // Fill in address details from ViaCEP if not provided
+      if (!dto.address && viaCepData.logradouro) {
+        dto.address = viaCepData.logradouro;
+      }
+      if (!dto.neighborhood && viaCepData.bairro) {
+        dto.neighborhood = viaCepData.bairro;
+      }
+      if (!dto.city && viaCepData.localidade) {
+        dto.city = viaCepData.localidade;
+      }
+      if (!dto.state && viaCepData.uf) {
+        dto.state = viaCepData.uf;
+      }
+
+      // Build full address for geocoding
+      const fullAddress = this.viaCepService.buildFullAddress(viaCepData, dto.addressNumber);
+
+      console.log(`[AutoGeocode] Geocoding address: ${fullAddress}`);
+
+      // Get coordinates from Google Maps
+      const geocodeResult = await this.mapsService.geocodeAddress(fullAddress);
+
+      if (geocodeResult) {
+        dto.latitude = geocodeResult.latitude;
+        dto.longitude = geocodeResult.longitude;
+        console.log(
+          `[AutoGeocode] Coordinates obtained: ${geocodeResult.latitude}, ${geocodeResult.longitude}`,
+        );
+      } else {
+        console.log(`[AutoGeocode] Failed to geocode address: ${fullAddress}`);
+      }
+    } catch (error) {
+      console.error('[AutoGeocode] Error during auto-geocoding:', error.message);
+      // Don't throw - geocoding failure shouldn't block voter creation
+    }
   }
 
   // ==================== REFERRAL SYSTEM ====================

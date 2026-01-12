@@ -3,6 +3,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { VoterMapView } from "@/components/features/voters/voter-map-view";
 import { VoterMapsPanel } from "@/components/features/voters/voter-maps-panel";
+import { VoterHeatmapView } from "@/components/features/voters/voter-heatmap-view";
+import { HeatmapPanel } from "@/components/features/voters/heatmap-panel";
 import { GeofenceMapView } from "@/components/features/geofences/geofence-map-view";
 import { GeofencePanel } from "@/components/features/geofences/geofence-panel";
 import { GeofenceSaveDialog } from "@/components/features/geofences/geofence-save-dialog";
@@ -14,7 +16,7 @@ import {
 } from "@/mock-data/geofences";
 import { SupportLevel, Voter } from "@/types/voters";
 import { Geofence } from "@/types/geofence";
-import { MapPin, Layers } from "lucide-react";
+import { MapPin, Layers, Activity } from "lucide-react";
 import { toast } from "sonner";
 
 const SUPPORT_LEVEL_COLORS: Record<SupportLevel, string> = {
@@ -38,7 +40,9 @@ const SUPPORT_LEVEL_LABELS: Record<SupportLevel, string> = {
 export default function MapsPage() {
   const { voters, fetchVoters } = useVotersStore();
   const [selectedVoterId, setSelectedVoterId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"voters" | "geofences">("voters");
+  const [viewMode, setViewMode] = useState<"voters" | "geofences" | "heatmap">(
+    "voters"
+  );
   const [geofences, setGeofences] = useState<Geofence[]>(initialGeofences);
   const [selectedGeofenceId, setSelectedGeofenceId] = useState<string | null>(
     null
@@ -146,6 +150,14 @@ export default function MapsPage() {
           Eleitores
         </Button>
         <Button
+          variant={viewMode === "heatmap" ? "default" : "ghost"}
+          size="sm"
+          onClick={() => setViewMode("heatmap")}
+        >
+          <Activity className="size-4 mr-2" />
+          Mapa de Calor
+        </Button>
+        <Button
           variant={viewMode === "geofences" ? "default" : "ghost"}
           size="sm"
           onClick={() => setViewMode("geofences")}
@@ -167,6 +179,19 @@ export default function MapsPage() {
             voters={voters}
             selectedVoterId={selectedVoterId}
             onVoterSelect={setSelectedVoterId}
+          />
+        </>
+      )}
+
+      {/* Heatmap View */}
+      {viewMode === "heatmap" && (
+        <>
+          <VoterHeatmapView voters={voters} />
+          <HeatmapPanel
+            votersCount={voters.length}
+            votersWithLocationCount={
+              voters.filter((v) => v.latitude && v.longitude).length
+            }
           />
         </>
       )}
