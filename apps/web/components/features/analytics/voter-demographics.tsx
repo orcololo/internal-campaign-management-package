@@ -188,7 +188,11 @@ export function VoterDemographics({ data }: VoterDemographicsProps) {
                     className="mx-auto size-3 rounded-full"
                     style={{
                       backgroundColor:
-                        idx === 0 ? "#3b82f6" : idx === 1 ? "#ec4899" : "#8b5cf6",
+                        idx === 0
+                          ? "#3b82f6"
+                          : idx === 1
+                          ? "#ec4899"
+                          : "#8b5cf6",
                     }}
                   />
                   <p className="text-sm font-medium">{item.gender}</p>

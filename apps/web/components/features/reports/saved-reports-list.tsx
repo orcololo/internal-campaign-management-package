@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -22,7 +28,11 @@ interface SavedReportsListProps {
   onDuplicate?: (id: string) => void;
 }
 
-export function SavedReportsList({ reports, onDelete, onDuplicate }: SavedReportsListProps) {
+export function SavedReportsList({
+  reports,
+  onDelete,
+  onDuplicate,
+}: SavedReportsListProps) {
   const handleDelete = (id: string, name: string) => {
     if (confirm(`Tem certeza que deseja excluir o relatório "${name}"?`)) {
       onDelete?.(id);
@@ -89,13 +99,17 @@ export function SavedReportsList({ reports, onDelete, onDuplicate }: SavedReport
             {/* Filters & Columns Info */}
             <div className="flex flex-wrap gap-2">
               <Badge variant="secondary">
-                {report.filters.length} filtro{report.filters.length !== 1 ? "s" : ""}
+                {report.filters.length} filtro
+                {report.filters.length !== 1 ? "s" : ""}
               </Badge>
               <Badge variant="secondary">
-                {report.columns.length} coluna{report.columns.length !== 1 ? "s" : ""}
+                {report.columns.length} coluna
+                {report.columns.length !== 1 ? "s" : ""}
               </Badge>
               {report.sorting.length > 0 && (
-                <Badge variant="secondary">{report.sorting.length} ordenação</Badge>
+                <Badge variant="secondary">
+                  {report.sorting.length} ordenação
+                </Badge>
               )}
               {report.isPublic && <Badge variant="outline">Público</Badge>}
             </div>
@@ -106,12 +120,14 @@ export function SavedReportsList({ reports, onDelete, onDuplicate }: SavedReport
                 <span>Usado {report.usageCount}x</span>
                 {report.lastUsedAt && (
                   <span>
-                    Último: {format(report.lastUsedAt, "dd/MM/yy", { locale: ptBR })}
+                    Último:{" "}
+                    {format(report.lastUsedAt, "dd/MM/yy", { locale: ptBR })}
                   </span>
                 )}
               </div>
               <div className="text-xs">
-                Criado em {format(report.createdAt, "dd/MM/yyyy", { locale: ptBR })}
+                Criado em{" "}
+                {format(report.createdAt, "dd/MM/yyyy", { locale: ptBR })}
               </div>
             </div>
 

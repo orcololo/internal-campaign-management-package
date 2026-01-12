@@ -1,10 +1,24 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ReportPreview } from "@/components/features/reports/report-preview";
-import { ArrowLeft, Edit, FileDown, Calendar, Filter, Columns, ArrowUpDown } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit,
+  FileDown,
+  Calendar,
+  Filter,
+  Columns,
+  ArrowUpDown,
+} from "lucide-react";
 import { savedReports } from "@/mock-data/reports";
 import { voters as mockVoters } from "@/mock-data/voters";
 import { format } from "date-fns";
@@ -62,7 +76,8 @@ export default function ViewReportPage({ params }: { params: { id: string } }) {
               {format(report.createdAt, "dd/MM/yy", { locale: ptBR })}
             </div>
             <p className="text-xs text-muted-foreground">
-              Atualizado em {format(report.updatedAt, "dd/MM/yy", { locale: ptBR })}
+              Atualizado em{" "}
+              {format(report.updatedAt, "dd/MM/yy", { locale: ptBR })}
             </p>
           </CardContent>
         </Card>
@@ -76,7 +91,9 @@ export default function ViewReportPage({ params }: { params: { id: string } }) {
             <div className="text-2xl font-bold">{report.usageCount}x</div>
             <p className="text-xs text-muted-foreground">
               {report.lastUsedAt
-                ? `Último uso: ${format(report.lastUsedAt, "dd/MM/yy", { locale: ptBR })}`
+                ? `Último uso: ${format(report.lastUsedAt, "dd/MM/yy", {
+                    locale: ptBR,
+                  })}`
                 : "Nunca usado"}
             </p>
           </CardContent>
@@ -90,7 +107,8 @@ export default function ViewReportPage({ params }: { params: { id: string } }) {
           <CardContent>
             <div className="text-2xl font-bold">{report.filters.length}</div>
             <p className="text-xs text-muted-foreground">
-              {report.columns.length} colunas, {report.sorting.length} ordenações
+              {report.columns.length} colunas, {report.sorting.length}{" "}
+              ordenações
             </p>
           </CardContent>
         </Card>
@@ -111,14 +129,19 @@ export default function ViewReportPage({ params }: { params: { id: string } }) {
               {report.filters.map((filter, index) => {
                 const fieldMeta = getFieldMetadata(filter.field);
                 return (
-                  <div key={filter.id} className="flex items-start gap-2 text-sm">
+                  <div
+                    key={filter.id}
+                    className="flex items-start gap-2 text-sm"
+                  >
                     {index > 0 && filter.logicalOperator && (
                       <Badge variant="outline" className="shrink-0">
                         {filter.logicalOperator === "AND" ? "E" : "OU"}
                       </Badge>
                     )}
                     <div className="flex-1 border rounded-lg p-2 bg-muted/50">
-                      <span className="font-medium">{fieldMeta?.label || filter.field}</span>
+                      <span className="font-medium">
+                        {fieldMeta?.label || filter.field}
+                      </span>
                       <span className="text-muted-foreground mx-2">
                         {getOperatorLabel(filter.operator)}
                       </span>
@@ -174,9 +197,17 @@ export default function ViewReportPage({ params }: { params: { id: string } }) {
                 return (
                   <div key={index} className="flex items-center gap-2 text-sm">
                     <Badge variant="outline">{index + 1}</Badge>
-                    <span className="font-medium">{fieldMeta?.label || sort.field}</span>
-                    <Badge variant={sort.direction === "asc" ? "secondary" : "default"}>
-                      {sort.direction === "asc" ? "↑ Crescente" : "↓ Decrescente"}
+                    <span className="font-medium">
+                      {fieldMeta?.label || sort.field}
+                    </span>
+                    <Badge
+                      variant={
+                        sort.direction === "asc" ? "secondary" : "default"
+                      }
+                    >
+                      {sort.direction === "asc"
+                        ? "↑ Crescente"
+                        : "↓ Decrescente"}
                     </Badge>
                   </div>
                 );

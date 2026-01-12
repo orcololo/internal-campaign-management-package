@@ -11,7 +11,13 @@ import { ReportPreview } from "./report-preview";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
@@ -47,7 +53,8 @@ export function ReportsBuilder({
   const [sorting, setSorting] = useState<ReportSort[]>(initialSorting);
   const [columns, setColumns] = useState<Array<keyof Voter>>(initialColumns);
   const [reportName, setReportName] = useState(initialName);
-  const [reportDescription, setReportDescription] = useState(initialDescription);
+  const [reportDescription, setReportDescription] =
+    useState(initialDescription);
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -93,21 +100,21 @@ export function ReportsBuilder({
     console.log("Saving report:", savedReport);
     toast.success("Relatório salvo com sucesso!");
     setIsSaveDialogOpen(false);
-    
+
     // Navigate to reports list
     router.push("/reports");
   };
 
   const handleExport = async (format: "pdf" | "csv" | "excel") => {
     setIsExporting(true);
-    
+
     try {
       // Simulate export delay
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // In a real app, this would call the backend API
       console.log("Exporting report:", { format, filters, sorting, columns });
-      
+
       toast.success(`Relatório exportado em ${format.toUpperCase()}!`);
     } catch (error) {
       toast.error("Erro ao exportar relatório");
@@ -123,7 +130,8 @@ export function ReportsBuilder({
         <div>
           <h1 className="text-3xl font-bold">Construtor de Relatórios</h1>
           <p className="text-muted-foreground">
-            Configure filtros, colunas e ordenação para gerar relatórios personalizados
+            Configure filtros, colunas e ordenação para gerar relatórios
+            personalizados
           </p>
         </div>
         <div className="flex gap-2">
@@ -166,7 +174,10 @@ export function ReportsBuilder({
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsSaveDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsSaveDialogOpen(false)}
+                >
                   Cancelar
                 </Button>
                 <Button onClick={handleSaveReport}>Salvar</Button>
@@ -197,7 +208,8 @@ export function ReportsBuilder({
             <CardHeader>
               <CardTitle>Filtros</CardTitle>
               <CardDescription>
-                Defina os critérios para filtrar os eleitores que aparecerão no relatório
+                Defina os critérios para filtrar os eleitores que aparecerão no
+                relatório
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -205,7 +217,8 @@ export function ReportsBuilder({
                 <div className="border border-dashed rounded-lg p-8 text-center">
                   <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-sm text-muted-foreground mb-4">
-                    Nenhum filtro definido. Todos os eleitores serão incluídos no relatório.
+                    Nenhum filtro definido. Todos os eleitores serão incluídos
+                    no relatório.
                   </p>
                   <Button onClick={addFilter}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -223,7 +236,11 @@ export function ReportsBuilder({
                       showLogicalOperator={index > 0}
                     />
                   ))}
-                  <Button onClick={addFilter} variant="outline" className="w-full">
+                  <Button
+                    onClick={addFilter}
+                    variant="outline"
+                    className="w-full"
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Adicionar Filtro
                   </Button>
@@ -269,7 +286,11 @@ export function ReportsBuilder({
             <CardContent className="pt-6">
               <ReportPreview
                 data={mockVoters}
-                columns={columns.length > 0 ? columns : ["name", "phone", "email", "city"]}
+                columns={
+                  columns.length > 0
+                    ? columns
+                    : ["name", "phone", "email", "city"]
+                }
                 filters={filters}
                 sorting={sorting}
                 onExport={handleExport}

@@ -5,14 +5,14 @@ import type { Voter } from "@/types/voters";
 interface ReportsStore {
   savedReports: SavedReport[];
   currentReport: Partial<SavedReport> | null;
-  
+
   // Actions
   setSavedReports: (reports: SavedReport[]) => void;
   addReport: (report: SavedReport) => void;
   updateReport: (id: string, updates: Partial<SavedReport>) => void;
   deleteReport: (id: string) => void;
   setCurrentReport: (report: Partial<SavedReport> | null) => void;
-  
+
   // Helpers
   getReportById: (id: string) => SavedReport | undefined;
   getMostUsedReports: (limit?: number) => SavedReport[];

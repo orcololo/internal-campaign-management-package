@@ -11,28 +11,23 @@ Sistema completo para criar, salvar e exportar relatórios personalizados de ele
   - 15 operadores diferentes (igual, contém, maior que, entre, etc.)
   - Lógica AND/OR entre filtros
   - Suporte a valores complexos (datas, números, enums, arrays)
-  
 - **Seleção de Colunas**
   - Seletor organizado por categorias
   - Seleção/deseleção em massa por categoria
   - Contador visual de colunas selecionadas
-  
 - **Ordenação Multi-nível**
   - Ordenação por múltiplos campos
   - Direção crescente/decrescente
   - Reordenação de prioridades (arrastar)
-  
 - **Preview Interativo**
   - Tabela paginada com dados filtrados
   - Visualização em tempo real
   - Contador de registros encontrados
-  
 - **Templates Salvos**
   - Salvar configurações de relatórios com nome e descrição
   - Lista de relatórios salvos com estatísticas de uso
   - Edição de relatórios existentes
   - Duplicação de templates
-  
 - **Exportação**
   - Botões para PDF, CSV e Excel
   - Simulação de exportação com loading state
@@ -77,7 +72,9 @@ app/(dashboard)/reports/
 ## 🎨 Componentes
 
 ### FilterRow
+
 Linha individual de filtro com:
+
 - Seleção de campo (todos os campos de Voter)
 - Operadores dinâmicos baseados no tipo do campo
 - Input de valor adaptativo (string, número, data, enum, boolean)
@@ -85,7 +82,9 @@ Linha individual de filtro com:
 - Botão remover
 
 ### ColumnSelector
+
 Accordion organizado por categorias:
+
 - Informações Básicas
 - Contato
 - Endereço
@@ -99,12 +98,15 @@ Accordion organizado por categorias:
 - Adicionais
 
 Cada categoria com:
+
 - Checkbox por campo
 - Botões "Todos" / "Nenhum"
 - Contador de selecionados
 
 ### SortConfigurator
+
 Lista de ordenações com:
+
 - Campo + direção (asc/desc)
 - Botões para mover para cima/baixo
 - Toggle de direção
@@ -112,7 +114,9 @@ Lista de ordenações com:
 - Explicação da ordem de aplicação
 
 ### ReportPreview
+
 Tabela com:
+
 - Aplicação de filtros (client-side)
 - Aplicação de ordenação (client-side)
 - Paginação (50 itens por página)
@@ -121,13 +125,16 @@ Tabela com:
 - Formatação de valores (datas, booleans, arrays)
 
 ### ReportsBuilder
+
 Interface de tabs com:
+
 1. **Filtros** - Adicionar/remover filtros
 2. **Colunas** - Selecionar campos
 3. **Ordenação** - Configurar sorting
 4. **Preview** - Ver resultado e exportar
 
 Botões globais:
+
 - Cancelar
 - Salvar Template (dialog com nome/descrição)
 
@@ -136,26 +143,32 @@ Botões globais:
 ### Relatórios Salvos (7 exemplos)
 
 1. **Eleitores Engajados de São Paulo**
+
    - Filtros: cidade = SP, engagementScore > 70, supportLevel in [Favorável, Muito Favorável]
    - 45 usos
 
 2. **Voluntários Ativos**
+
    - Filtros: volunteerStatus = Ativo
    - 23 usos
 
 3. **Eleitores Jovens (18-35)**
+
    - Filtros: ageGroup in [18-24, 25-34]
    - 12 usos
 
 4. **Alta Influência nas Redes**
+
    - Filtros: influencerScore > 80, socialMediaFollowers > 1000
    - 34 usos
 
 5. **Sem Contato Recente**
+
    - Filtros: lastContactDate < 90 dias atrás
    - 8 usos
 
 6. **Eleitores com Email Válido**
+
    - Filtros: email isNotEmpty, supportLevel in [Favorável, Muito Favorável, Neutro]
    - 67 usos (mais usado)
 
@@ -166,6 +179,7 @@ Botões globais:
 ## 🔧 Tipos e Interfaces
 
 ### ReportFilter
+
 ```typescript
 {
   id: string;
@@ -177,7 +191,9 @@ Botões globais:
 ```
 
 ### FilterOperator
+
 15 operadores disponíveis:
+
 - equals, notEquals
 - contains, notContains
 - startsWith, endsWith
@@ -186,6 +202,7 @@ Botões globais:
 - isEmpty, isNotEmpty
 
 ### FieldMetadata
+
 ```typescript
 {
   key: keyof Voter;
@@ -200,6 +217,7 @@ Botões globais:
 ## 📊 Metadata de Campos
 
 Total de 60+ campos de Voter mapeados com:
+
 - Label em português
 - Tipo de dado
 - Categoria
@@ -207,6 +225,7 @@ Total de 60+ campos de Voter mapeados com:
 - Valores de enum (quando aplicável)
 
 Categorias:
+
 - `basic` - Informações Básicas (nome, CPF, gênero, data nascimento)
 - `contact` - Contato (telefone, WhatsApp, email)
 - `address` - Endereço (rua, bairro, cidade, estado, CEP, lat/lng)
@@ -222,90 +241,131 @@ Categorias:
 ## 🚀 Como Usar
 
 ### 1. Acessar Lista de Relatórios
+
 ```
 /reports
 ```
+
 Veja todos os relatórios salvos, estatísticas de uso e acesse rapidamente.
 
 ### 2. Criar Novo Relatório
+
 ```
 /reports/builder
 ```
 
 **Passo 1: Filtros**
+
 - Clique "Adicionar Filtro"
 - Selecione campo, operador e valor
 - Adicione múltiplos filtros com AND/OR
 
 **Passo 2: Colunas**
+
 - Expanda categorias
 - Marque campos desejados
 - Use "Todos" para categoria completa
 
 **Passo 3: Ordenação**
+
 - Adicione níveis de ordenação
 - Escolha campo e direção
 - Reordene prioridades
 
 **Passo 4: Preview**
+
 - Veja dados filtrados/ordenados
 - Exporte em PDF/CSV/Excel
 - Ou salve como template
 
 ### 3. Salvar Template
+
 - Clique "Salvar Template"
 - Digite nome e descrição
 - Template aparece na lista
 
 ### 4. Editar Template
+
 ```
 /reports/[id]/edit
 ```
+
 Abre o builder com configurações pré-preenchidas.
 
 ### 5. Visualizar Template
+
 ```
 /reports/[id]
 ```
+
 Vê configuração completa e preview dos dados.
 
 ## 🎯 Exemplos de Filtros
 
 ### Exemplo 1: Eleitores de SP com Alto Engajamento
+
 ```typescript
 [
-  { field: "city", operator: "equals", value: "São Paulo", logicalOperator: "AND" },
-  { field: "engagementScore", operator: "greaterThan", value: 70 }
-]
+  {
+    field: "city",
+    operator: "equals",
+    value: "São Paulo",
+    logicalOperator: "AND",
+  },
+  { field: "engagementScore", operator: "greaterThan", value: 70 },
+];
 ```
 
 ### Exemplo 2: Jovens Favoráveis OU Neutros
+
 ```typescript
 [
-  { field: "ageGroup", operator: "in", value: ["18-24", "25-34"], logicalOperator: "AND" },
-  { field: "supportLevel", operator: "in", value: ["Favorável", "Neutro"] }
-]
+  {
+    field: "ageGroup",
+    operator: "in",
+    value: ["18-24", "25-34"],
+    logicalOperator: "AND",
+  },
+  { field: "supportLevel", operator: "in", value: ["Favorável", "Neutro"] },
+];
 ```
 
 ### Exemplo 3: Sem Contato nos Últimos 90 Dias
+
 ```typescript
 [
-  { field: "lastContactDate", operator: "lessThan", value: new Date("2025-10-13") }
-]
+  {
+    field: "lastContactDate",
+    operator: "lessThan",
+    value: new Date("2025-10-13"),
+  },
+];
 ```
 
 ### Exemplo 4: Influenciadores com Redes Sociais Ativas
+
 ```typescript
 [
-  { field: "influencerScore", operator: "greaterThan", value: 75, logicalOperator: "AND" },
-  { field: "instagram", operator: "isNotEmpty", value: null, logicalOperator: "OR" },
-  { field: "facebook", operator: "isNotEmpty", value: null }
-]
+  {
+    field: "influencerScore",
+    operator: "greaterThan",
+    value: 75,
+    logicalOperator: "AND",
+  },
+  {
+    field: "instagram",
+    operator: "isNotEmpty",
+    value: null,
+    logicalOperator: "OR",
+  },
+  { field: "facebook", operator: "isNotEmpty", value: null },
+];
 ```
 
 ## 📈 Estatísticas da Página
 
 A página `/reports` mostra:
+
 - Total de relatórios (públicos/privados)
 - Relatório mais usado (nome + count)
 - Relatórios usados hoje
@@ -325,6 +385,7 @@ A página `/reports` mostra:
 ## 🔐 Segurança (Futuras)
 
 Quando integrado com backend:
+
 - Rate limiting (max 10 exports/minuto)
 - File size limit (max 10MB)
 - Timeout (max 30s para gerar)
@@ -333,6 +394,7 @@ Quando integrado com backend:
 ## 📊 Performance (Futuras)
 
 Para produção com backend:
+
 - Queue system para exports grandes (>5000 registros)
 - Cache de relatórios frequentes (Redis)
 - Pagination server-side
@@ -341,6 +403,7 @@ Para produção com backend:
 ## 🧪 Testes
 
 Para testar localmente:
+
 1. Navegue para `/reports`
 2. Clique em qualquer relatório salvo para ver preview
 3. Clique "Novo Relatório" para abrir builder
@@ -364,5 +427,5 @@ Para testar localmente:
 ---
 
 **Status**: ✅ Sistema completo implementado no frontend com mock data
-**Build**: ✅ Passing (13 rotas incluindo /reports/*)
+**Build**: ✅ Passing (13 rotas incluindo /reports/\*)
 **Próximo Passo**: Integração com backend para exportação real em PDF

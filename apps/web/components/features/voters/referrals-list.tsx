@@ -5,7 +5,13 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Eye, UserPlus, Search } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -50,9 +56,10 @@ export function ReferralsList({ referrals }: ReferralsListProps) {
 
     // Search filter
     if (searchQuery) {
-      filtered = filtered.filter((voter) =>
-        voter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        voter.email?.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter(
+        (voter) =>
+          voter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          voter.email?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -66,8 +73,10 @@ export function ReferralsList({ referrals }: ReferralsListProps) {
     // Sort
     filtered.sort((a, b) => {
       if (sortBy === "date") {
-        return new Date(b.referralDate || b.createdAt).getTime() - 
-               new Date(a.referralDate || a.createdAt).getTime();
+        return (
+          new Date(b.referralDate || b.createdAt).getTime() -
+          new Date(a.referralDate || a.createdAt).getTime()
+        );
       }
       return a.name.localeCompare(b.name);
     });
@@ -80,9 +89,12 @@ export function ReferralsList({ referrals }: ReferralsListProps) {
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12 text-center">
           <UserPlus className="size-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Nenhum Referenciado Ainda</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            Nenhum Referenciado Ainda
+          </h3>
           <p className="text-sm text-muted-foreground max-w-sm">
-            Compartilhe o link de referência para começar a indicar novos eleitores
+            Compartilhe o link de referência para começar a indicar novos
+            eleitores
           </p>
         </CardContent>
       </Card>
@@ -95,12 +107,13 @@ export function ReferralsList({ referrals }: ReferralsListProps) {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <CardTitle>Referenciados ({filteredReferrals.length})</CardTitle>
-            <CardDescription>
-              Lista de eleitores indicados
-            </CardDescription>
+            <CardDescription>Lista de eleitores indicados</CardDescription>
           </div>
           <div className="flex gap-2">
-            <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+            <Select
+              value={sortBy}
+              onValueChange={(value: any) => setSortBy(value)}
+            >
               <SelectTrigger className="w-35">
                 <SelectValue />
               </SelectTrigger>
@@ -124,7 +137,10 @@ export function ReferralsList({ referrals }: ReferralsListProps) {
               className="pl-9"
             />
           </div>
-          <Select value={supportLevelFilter} onValueChange={setSupportLevelFilter}>
+          <Select
+            value={supportLevelFilter}
+            onValueChange={setSupportLevelFilter}
+          >
             <SelectTrigger className="w-full sm:w-50">
               <SelectValue placeholder="Nível de Apoio" />
             </SelectTrigger>
@@ -134,7 +150,9 @@ export function ReferralsList({ referrals }: ReferralsListProps) {
               <SelectItem value="FAVORAVEL">Favorável</SelectItem>
               <SelectItem value="NEUTRO">Neutro</SelectItem>
               <SelectItem value="DESFAVORAVEL">Desfavorável</SelectItem>
-              <SelectItem value="MUITO_DESFAVORAVEL">Muito Desfavorável</SelectItem>
+              <SelectItem value="MUITO_DESFAVORAVEL">
+                Muito Desfavorável
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -147,14 +165,19 @@ export function ReferralsList({ referrals }: ReferralsListProps) {
                 <TableHead>Nome</TableHead>
                 <TableHead>Data de Cadastro</TableHead>
                 <TableHead>Nível de Apoio</TableHead>
-                <TableHead className="text-center">Seus Referenciados</TableHead>
+                <TableHead className="text-center">
+                  Seus Referenciados
+                </TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredReferrals.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell
+                    colSpan={5}
+                    className="text-center py-8 text-muted-foreground"
+                  >
                     Nenhum resultado encontrado
                   </TableCell>
                 </TableRow>
@@ -164,11 +187,16 @@ export function ReferralsList({ referrals }: ReferralsListProps) {
                     <TableCell>
                       <div>
                         <p className="font-medium">{voter.name}</p>
-                        <p className="text-sm text-muted-foreground">{voter.email}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {voter.email}
+                        </p>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {voter.referralDate && format(new Date(voter.referralDate), "dd/MM/yyyy", { locale: ptBR })}
+                      {voter.referralDate &&
+                        format(new Date(voter.referralDate), "dd/MM/yyyy", {
+                          locale: ptBR,
+                        })}
                     </TableCell>
                     <TableCell>
                       {voter.supportLevel ? (

@@ -38,11 +38,15 @@ export function FilterRow({
   showLogicalOperator = true,
 }: FilterRowProps) {
   const [selectedField, setSelectedField] = useState(filter.field);
-  const fieldMetadata = VOTER_FIELDS_METADATA.find((f) => f.key === selectedField);
+  const fieldMetadata = VOTER_FIELDS_METADATA.find(
+    (f) => f.key === selectedField
+  );
 
   const handleFieldChange = (field: string) => {
     const newField = field as any;
-    const newMetadata = VOTER_FIELDS_METADATA.find((f) => (f.key as string) === field);
+    const newMetadata = VOTER_FIELDS_METADATA.find(
+      (f) => (f.key as string) === field
+    );
     setSelectedField(newField);
     onUpdate({
       ...filter,
@@ -56,7 +60,10 @@ export function FilterRow({
     onUpdate({
       ...filter,
       operator: operator as FilterOperator,
-      value: operator === "isEmpty" || operator === "isNotEmpty" ? null : filter.value,
+      value:
+        operator === "isEmpty" || operator === "isNotEmpty"
+          ? null
+          : filter.value,
     });
   };
 
@@ -87,32 +94,50 @@ export function FilterRow({
           <div className="flex gap-2">
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="justify-start text-left font-normal">
+                <Button
+                  variant="outline"
+                  className="justify-start text-left font-normal"
+                >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {filter.value?.[0] ? format(new Date(filter.value[0]), "PPP", { locale: ptBR }) : "De"}
+                  {filter.value?.[0]
+                    ? format(new Date(filter.value[0]), "PPP", { locale: ptBR })
+                    : "De"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
                 <Calendar
                   mode="single"
-                  selected={filter.value?.[0] ? new Date(filter.value[0]) : undefined}
-                  onSelect={(date) => handleValueChange([date, filter.value?.[1]])}
+                  selected={
+                    filter.value?.[0] ? new Date(filter.value[0]) : undefined
+                  }
+                  onSelect={(date) =>
+                    handleValueChange([date, filter.value?.[1]])
+                  }
                   initialFocus
                 />
               </PopoverContent>
             </Popover>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="justify-start text-left font-normal">
+                <Button
+                  variant="outline"
+                  className="justify-start text-left font-normal"
+                >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {filter.value?.[1] ? format(new Date(filter.value[1]), "PPP", { locale: ptBR }) : "Até"}
+                  {filter.value?.[1]
+                    ? format(new Date(filter.value[1]), "PPP", { locale: ptBR })
+                    : "Até"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
                 <Calendar
                   mode="single"
-                  selected={filter.value?.[1] ? new Date(filter.value[1]) : undefined}
-                  onSelect={(date) => handleValueChange([filter.value?.[0], date])}
+                  selected={
+                    filter.value?.[1] ? new Date(filter.value[1]) : undefined
+                  }
+                  onSelect={(date) =>
+                    handleValueChange([filter.value?.[0], date])
+                  }
                   initialFocus
                 />
               </PopoverContent>
@@ -124,9 +149,14 @@ export function FilterRow({
       return (
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="justify-start text-left font-normal">
+            <Button
+              variant="outline"
+              className="justify-start text-left font-normal"
+            >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {filter.value ? format(new Date(filter.value), "PPP", { locale: ptBR }) : "Selecione uma data"}
+              {filter.value
+                ? format(new Date(filter.value), "PPP", { locale: ptBR })
+                : "Selecione uma data"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
@@ -142,8 +172,16 @@ export function FilterRow({
     }
 
     // Enum/Multi-select inputs
-    if (fieldMetadata.type === "enum" || filter.operator === "in" || filter.operator === "notIn") {
-      const values = Array.isArray(filter.value) ? filter.value : filter.value ? [filter.value] : [];
+    if (
+      fieldMetadata.type === "enum" ||
+      filter.operator === "in" ||
+      filter.operator === "notIn"
+    ) {
+      const values = Array.isArray(filter.value)
+        ? filter.value
+        : filter.value
+        ? [filter.value]
+        : [];
       const options = fieldMetadata.enumValues || [];
 
       return (
@@ -173,7 +211,9 @@ export function FilterRow({
                   {val}
                   <X
                     className="h-3 w-3 cursor-pointer"
-                    onClick={() => handleValueChange(values.filter((v) => v !== val))}
+                    onClick={() =>
+                      handleValueChange(values.filter((v) => v !== val))
+                    }
                   />
                 </Badge>
               ))}
@@ -191,13 +231,17 @@ export function FilterRow({
             type="number"
             placeholder="Mínimo"
             value={filter.value?.[0] || ""}
-            onChange={(e) => handleValueChange([Number(e.target.value), filter.value?.[1]])}
+            onChange={(e) =>
+              handleValueChange([Number(e.target.value), filter.value?.[1]])
+            }
           />
           <Input
             type="number"
             placeholder="Máximo"
             value={filter.value?.[1] || ""}
-            onChange={(e) => handleValueChange([filter.value?.[0], Number(e.target.value)])}
+            onChange={(e) =>
+              handleValueChange([filter.value?.[0], Number(e.target.value)])
+            }
           />
         </div>
       );
@@ -218,7 +262,10 @@ export function FilterRow({
     // Boolean inputs
     if (fieldMetadata.type === "boolean") {
       return (
-        <Select value={filter.value?.toString()} onValueChange={(v) => handleValueChange(v === "true")}>
+        <Select
+          value={filter.value?.toString()}
+          onValueChange={(v) => handleValueChange(v === "true")}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Selecione..." />
           </SelectTrigger>
@@ -261,7 +308,10 @@ export function FilterRow({
         )}
 
         {/* Field Selector */}
-        <Select value={selectedField as string} onValueChange={handleFieldChange}>
+        <Select
+          value={selectedField as string}
+          onValueChange={handleFieldChange}
+        >
           <SelectTrigger className="w-52">
             <SelectValue placeholder="Selecione o campo..." />
           </SelectTrigger>

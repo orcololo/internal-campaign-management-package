@@ -686,7 +686,7 @@ const generatedVoters: Voter[] = Array.from({ length: 200 }, (_, i) =>
 
 // Create referral relationships
 // First 10 voters are "influencers" with referrals
-const influencerIds = generatedVoters.slice(0, 10).map(v => v.id);
+const influencerIds = generatedVoters.slice(0, 10).map((v) => v.id);
 
 // Assign referrals to influencers
 generatedVoters.forEach((voter, index) => {
@@ -704,31 +704,37 @@ generatedVoters.forEach((voter, index) => {
 });
 
 // Calculate referral stats for each voter
-generatedVoters.forEach(voter => {
-  const referrals = generatedVoters.filter(v => v.referredBy === voter.id);
+generatedVoters.forEach((voter) => {
+  const referrals = generatedVoters.filter((v) => v.referredBy === voter.id);
   const now = new Date();
   const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  
+
   voter.referralStats = {
     total: referrals.length,
-    active: referrals.filter(v => v.lastEngagementDate && 
-      new Date(v.lastEngagementDate) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    active: referrals.filter(
+      (v) =>
+        v.lastEngagementDate &&
+        new Date(v.lastEngagementDate) >
+          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
     ).length,
-    thisMonth: referrals.filter(v => v.referralDate && 
-      new Date(v.referralDate) >= thisMonthStart
+    thisMonth: referrals.filter(
+      (v) => v.referralDate && new Date(v.referralDate) >= thisMonthStart
     ).length,
-    byLevel: referrals.reduce((acc, v) => {
-      const level = v.supportLevel || "NAO_DEFINIDO";
-      acc[level] = (acc[level] || 0) + 1;
-      return acc;
-    }, {
-      MUITO_FAVORAVEL: 0,
-      FAVORAVEL: 0,
-      NEUTRO: 0,
-      DESFAVORAVEL: 0,
-      MUITO_DESFAVORAVEL: 0,
-      NAO_DEFINIDO: 0,
-    } as Record<SupportLevel, number>),
+    byLevel: referrals.reduce(
+      (acc, v) => {
+        const level = v.supportLevel || "NAO_DEFINIDO";
+        acc[level] = (acc[level] || 0) + 1;
+        return acc;
+      },
+      {
+        MUITO_FAVORAVEL: 0,
+        FAVORAVEL: 0,
+        NEUTRO: 0,
+        DESFAVORAVEL: 0,
+        MUITO_DESFAVORAVEL: 0,
+        NAO_DEFINIDO: 0,
+      } as Record<SupportLevel, number>
+    ),
   };
 });
 

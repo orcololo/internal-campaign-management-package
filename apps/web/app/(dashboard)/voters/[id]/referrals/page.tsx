@@ -2,7 +2,13 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { voters } from "@/mock-data/voters";
 import { ReferralsStats } from "@/components/features/voters/referrals-stats";
@@ -22,7 +28,9 @@ function getReferrals(voterId: string) {
   return voters.filter((v) => v.referredBy === voterId);
 }
 
-export default async function VoterReferralsPage({ params }: VoterReferralsPageProps) {
+export default async function VoterReferralsPage({
+  params,
+}: VoterReferralsPageProps) {
   const { id } = await params;
   const voter = await getVoter(id);
 
@@ -47,7 +55,7 @@ export default async function VoterReferralsPage({ params }: VoterReferralsPageP
             <ArrowLeft className="size-4" />
           </Button>
         </Link>
-        
+
         <div className="flex-1">
           <div className="flex items-center gap-4 mb-2">
             <Avatar className="size-16">
@@ -71,7 +79,7 @@ export default async function VoterReferralsPage({ params }: VoterReferralsPageP
       {/* Link Generator */}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <ReferralLinkGenerator 
+          <ReferralLinkGenerator
             referralCode={voter.referralCode}
             voterName={voter.name}
           />
@@ -85,15 +93,23 @@ export default async function VoterReferralsPage({ params }: VoterReferralsPageP
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Taxa de Conversão</span>
+              <span className="text-sm text-muted-foreground">
+                Taxa de Conversão
+              </span>
               <span className="text-lg font-bold">
-                {voter.referralStats.total > 0 
-                  ? Math.round((voter.referralStats.active / voter.referralStats.total) * 100)
-                  : 0}%
+                {voter.referralStats.total > 0
+                  ? Math.round(
+                      (voter.referralStats.active / voter.referralStats.total) *
+                        100
+                    )
+                  : 0}
+                %
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Média Mensal</span>
+              <span className="text-sm text-muted-foreground">
+                Média Mensal
+              </span>
               <span className="text-lg font-bold">
                 {Math.round(voter.referralStats.total / 6)}
               </span>
@@ -101,7 +117,10 @@ export default async function VoterReferralsPage({ params }: VoterReferralsPageP
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Melhor Mês</span>
               <span className="text-lg font-bold">
-                {Math.max(voter.referralStats.thisMonth, Math.round(voter.referralStats.total / 6))}
+                {Math.max(
+                  voter.referralStats.thisMonth,
+                  Math.round(voter.referralStats.total / 6)
+                )}
               </span>
             </div>
           </CardContent>
@@ -118,14 +137,13 @@ export default async function VoterReferralsPage({ params }: VoterReferralsPageP
             <UserPlus className="size-16 text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">Comece a Indicar!</h3>
             <p className="text-muted-foreground max-w-md mb-6">
-              Compartilhe o link de referência acima para começar a construir sua rede de apoiadores.
-              Cada pessoa que se cadastrar através do seu link será contabilizada aqui.
+              Compartilhe o link de referência acima para começar a construir
+              sua rede de apoiadores. Cada pessoa que se cadastrar através do
+              seu link será contabilizada aqui.
             </p>
             <div className="flex gap-4">
               <Button variant="outline" asChild>
-                <Link href="/voters">
-                  Ver Todos os Eleitores
-                </Link>
+                <Link href="/voters">Ver Todos os Eleitores</Link>
               </Button>
             </div>
           </CardContent>
@@ -133,27 +151,28 @@ export default async function VoterReferralsPage({ params }: VoterReferralsPageP
       )}
 
       {/* Referral Network Tree (Future Enhancement) */}
-      {referrals.length > 0 && referrals.some(r => r.referralStats.total > 0) && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Rede de Referenciamento</CardTitle>
-            <CardDescription>
-              Visualização da árvore de indicações
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-lg border-2 border-dashed border-muted p-8 text-center">
-              <p className="text-muted-foreground">
-                Visualização de árvore de referenciamento em desenvolvimento
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">
-                {referrals.filter(r => r.referralStats.total > 0).length} referenciados 
-                já estão indicando outras pessoas
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {referrals.length > 0 &&
+        referrals.some((r) => r.referralStats.total > 0) && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Rede de Referenciamento</CardTitle>
+              <CardDescription>
+                Visualização da árvore de indicações
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-lg border-2 border-dashed border-muted p-8 text-center">
+                <p className="text-muted-foreground">
+                  Visualização de árvore de referenciamento em desenvolvimento
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  {referrals.filter((r) => r.referralStats.total > 0).length}{" "}
+                  referenciados já estão indicando outras pessoas
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
     </div>
   );
 }

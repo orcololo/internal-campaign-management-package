@@ -28,7 +28,13 @@ import {
   Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -250,7 +256,9 @@ export function VoterDetail({ voter }: VoterDetailProps) {
               <AvatarFallback className="text-lg">{initials}</AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">{voter.name}</h1>
+              <h1 className="text-3xl font-bold tracking-tight">
+                {voter.name}
+              </h1>
               <p className="text-muted-foreground">
                 {voter.city}, {voter.state}
               </p>
@@ -266,7 +274,11 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                   Referenciados ({voter.referralStats.total})
                 </Button>
               </Link>
-              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditing(true)}
+              >
                 <Edit className="mr-2 h-4 w-4" />
                 Editar Informações Adicionais
               </Button>
@@ -309,16 +321,22 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                   <User className="h-5 w-5" />
                   Informações Básicas
                 </CardTitle>
-                <CardDescription>Dados obrigatórios do eleitor (não editável)</CardDescription>
+                <CardDescription>
+                  Dados obrigatórios do eleitor (não editável)
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Nome Completo</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Nome Completo
+                    </p>
                     <p className="text-sm">{voter.name}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Nome da Mãe</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Nome da Mãe
+                    </p>
                     <p className="text-sm">{voter.motherName || "-"}</p>
                   </div>
                 </div>
@@ -327,15 +345,21 @@ export function VoterDetail({ voter }: VoterDetailProps) {
 
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">CPF</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      CPF
+                    </p>
                     <p className="text-sm">{voter.cpf || "-"}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Data de Nascimento</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Data de Nascimento
+                    </p>
                     <p className="text-sm">{formatDate(voter.dateOfBirth)}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Gênero</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Gênero
+                    </p>
                     <p className="text-sm">{formatGender(voter.gender)}</p>
                   </div>
                 </div>
@@ -343,12 +367,16 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                 <Separator />
 
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">Email</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Email
+                  </p>
                   <p className="text-sm">{voter.email || "-"}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">Telefone</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Telefone
+                  </p>
                   <p className="text-sm">{voter.phone || "-"}</p>
                 </div>
               </CardContent>
@@ -361,11 +389,15 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                   <Home className="h-5 w-5" />
                   Endereço
                 </CardTitle>
-                <CardDescription>Endereço residencial (não editável)</CardDescription>
+                <CardDescription>
+                  Endereço residencial (não editável)
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">Logradouro e Número</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Logradouro e Número
+                  </p>
                   <p className="text-sm">
                     {voter.address}, {voter.addressNumber}
                   </p>
@@ -373,29 +405,39 @@ export function VoterDetail({ voter }: VoterDetailProps) {
 
                 {voter.addressComplement && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Complemento</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Complemento
+                    </p>
                     <p className="text-sm">{voter.addressComplement}</p>
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">Bairro</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Bairro
+                  </p>
                   <p className="text-sm">{voter.neighborhood}</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
-                    <p className="text-sm font-medium text-muted-foreground">Cidade</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Cidade
+                    </p>
                     <p className="text-sm">{voter.city}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Estado</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Estado
+                    </p>
                     <p className="text-sm">{voter.state}</p>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">CEP</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    CEP
+                  </p>
                   <p className="text-sm">{voter.zipCode}</p>
                 </div>
               </CardContent>
@@ -408,16 +450,22 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                   <Phone className="h-5 w-5" />
                   Contato Adicional
                 </CardTitle>
-                <CardDescription>WhatsApp e preferências de contato</CardDescription>
+                <CardDescription>
+                  WhatsApp e preferências de contato
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {!isEditing ? (
                   <>
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">WhatsApp</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        WhatsApp
+                      </p>
                       <div className="flex items-center gap-2">
                         <p className="text-sm">{voter.whatsapp || "-"}</p>
-                        {voter.hasWhatsapp && <WhatsAppBadge hasWhatsapp={voter.hasWhatsapp} />}
+                        {voter.hasWhatsapp && (
+                          <WhatsAppBadge hasWhatsapp={voter.hasWhatsapp} />
+                        )}
                       </div>
                     </div>
 
@@ -474,7 +522,10 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Meio de Contato Preferido</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Selecione" />
@@ -502,29 +553,41 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                   <FileText className="h-5 w-5" />
                   Informações Eleitorais
                 </CardTitle>
-                <CardDescription>Dados do título e local de votação</CardDescription>
+                <CardDescription>
+                  Dados do título e local de votação
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {!isEditing ? (
                   <>
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">Título de Eleitor</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Título de Eleitor
+                      </p>
                       <p className="text-sm">{voter.electoralTitle || "-"}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Zona Eleitoral</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Zona Eleitoral
+                        </p>
                         <p className="text-sm">{voter.electoralZone || "-"}</p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Seção Eleitoral</p>
-                        <p className="text-sm">{voter.electoralSection || "-"}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Seção Eleitoral
+                        </p>
+                        <p className="text-sm">
+                          {voter.electoralSection || "-"}
+                        </p>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">Local de Votação</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Local de Votação
+                      </p>
                       <p className="text-sm">{voter.votingLocation || "-"}</p>
                     </div>
                   </>
@@ -581,7 +644,10 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                         <FormItem>
                           <FormLabel>Local de Votação</FormLabel>
                           <FormControl>
-                            <Input placeholder="Escola Municipal..." {...field} />
+                            <Input
+                              placeholder="Escola Municipal..."
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -606,39 +672,59 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                   <>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Escolaridade</p>
-                        <p className="text-sm">{formatEducationLevel(voter.educationLevel)}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Escolaridade
+                        </p>
+                        <p className="text-sm">
+                          {formatEducationLevel(voter.educationLevel)}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Profissão</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Profissão
+                        </p>
                         <p className="text-sm">{voter.occupation || "-"}</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Faixa de Renda</p>
-                        <p className="text-sm">{formatIncomeLevel(voter.incomeLevel)}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Faixa de Renda
+                        </p>
+                        <p className="text-sm">
+                          {formatIncomeLevel(voter.incomeLevel)}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Estado Civil</p>
-                        <p className="text-sm">{formatMaritalStatus(voter.maritalStatus)}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Estado Civil
+                        </p>
+                        <p className="text-sm">
+                          {formatMaritalStatus(voter.maritalStatus)}
+                        </p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Religião</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Religião
+                        </p>
                         <p className="text-sm">{voter.religion || "-"}</p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Etnia</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Etnia
+                        </p>
                         <p className="text-sm">{voter.ethnicity || "-"}</p>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">Membros da Família</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Membros da Família
+                      </p>
                       <p className="text-sm">{voter.familyMembers || "-"}</p>
                     </div>
                   </>
@@ -651,7 +737,10 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Escolaridade</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Selecione" />
@@ -664,14 +753,24 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                                 <SelectItem value="FUNDAMENTAL_COMPLETO">
                                   Fundamental Completo
                                 </SelectItem>
-                                <SelectItem value="MEDIO_INCOMPLETO">Médio Incompleto</SelectItem>
-                                <SelectItem value="MEDIO_COMPLETO">Médio Completo</SelectItem>
+                                <SelectItem value="MEDIO_INCOMPLETO">
+                                  Médio Incompleto
+                                </SelectItem>
+                                <SelectItem value="MEDIO_COMPLETO">
+                                  Médio Completo
+                                </SelectItem>
                                 <SelectItem value="SUPERIOR_INCOMPLETO">
                                   Superior Incompleto
                                 </SelectItem>
-                                <SelectItem value="SUPERIOR_COMPLETO">Superior Completo</SelectItem>
-                                <SelectItem value="POS_GRADUACAO">Pós-Graduação</SelectItem>
-                                <SelectItem value="NAO_INFORMADO">Não Informado</SelectItem>
+                                <SelectItem value="SUPERIOR_COMPLETO">
+                                  Superior Completo
+                                </SelectItem>
+                                <SelectItem value="POS_GRADUACAO">
+                                  Pós-Graduação
+                                </SelectItem>
+                                <SelectItem value="NAO_INFORMADO">
+                                  Não Informado
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -701,14 +800,19 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Faixa de Renda</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Selecione" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="ATE_1_SALARIO">Até 1 salário mínimo</SelectItem>
+                                <SelectItem value="ATE_1_SALARIO">
+                                  Até 1 salário mínimo
+                                </SelectItem>
                                 <SelectItem value="DE_1_A_2_SALARIOS">
                                   1 a 2 salários mínimos
                                 </SelectItem>
@@ -721,7 +825,9 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                                 <SelectItem value="ACIMA_10_SALARIOS">
                                   Acima de 10 salários mínimos
                                 </SelectItem>
-                                <SelectItem value="NAO_INFORMADO">Não Informado</SelectItem>
+                                <SelectItem value="NAO_INFORMADO">
+                                  Não Informado
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -735,19 +841,32 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Estado Civil</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Selecione" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="SOLTEIRO">Solteiro(a)</SelectItem>
-                                <SelectItem value="CASADO">Casado(a)</SelectItem>
-                                <SelectItem value="DIVORCIADO">Divorciado(a)</SelectItem>
+                                <SelectItem value="SOLTEIRO">
+                                  Solteiro(a)
+                                </SelectItem>
+                                <SelectItem value="CASADO">
+                                  Casado(a)
+                                </SelectItem>
+                                <SelectItem value="DIVORCIADO">
+                                  Divorciado(a)
+                                </SelectItem>
                                 <SelectItem value="VIUVO">Viúvo(a)</SelectItem>
-                                <SelectItem value="UNIAO_ESTAVEL">União Estável</SelectItem>
-                                <SelectItem value="NAO_INFORMADO">Não Informado</SelectItem>
+                                <SelectItem value="UNIAO_ESTAVEL">
+                                  União Estável
+                                </SelectItem>
+                                <SelectItem value="NAO_INFORMADO">
+                                  Não Informado
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -798,7 +917,11 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                               placeholder="0"
                               {...field}
                               onChange={(e) =>
-                                field.onChange(e.target.value ? parseInt(e.target.value) : undefined)
+                                field.onChange(
+                                  e.target.value
+                                    ? parseInt(e.target.value)
+                                    : undefined
+                                )
                               }
                             />
                           </FormControl>
@@ -824,15 +947,21 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                 {!isEditing ? (
                   <>
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">Facebook</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Facebook
+                      </p>
                       <p className="text-sm">{voter.facebook || "-"}</p>
                     </div>
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">Instagram</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Instagram
+                      </p>
                       <p className="text-sm">{voter.instagram || "-"}</p>
                     </div>
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">Twitter/X</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Twitter/X
+                      </p>
                       <p className="text-sm">{voter.twitter || "-"}</p>
                     </div>
                   </>
@@ -889,7 +1018,9 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                   <Heart className="h-5 w-5" />
                   Informações Políticas
                 </CardTitle>
-                <CardDescription>Nível de apoio e histórico político</CardDescription>
+                <CardDescription>
+                  Nível de apoio e histórico político
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {!isEditing ? (
@@ -906,7 +1037,9 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                         )}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Partido Político</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Partido Político
+                        </p>
                         <p className="text-sm">{voter.politicalParty || "-"}</p>
                       </div>
                     </div>
@@ -916,13 +1049,17 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                         <p className="text-sm font-medium text-muted-foreground">
                           Histórico de Votação
                         </p>
-                        <p className="text-sm whitespace-pre-line">{voter.votingHistory}</p>
+                        <p className="text-sm whitespace-pre-line">
+                          {voter.votingHistory}
+                        </p>
                       </div>
                     )}
 
                     {voter.tags && voter.tags.length > 0 && (
                       <div className="space-y-2">
-                        <p className="text-sm font-medium text-muted-foreground">Tags</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Tags
+                        </p>
                         <div className="flex flex-wrap gap-2">
                           {voter.tags.map((tag) => (
                             <Badge key={tag} variant="secondary">
@@ -935,8 +1072,12 @@ export function VoterDetail({ voter }: VoterDetailProps) {
 
                     {voter.notes && (
                       <div className="space-y-2">
-                        <p className="text-sm font-medium text-muted-foreground">Observações</p>
-                        <p className="text-sm whitespace-pre-line">{voter.notes}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Observações
+                        </p>
+                        <p className="text-sm whitespace-pre-line">
+                          {voter.notes}
+                        </p>
                       </div>
                     )}
                   </>
@@ -949,21 +1090,32 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Nível de Apoio</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Selecione o nível" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="MUITO_FAVORAVEL">Muito Favorável</SelectItem>
-                                <SelectItem value="FAVORAVEL">Favorável</SelectItem>
+                                <SelectItem value="MUITO_FAVORAVEL">
+                                  Muito Favorável
+                                </SelectItem>
+                                <SelectItem value="FAVORAVEL">
+                                  Favorável
+                                </SelectItem>
                                 <SelectItem value="NEUTRO">Neutro</SelectItem>
-                                <SelectItem value="DESFAVORAVEL">Desfavorável</SelectItem>
+                                <SelectItem value="DESFAVORAVEL">
+                                  Desfavorável
+                                </SelectItem>
                                 <SelectItem value="MUITO_DESFAVORAVEL">
                                   Muito Desfavorável
                                 </SelectItem>
-                                <SelectItem value="NAO_DEFINIDO">Não Definido</SelectItem>
+                                <SelectItem value="NAO_DEFINIDO">
+                                  Não Definido
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -978,7 +1130,10 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                           <FormItem>
                             <FormLabel>Partido Político</FormLabel>
                             <FormControl>
-                              <Input placeholder="Ex: PT, PSDB, etc." {...field} />
+                              <Input
+                                placeholder="Ex: PT, PSDB, etc."
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1030,14 +1185,21 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                                           checked={field.value?.includes(tag)}
                                           onCheckedChange={(checked) => {
                                             return checked
-                                              ? field.onChange([...(field.value || []), tag])
+                                              ? field.onChange([
+                                                  ...(field.value || []),
+                                                  tag,
+                                                ])
                                               : field.onChange(
-                                                  field.value?.filter((value) => value !== tag)
+                                                  field.value?.filter(
+                                                    (value) => value !== tag
+                                                  )
                                                 );
                                           }}
                                         />
                                       </FormControl>
-                                      <FormLabel className="text-sm font-normal">{tag}</FormLabel>
+                                      <FormLabel className="text-sm font-normal">
+                                        {tag}
+                                      </FormLabel>
                                     </FormItem>
                                   );
                                 }}
@@ -1079,28 +1241,44 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                   <Calendar className="h-5 w-5" />
                   Informações do Sistema
                 </CardTitle>
-                <CardDescription>Dados de cadastro e atualização</CardDescription>
+                <CardDescription>
+                  Dados de cadastro e atualização
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Cadastrado em</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Cadastrado em
+                    </p>
                     <p className="text-sm">
-                      {format(new Date(voter.createdAt), "dd/MM/yyyy 'às' HH:mm", {
-                        locale: ptBR,
-                      })}
+                      {format(
+                        new Date(voter.createdAt),
+                        "dd/MM/yyyy 'às' HH:mm",
+                        {
+                          locale: ptBR,
+                        }
+                      )}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Última atualização</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Última atualização
+                    </p>
                     <p className="text-sm">
-                      {format(new Date(voter.updatedAt), "dd/MM/yyyy 'às' HH:mm", {
-                        locale: ptBR,
-                      })}
+                      {format(
+                        new Date(voter.updatedAt),
+                        "dd/MM/yyyy 'às' HH:mm",
+                        {
+                          locale: ptBR,
+                        }
+                      )}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">ID do Sistema</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      ID do Sistema
+                    </p>
                     <p className="text-xs font-mono">{voter.id}</p>
                   </div>
                 </div>

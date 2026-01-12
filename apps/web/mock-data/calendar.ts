@@ -178,7 +178,7 @@ for (let i = -14; i < 0; i++) {
     actualAttendance:
       status === "completed" ? Math.floor(Math.random() * 40) + 5 : undefined,
     campaignId: "campaign-1",
-    linkedVoters: i % 3 === 0 ? voters.slice(0, 5).map(v => v.id) : undefined,
+    linkedVoters: i % 3 === 0 ? voters.slice(0, 5).map((v) => v.id) : undefined,
     reminders: [],
     tags: ["campanha2024", city.toLowerCase()],
     createdAt: formatISODate(addDays(startDate, -7)),
@@ -252,7 +252,7 @@ for (let i = 0; i < 3; i++) {
     ),
     expectedAttendance: Math.floor(Math.random() * 30) + 10,
     campaignId: "campaign-1",
-    linkedVoters: voters.slice(0, 10).map(v => v.id),
+    linkedVoters: voters.slice(0, 10).map((v) => v.id),
     reminders: [
       {
         id: `reminder-${i}-1`,
@@ -376,21 +376,27 @@ for (let i = 1; i <= 90; i++) {
           ? Math.floor(Math.random() * 200) + 50
           : Math.floor(Math.random() * 30) + 5,
       campaignId: "campaign-1",
-      linkedVoters: i <= 30 && category === "door-to-door" ? voters.slice(0, 15).map(v => v.id) : undefined,
-      reminders: i <= 7 ? [
-        {
-          id: `reminder-future-${eventId}-1`,
-          type: "email" as const,
-          minutesBefore: 1440, // 1 day
-          sent: false,
-        },
-        {
-          id: `reminder-future-${eventId}-2`,
-          type: "notification" as const,
-          minutesBefore: 60, // 1 hour
-          sent: false,
-        },
-      ] : [],
+      linkedVoters:
+        i <= 30 && category === "door-to-door"
+          ? voters.slice(0, 15).map((v) => v.id)
+          : undefined,
+      reminders:
+        i <= 7
+          ? [
+              {
+                id: `reminder-future-${eventId}-1`,
+                type: "email" as const,
+                minutesBefore: 1440, // 1 day
+                sent: false,
+              },
+              {
+                id: `reminder-future-${eventId}-2`,
+                type: "notification" as const,
+                minutesBefore: 60, // 1 hour
+                sent: false,
+              },
+            ]
+          : [],
       tags: [
         "campanha2024",
         city.toLowerCase(),

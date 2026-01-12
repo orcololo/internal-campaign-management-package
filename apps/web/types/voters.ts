@@ -65,10 +65,10 @@ export type VolunteerStatus =
   | "NAO_VOLUNTARIO";
 
 export interface ReferralStats {
-  total: number;           // Total de pessoas indicadas
-  active: number;          // Referenciados ativos
-  thisMonth: number;       // Novos este mês
-  byLevel: Record<SupportLevel, number>;  // Por nível de apoio
+  total: number; // Total de pessoas indicadas
+  active: number; // Referenciados ativos
+  thisMonth: number; // Novos este mês
+  byLevel: Record<SupportLevel, number>; // Por nível de apoio
 }
 
 export interface Voter {
@@ -168,10 +168,10 @@ export interface Voter {
   influenceRadius?: number; // km
 
   // Referral System
-  referralCode: string;           // Código único de referência (ex: "JOAO-SILVA-ABC123")
-  referredBy?: string;            // ID do eleitor que o indicou
-  referralDate?: string;          // Data em que foi referenciado
-  referralStats: ReferralStats;   // Estatísticas de referenciamento
+  referralCode: string; // Código único de referência (ex: "JOAO-SILVA-ABC123")
+  referredBy?: string; // ID do eleitor que o indicou
+  referralDate?: string; // Data em que foi referenciado
+  referralStats: ReferralStats; // Estatísticas de referenciamento
 
   // Audit fields
   createdAt: string;

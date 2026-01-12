@@ -2,13 +2,14 @@
 
 **Data:** 12 de janeiro de 2026  
 **Status:** 📋 Planejamento  
-**Frontend Status:** ✅ Completo  
+**Frontend Status:** ✅ Completo
 
 ---
 
 ## 📋 Visão Geral
 
 Backend completo para geração, salvamento e exportação de relatórios com:
+
 - **Query Builder** dinâmico baseado em filtros
 - **Geração de PDF** com puppeteer
 - **Exportação CSV/Excel** com bibliotecas dedicadas
@@ -21,6 +22,7 @@ Backend completo para geração, salvamento e exportação de relatórios com:
 ## 🏗️ Arquitetura
 
 ### Stack Backend
+
 ```
 NestJS 10
 ├── Drizzle ORM (PostgreSQL)
@@ -33,6 +35,7 @@ NestJS 10
 ```
 
 ### Estrutura de Módulos
+
 ```
 apps/api/src/
 ├── reports/
@@ -64,37 +67,49 @@ apps/api/src/
 ## 🗄️ Database Schema
 
 ### 1. saved_reports Table
+
 ```typescript
 // apps/api/src/database/schemas/saved-report.schema.ts
-import { pgTable, uuid, varchar, text, jsonb, boolean, timestamp, integer } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  text,
+  jsonb,
+  boolean,
+  timestamp,
+  integer,
+} from "drizzle-orm/pg-core";
 
-export const savedReports = pgTable('saved_reports', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: varchar('name', { length: 255 }).notNull(),
-  description: text('description'),
-  
+export const savedReports = pgTable("saved_reports", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+
   // Report Configuration (stored as JSON)
-  filters: jsonb('filters').notNull().$type<ReportFilter[]>(),
-  sorting: jsonb('sorting').notNull().$type<ReportSort[]>(),
-  columns: jsonb('columns').notNull().$type<string[]>(),
-  
+  filters: jsonb("filters").notNull().$type<ReportFilter[]>(),
+  sorting: jsonb("sorting").notNull().$type<ReportSort[]>(),
+  columns: jsonb("columns").notNull().$type<string[]>(),
+
   // Settings
-  includeCharts: boolean('include_charts').default(false),
-  groupBy: varchar('group_by', { length: 100 }),
-  
+  includeCharts: boolean("include_charts").default(false),
+  groupBy: varchar("group_by", { length: 100 }),
+
   // Ownership & Sharing
-  createdBy: uuid('created_by').notNull().references(() => users.id),
-  isPublic: boolean('is_public').default(false),
-  sharedWith: jsonb('shared_with').$type<string[]>().default([]), // user IDs
-  
+  createdBy: uuid("created_by")
+    .notNull()
+    .references(() => users.id),
+  isPublic: boolean("is_public").default(false),
+  sharedWith: jsonb("shared_with").$type<string[]>().default([]), // user IDs
+
   // Usage Statistics
-  usageCount: integer('usage_count').default(0),
-  lastUsedAt: timestamp('last_used_at'),
-  
+  usageCount: integer("usage_count").default(0),
+  lastUsedAt: timestamp("last_used_at"),
+
   // Audit
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  deletedAt: timestamp('deleted_at'),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  deletedAt: timestamp("deleted_at"),
 });
 
 export type SavedReport = typeof savedReports.$inferSelect;
@@ -102,6 +117,7 @@ export type NewSavedReport = typeof savedReports.$inferInsert;
 ```
 
 **Indexes:**
+
 ```sql
 CREATE INDEX idx_saved_reports_created_by ON saved_reports(created_by);
 CREATE INDEX idx_saved_reports_is_public ON saved_reports(is_public);
@@ -110,36 +126,39 @@ CREATE INDEX idx_saved_reports_created_at ON saved_reports(created_at DESC);
 ```
 
 ### 2. report_exports Table (Histórico)
+
 ```typescript
 // apps/api/src/database/schemas/report-export.schema.ts
-export const reportExports = pgTable('report_exports', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  
+export const reportExports = pgTable("report_exports", {
+  id: uuid("id").primaryKey().defaultRandom(),
+
   // Report Reference
-  savedReportId: uuid('saved_report_id').references(() => savedReports.id),
-  reportName: varchar('report_name', { length: 255 }),
-  
+  savedReportId: uuid("saved_report_id").references(() => savedReports.id),
+  reportName: varchar("report_name", { length: 255 }),
+
   // Export Details
-  format: varchar('format', { length: 10 }).notNull(), // pdf, csv, excel
-  recordCount: integer('record_count').notNull(),
-  fileSize: integer('file_size'), // bytes
-  filePath: text('file_path'), // S3 path or local
-  
+  format: varchar("format", { length: 10 }).notNull(), // pdf, csv, excel
+  recordCount: integer("record_count").notNull(),
+  fileSize: integer("file_size"), // bytes
+  filePath: text("file_path"), // S3 path or local
+
   // Filters Applied (snapshot)
-  appliedFilters: jsonb('applied_filters').$type<ReportFilter[]>(),
-  
+  appliedFilters: jsonb("applied_filters").$type<ReportFilter[]>(),
+
   // Processing
-  status: varchar('status', { length: 20 }).default('pending'), // pending, processing, completed, failed
-  processingTime: integer('processing_time'), // milliseconds
-  errorMessage: text('error_message'),
-  
+  status: varchar("status", { length: 20 }).default("pending"), // pending, processing, completed, failed
+  processingTime: integer("processing_time"), // milliseconds
+  errorMessage: text("error_message"),
+
   // User
-  exportedBy: uuid('exported_by').notNull().references(() => users.id),
-  exportedAt: timestamp('exported_at').defaultNow().notNull(),
-  
+  exportedBy: uuid("exported_by")
+    .notNull()
+    .references(() => users.id),
+  exportedAt: timestamp("exported_at").defaultNow().notNull(),
+
   // Expiration (auto-delete after X days)
-  expiresAt: timestamp('expires_at'),
-  deletedAt: timestamp('deleted_at'),
+  expiresAt: timestamp("expires_at"),
+  deletedAt: timestamp("deleted_at"),
 });
 
 export type ReportExport = typeof reportExports.$inferSelect;
@@ -147,6 +166,7 @@ export type NewReportExport = typeof reportExports.$inferInsert;
 ```
 
 **Indexes:**
+
 ```sql
 CREATE INDEX idx_report_exports_user ON report_exports(exported_by, exported_at DESC);
 CREATE INDEX idx_report_exports_status ON report_exports(status);
@@ -154,6 +174,7 @@ CREATE INDEX idx_report_exports_expires ON report_exports(expires_at);
 ```
 
 ### 3. Migration File
+
 ```sql
 -- drizzle/0004_create_reports_tables.sql
 CREATE TABLE saved_reports (
@@ -209,11 +230,20 @@ CREATE INDEX idx_report_exports_expires ON report_exports(expires_at);
 ## 📦 DTOs
 
 ### 1. Create/Update Report DTO
+
 ```typescript
 // apps/api/src/reports/dto/create-report.dto.ts
-import { IsString, IsArray, IsOptional, IsBoolean, ValidateNested, MinLength, MaxLength } from 'class-validator';
-import { Type } from 'class-transformer';
-import { PartialType } from '@nestjs/mapped-types';
+import {
+  IsString,
+  IsArray,
+  IsOptional,
+  IsBoolean,
+  ValidateNested,
+  MinLength,
+  MaxLength,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { PartialType } from "@nestjs/mapped-types";
 
 class ReportFilterDto {
   @IsString()
@@ -230,7 +260,7 @@ class ReportFilterDto {
 
   @IsOptional()
   @IsString()
-  logicalOperator?: 'AND' | 'OR';
+  logicalOperator?: "AND" | "OR";
 }
 
 class ReportSortDto {
@@ -238,7 +268,7 @@ class ReportSortDto {
   field: string;
 
   @IsString()
-  direction: 'asc' | 'desc';
+  direction: "asc" | "desc";
 }
 
 export class CreateReportDto {
@@ -283,11 +313,12 @@ export class UpdateReportDto extends PartialType(CreateReportDto) {}
 ```
 
 ### 2. Export Report DTO
+
 ```typescript
 // apps/api/src/reports/dto/export-report.dto.ts
 export class ExportReportDto {
   @IsString()
-  format: 'pdf' | 'csv' | 'excel';
+  format: "pdf" | "csv" | "excel";
 
   @IsOptional()
   @IsArray()
@@ -313,10 +344,18 @@ export class ExportReportDto {
 ```
 
 ### 3. Filter Report DTO
+
 ```typescript
 // apps/api/src/reports/dto/filter-report.dto.ts
-import { IsOptional, IsInt, Min, Max, IsString, IsBoolean } from 'class-validator';
-import { Type, Transform } from 'class-transformer';
+import {
+  IsOptional,
+  IsInt,
+  Min,
+  Max,
+  IsString,
+  IsBoolean,
+} from "class-validator";
+import { Type, Transform } from "class-transformer";
 
 export class FilterReportDto {
   @IsOptional()
@@ -338,16 +377,16 @@ export class FilterReportDto {
 
   @IsOptional()
   @IsBoolean()
-  @Transform(({ value }) => value === 'true')
+  @Transform(({ value }) => value === "true")
   isPublic?: boolean;
 
   @IsOptional()
   @IsString()
-  sortBy?: 'name' | 'usageCount' | 'createdAt' | 'updatedAt';
+  sortBy?: "name" | "usageCount" | "createdAt" | "updatedAt";
 
   @IsOptional()
   @IsString()
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 ```
 
@@ -356,12 +395,31 @@ export class FilterReportDto {
 ## 🔧 Services
 
 ### 1. Query Builder Service
+
 ```typescript
 // apps/api/src/reports/query-builder.service.ts
-import { Injectable } from '@nestjs/common';
-import { SQL, sql, and, or, eq, gt, lt, gte, lte, like, between, inArray, notInArray, isNull, isNotNull, asc, desc } from 'drizzle-orm';
-import type { ReportFilter, ReportSort } from './dto/create-report.dto';
-import { voters } from '@/database/schemas/voter.schema';
+import { Injectable } from "@nestjs/common";
+import {
+  SQL,
+  sql,
+  and,
+  or,
+  eq,
+  gt,
+  lt,
+  gte,
+  lte,
+  like,
+  between,
+  inArray,
+  notInArray,
+  isNull,
+  isNotNull,
+  asc,
+  desc,
+} from "drizzle-orm";
+import type { ReportFilter, ReportSort } from "./dto/create-report.dto";
+import { voters } from "@/database/schemas/voter.schema";
 
 @Injectable()
 export class QueryBuilderService {
@@ -370,7 +428,7 @@ export class QueryBuilderService {
 
     const conditions: SQL[] = [];
     let currentGroup: SQL[] = [];
-    let currentLogicalOp: 'AND' | 'OR' = 'AND';
+    let currentLogicalOp: "AND" | "OR" = "AND";
 
     for (let i = 0; i < filters.length; i++) {
       const filter = filters[i];
@@ -380,13 +438,13 @@ export class QueryBuilderService {
         if (i === 0) {
           currentGroup.push(condition);
         } else {
-          const logicalOp = filter.logicalOperator || 'AND';
-          
+          const logicalOp = filter.logicalOperator || "AND";
+
           if (logicalOp !== currentLogicalOp) {
             // Flush current group
             conditions.push(
-              currentLogicalOp === 'AND' 
-                ? and(...currentGroup)! 
+              currentLogicalOp === "AND"
+                ? and(...currentGroup)!
                 : or(...currentGroup)!
             );
             currentGroup = [condition];
@@ -401,8 +459,8 @@ export class QueryBuilderService {
     // Flush remaining group
     if (currentGroup.length > 0) {
       conditions.push(
-        currentLogicalOp === 'AND' 
-          ? and(...currentGroup)! 
+        currentLogicalOp === "AND"
+          ? and(...currentGroup)!
           : or(...currentGroup)!
       );
     }
@@ -415,60 +473,60 @@ export class QueryBuilderService {
     if (!field) return undefined;
 
     switch (filter.operator) {
-      case 'equals':
+      case "equals":
         return eq(field, filter.value);
-      
-      case 'notEquals':
+
+      case "notEquals":
         return sql`${field} != ${filter.value}`;
-      
-      case 'contains':
+
+      case "contains":
         return like(field, `%${filter.value}%`);
-      
-      case 'notContains':
+
+      case "notContains":
         return sql`${field} NOT LIKE ${`%${filter.value}%`}`;
-      
-      case 'startsWith':
+
+      case "startsWith":
         return like(field, `${filter.value}%`);
-      
-      case 'endsWith':
+
+      case "endsWith":
         return like(field, `%${filter.value}`);
-      
-      case 'greaterThan':
+
+      case "greaterThan":
         return gt(field, filter.value);
-      
-      case 'lessThan':
+
+      case "lessThan":
         return lt(field, filter.value);
-      
-      case 'greaterThanOrEqual':
+
+      case "greaterThanOrEqual":
         return gte(field, filter.value);
-      
-      case 'lessThanOrEqual':
+
+      case "lessThanOrEqual":
         return lte(field, filter.value);
-      
-      case 'between':
+
+      case "between":
         if (Array.isArray(filter.value) && filter.value.length === 2) {
           return between(field, filter.value[0], filter.value[1]);
         }
         return undefined;
-      
-      case 'in':
+
+      case "in":
         if (Array.isArray(filter.value)) {
           return inArray(field, filter.value);
         }
         return undefined;
-      
-      case 'notIn':
+
+      case "notIn":
         if (Array.isArray(filter.value)) {
           return notInArray(field, filter.value);
         }
         return undefined;
-      
-      case 'isEmpty':
-        return or(isNull(field), eq(field, ''))!;
-      
-      case 'isNotEmpty':
+
+      case "isEmpty":
+        return or(isNull(field), eq(field, ""))!;
+
+      case "isNotEmpty":
         return and(isNotNull(field), sql`${field} != ''`)!;
-      
+
       default:
         return undefined;
     }
@@ -477,13 +535,13 @@ export class QueryBuilderService {
   buildOrderByClause(sorting: ReportSort[]) {
     return sorting.map((sort) => {
       const field = voters[sort.field as keyof typeof voters];
-      return sort.direction === 'asc' ? asc(field) : desc(field);
+      return sort.direction === "asc" ? asc(field) : desc(field);
     });
   }
 
   buildSelectClause(columns: string[]) {
     const select: Record<string, any> = {};
-    
+
     columns.forEach((column) => {
       if (voters[column as keyof typeof voters]) {
         select[column] = voters[column as keyof typeof voters];
@@ -496,20 +554,21 @@ export class QueryBuilderService {
 ```
 
 ### 2. Reports Service
+
 ```typescript
 // apps/api/src/reports/reports.service.ts
-import { Injectable, Inject } from '@nestjs/common';
-import type { Database } from '@/database';
-import { voters } from '@/database/schemas/voter.schema';
-import { QueryBuilderService } from './query-builder.service';
-import { sql, isNull } from 'drizzle-orm';
-import type { ReportConfig } from './dto/create-report.dto';
+import { Injectable, Inject } from "@nestjs/common";
+import type { Database } from "@/database";
+import { voters } from "@/database/schemas/voter.schema";
+import { QueryBuilderService } from "./query-builder.service";
+import { sql, isNull } from "drizzle-orm";
+import type { ReportConfig } from "./dto/create-report.dto";
 
 @Injectable()
 export class ReportsService {
   constructor(
-    @Inject('DATABASE') private db: Database,
-    private queryBuilder: QueryBuilderService,
+    @Inject("DATABASE") private db: Database,
+    private queryBuilder: QueryBuilderService
   ) {}
 
   async executeReport(config: ReportConfig) {
@@ -561,7 +620,7 @@ export class ReportsService {
 
   async previewReport(config: ReportConfig, page = 1, perPage = 50) {
     const result = await this.executeReport(config);
-    
+
     const start = (page - 1) * perPage;
     const end = start + perPage;
 
@@ -579,62 +638,63 @@ export class ReportsService {
 ```
 
 ### 3. PDF Generator Service
+
 ```typescript
 // apps/api/src/reports/export/pdf-generator.service.ts
-import { Injectable } from '@nestjs/common';
-import puppeteer from 'puppeteer';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import Handlebars from 'handlebars';
-import type { ReportConfig } from '../dto/create-report.dto';
+import { Injectable } from "@nestjs/common";
+import puppeteer from "puppeteer";
+import { readFileSync } from "fs";
+import { join } from "path";
+import Handlebars from "handlebars";
+import type { ReportConfig } from "../dto/create-report.dto";
 
 @Injectable()
 export class PdfGeneratorService {
   private template: HandlebarsTemplateDelegate;
 
   constructor() {
-    const templatePath = join(__dirname, '../templates/report-template.html');
-    const templateHtml = readFileSync(templatePath, 'utf-8');
+    const templatePath = join(__dirname, "../templates/report-template.html");
+    const templateHtml = readFileSync(templatePath, "utf-8");
     this.template = Handlebars.compile(templateHtml);
 
     // Register helpers
-    Handlebars.registerHelper('formatDate', (date: Date) => {
-      return date?.toLocaleDateString('pt-BR') || '-';
+    Handlebars.registerHelper("formatDate", (date: Date) => {
+      return date?.toLocaleDateString("pt-BR") || "-";
     });
 
-    Handlebars.registerHelper('formatBoolean', (value: boolean) => {
-      return value ? 'Sim' : 'Não';
+    Handlebars.registerHelper("formatBoolean", (value: boolean) => {
+      return value ? "Sim" : "Não";
     });
   }
 
   async generate(data: any[], config: ReportConfig): Promise<Buffer> {
     const html = this.template({
-      reportName: config.name || 'Relatório de Eleitores',
+      reportName: config.name || "Relatório de Eleitores",
       description: config.description,
-      generatedAt: new Date().toLocaleString('pt-BR'),
+      generatedAt: new Date().toLocaleString("pt-BR"),
       filters: this.formatFilters(config.filters),
       summary: this.generateSummary(data),
-      columns: config.columns.map(col => this.getFieldLabel(col)),
-      data: data.map(row => this.formatRow(row, config.columns)),
+      columns: config.columns.map((col) => this.getFieldLabel(col)),
+      data: data.map((row) => this.formatRow(row, config.columns)),
       includeCharts: config.includeCharts,
     });
 
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
     try {
       const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.setContent(html, { waitUntil: "networkidle0" });
 
       const pdf = await page.pdf({
-        format: 'A4',
+        format: "A4",
         margin: {
-          top: '20mm',
-          right: '15mm',
-          bottom: '20mm',
-          left: '15mm',
+          top: "20mm",
+          right: "15mm",
+          bottom: "20mm",
+          left: "15mm",
         },
         printBackground: true,
         preferCSSPageSize: true,
@@ -662,17 +722,17 @@ export class PdfGeneratorService {
   }
 
   private formatRow(row: any, columns: string[]) {
-    return columns.map(col => this.formatValue(row[col]));
+    return columns.map((col) => this.formatValue(row[col]));
   }
 
   private getFieldLabel(field: string): string {
     const labels: Record<string, string> = {
-      name: 'Nome',
-      email: 'Email',
-      phone: 'Telefone',
-      city: 'Cidade',
-      state: 'Estado',
-      supportLevel: 'Nível de Apoio',
+      name: "Nome",
+      email: "Email",
+      phone: "Telefone",
+      city: "Cidade",
+      state: "Estado",
+      supportLevel: "Nível de Apoio",
       // Add all field labels...
     };
     return labels[field] || field;
@@ -680,36 +740,37 @@ export class PdfGeneratorService {
 
   private getOperatorLabel(operator: string): string {
     const labels: Record<string, string> = {
-      equals: 'Igual a',
-      contains: 'Contém',
-      greaterThan: 'Maior que',
-      lessThan: 'Menor que',
-      between: 'Entre',
-      in: 'Em',
-      isEmpty: 'Está vazio',
+      equals: "Igual a",
+      contains: "Contém",
+      greaterThan: "Maior que",
+      lessThan: "Menor que",
+      between: "Entre",
+      in: "Em",
+      isEmpty: "Está vazio",
       // Add all operator labels...
     };
     return labels[operator] || operator;
   }
 
   private formatValue(value: any): string {
-    if (value === null || value === undefined || value === '') return '-';
-    if (Array.isArray(value)) return value.join(', ');
-    if (value instanceof Date) return value.toLocaleDateString('pt-BR');
-    if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
+    if (value === null || value === undefined || value === "") return "-";
+    if (Array.isArray(value)) return value.join(", ");
+    if (value instanceof Date) return value.toLocaleDateString("pt-BR");
+    if (typeof value === "boolean") return value ? "Sim" : "Não";
     return String(value);
   }
 }
 ```
 
 ### 4. CSV Generator Service
+
 ```typescript
 // apps/api/src/reports/export/csv-generator.service.ts
-import { Injectable } from '@nestjs/common';
-import { createObjectCsvWriter } from 'csv-writer';
-import { tmpdir } from 'os';
-import { join } from 'path';
-import { readFileSync, unlinkSync } from 'fs';
+import { Injectable } from "@nestjs/common";
+import { createObjectCsvWriter } from "csv-writer";
+import { tmpdir } from "os";
+import { join } from "path";
+import { readFileSync, unlinkSync } from "fs";
 
 @Injectable()
 export class CsvGeneratorService {
@@ -722,14 +783,14 @@ export class CsvGeneratorService {
         id: col,
         title: this.getColumnLabel(col),
       })),
-      encoding: 'utf8',
-      fieldDelimiter: ';',
+      encoding: "utf8",
+      fieldDelimiter: ";",
     });
 
     // Format data
-    const formattedData = data.map(row => {
+    const formattedData = data.map((row) => {
       const formatted: Record<string, any> = {};
-      columns.forEach(col => {
+      columns.forEach((col) => {
         formatted[col] = this.formatValue(row[col]);
       });
       return formatted;
@@ -745,38 +806,43 @@ export class CsvGeneratorService {
 
   private getColumnLabel(column: string): string {
     const labels: Record<string, string> = {
-      name: 'Nome',
-      email: 'Email',
-      phone: 'Telefone',
+      name: "Nome",
+      email: "Email",
+      phone: "Telefone",
       // Add all labels...
     };
     return labels[column] || column;
   }
 
   private formatValue(value: any): string {
-    if (value === null || value === undefined) return '';
-    if (Array.isArray(value)) return value.join(', ');
-    if (value instanceof Date) return value.toLocaleDateString('pt-BR');
-    if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
+    if (value === null || value === undefined) return "";
+    if (Array.isArray(value)) return value.join(", ");
+    if (value instanceof Date) return value.toLocaleDateString("pt-BR");
+    if (typeof value === "boolean") return value ? "Sim" : "Não";
     return String(value);
   }
 }
 ```
 
 ### 5. Excel Generator Service
+
 ```typescript
 // apps/api/src/reports/export/excel-generator.service.ts
-import { Injectable } from '@nestjs/common';
-import * as ExcelJS from 'exceljs';
+import { Injectable } from "@nestjs/common";
+import * as ExcelJS from "exceljs";
 
 @Injectable()
 export class ExcelGeneratorService {
-  async generate(data: any[], columns: string[], reportName: string): Promise<Buffer> {
+  async generate(
+    data: any[],
+    columns: string[],
+    reportName: string
+  ): Promise<Buffer> {
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Relatório');
+    const worksheet = workbook.addWorksheet("Relatório");
 
     // Set metadata
-    workbook.creator = 'Ele.ia Platform';
+    workbook.creator = "Ele.ia Platform";
     workbook.created = new Date();
 
     // Add header row
@@ -787,18 +853,21 @@ export class ExcelGeneratorService {
     }));
 
     // Style header
-    worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    worksheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
     worksheet.getRow(1).fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FF4CAF50' },
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF4CAF50" },
     };
-    worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getRow(1).alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
 
     // Add data rows
     data.forEach((row) => {
       const formatted: Record<string, any> = {};
-      columns.forEach(col => {
+      columns.forEach((col) => {
         formatted[col] = this.formatValue(row[col]);
       });
       worksheet.addRow(formatted);
@@ -806,12 +875,12 @@ export class ExcelGeneratorService {
 
     // Auto-filter
     worksheet.autoFilter = {
-      from: 'A1',
+      from: "A1",
       to: `${String.fromCharCode(65 + columns.length - 1)}1`,
     };
 
     // Freeze header row
-    worksheet.views = [{ state: 'frozen', ySplit: 1 }];
+    worksheet.views = [{ state: "frozen", ySplit: 1 }];
 
     // Generate buffer
     return (await workbook.xlsx.writeBuffer()) as Buffer;
@@ -819,36 +888,42 @@ export class ExcelGeneratorService {
 
   private getColumnLabel(column: string): string {
     const labels: Record<string, string> = {
-      name: 'Nome',
-      email: 'Email',
-      phone: 'Telefone',
+      name: "Nome",
+      email: "Email",
+      phone: "Telefone",
       // Add all labels...
     };
     return labels[column] || column;
   }
 
   private formatValue(value: any): any {
-    if (value === null || value === undefined) return '';
-    if (Array.isArray(value)) return value.join(', ');
+    if (value === null || value === undefined) return "";
+    if (Array.isArray(value)) return value.join(", ");
     if (value instanceof Date) return value;
-    if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
+    if (typeof value === "boolean") return value ? "Sim" : "Não";
     return value;
   }
 }
 ```
 
 ### 6. Saved Reports Service
+
 ```typescript
 // apps/api/src/reports/saved-reports.service.ts
-import { Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
-import type { Database } from '@/database';
-import { savedReports } from '@/database/schemas/saved-report.schema';
-import { eq, and, or, isNull, sql, desc, asc } from 'drizzle-orm';
-import type { CreateReportDto, UpdateReportDto, FilterReportDto } from './dto';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  ForbiddenException,
+} from "@nestjs/common";
+import type { Database } from "@/database";
+import { savedReports } from "@/database/schemas/saved-report.schema";
+import { eq, and, or, isNull, sql, desc, asc } from "drizzle-orm";
+import type { CreateReportDto, UpdateReportDto, FilterReportDto } from "./dto";
 
 @Injectable()
 export class SavedReportsService {
-  constructor(@Inject('DATABASE') private db: Database) {}
+  constructor(@Inject("DATABASE") private db: Database) {}
 
   async create(dto: CreateReportDto, userId: string) {
     const [report] = await this.db
@@ -863,16 +938,20 @@ export class SavedReportsService {
   }
 
   async findAll(userId: string, filters: FilterReportDto) {
-    const { page = 1, perPage = 20, search, isPublic, sortBy, sortOrder } = filters;
+    const {
+      page = 1,
+      perPage = 20,
+      search,
+      isPublic,
+      sortBy,
+      sortOrder,
+    } = filters;
 
     const where = [isNull(savedReports.deletedAt)];
 
     // User can see their own reports + public reports
     where.push(
-      or(
-        eq(savedReports.createdBy, userId),
-        eq(savedReports.isPublic, true)
-      )!
+      or(eq(savedReports.createdBy, userId), eq(savedReports.isPublic, true))!
     );
 
     if (search) {
@@ -890,18 +969,19 @@ export class SavedReportsService {
 
     // Order by
     let orderBy: any = desc(savedReports.updatedAt);
-    if (sortBy === 'usageCount') {
-      orderBy = sortOrder === 'asc' 
-        ? asc(savedReports.usageCount) 
-        : desc(savedReports.usageCount);
-    } else if (sortBy === 'createdAt') {
-      orderBy = sortOrder === 'asc'
-        ? asc(savedReports.createdAt)
-        : desc(savedReports.createdAt);
-    } else if (sortBy === 'name') {
-      orderBy = sortOrder === 'asc'
-        ? asc(savedReports.name)
-        : desc(savedReports.name);
+    if (sortBy === "usageCount") {
+      orderBy =
+        sortOrder === "asc"
+          ? asc(savedReports.usageCount)
+          : desc(savedReports.usageCount);
+    } else if (sortBy === "createdAt") {
+      orderBy =
+        sortOrder === "asc"
+          ? asc(savedReports.createdAt)
+          : desc(savedReports.createdAt);
+    } else if (sortBy === "name") {
+      orderBy =
+        sortOrder === "asc" ? asc(savedReports.name) : desc(savedReports.name);
     }
 
     const [data, count] = await Promise.all([
@@ -956,7 +1036,7 @@ export class SavedReportsService {
 
     // Only owner can update
     if (report.createdBy !== userId) {
-      throw new ForbiddenException('You can only update your own reports');
+      throw new ForbiddenException("You can only update your own reports");
     }
 
     const [updated] = await this.db
@@ -972,7 +1052,7 @@ export class SavedReportsService {
     const report = await this.findOne(id, userId);
 
     if (report.createdBy !== userId) {
-      throw new ForbiddenException('You can only delete your own reports');
+      throw new ForbiddenException("You can only delete your own reports");
     }
 
     await this.db
@@ -1028,27 +1108,27 @@ import {
   UseGuards,
   Res,
   HttpStatus,
-} from '@nestjs/common';
-import { Response } from 'express';
-import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
-import { RolesGuard } from '@/common/guards/roles.guard';
-import { Roles } from '@/common/decorators/roles.decorator';
-import { CurrentUser } from '@/common/decorators/current-user.decorator';
-import { SavedReportsService } from './saved-reports.service';
-import { ReportsService } from './reports.service';
-import { PdfGeneratorService } from './export/pdf-generator.service';
-import { CsvGeneratorService } from './export/csv-generator.service';
-import { ExcelGeneratorService } from './export/excel-generator.service';
-import { Queue } from 'bull';
-import { InjectQueue } from '@nestjs/bull';
+} from "@nestjs/common";
+import { Response } from "express";
+import { JwtAuthGuard } from "@/common/guards/jwt-auth.guard";
+import { RolesGuard } from "@/common/guards/roles.guard";
+import { Roles } from "@/common/decorators/roles.decorator";
+import { CurrentUser } from "@/common/decorators/current-user.decorator";
+import { SavedReportsService } from "./saved-reports.service";
+import { ReportsService } from "./reports.service";
+import { PdfGeneratorService } from "./export/pdf-generator.service";
+import { CsvGeneratorService } from "./export/csv-generator.service";
+import { ExcelGeneratorService } from "./export/excel-generator.service";
+import { Queue } from "bull";
+import { InjectQueue } from "@nestjs/bull";
 import type {
   CreateReportDto,
   UpdateReportDto,
   ExportReportDto,
   FilterReportDto,
-} from './dto';
+} from "./dto";
 
-@Controller('campaigns/:campaignId/reports')
+@Controller("campaigns/:campaignId/reports")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ReportsController {
   constructor(
@@ -1057,81 +1137,75 @@ export class ReportsController {
     private pdfGenerator: PdfGeneratorService,
     private csvGenerator: CsvGeneratorService,
     private excelGenerator: ExcelGeneratorService,
-    @InjectQueue('export-report') private exportQueue: Queue,
+    @InjectQueue("export-report") private exportQueue: Queue
   ) {}
 
   @Post()
-  @Roles('CANDIDATO', 'ESTRATEGISTA')
+  @Roles("CANDIDATO", "ESTRATEGISTA")
   async create(
     @Body() dto: CreateReportDto,
-    @CurrentUser('id') userId: string,
+    @CurrentUser("id") userId: string
   ) {
     return this.savedReportsService.create(dto, userId);
   }
 
   @Get()
-  @Roles('CANDIDATO', 'ESTRATEGISTA', 'LIDERANCA', 'ESCRITORIO')
+  @Roles("CANDIDATO", "ESTRATEGISTA", "LIDERANCA", "ESCRITORIO")
   async findAll(
     @Query() filters: FilterReportDto,
-    @CurrentUser('id') userId: string,
+    @CurrentUser("id") userId: string
   ) {
     return this.savedReportsService.findAll(userId, filters);
   }
 
-  @Get('most-used')
-  @Roles('CANDIDATO', 'ESTRATEGISTA', 'LIDERANCA', 'ESCRITORIO')
-  async getMostUsed(@CurrentUser('id') userId: string) {
+  @Get("most-used")
+  @Roles("CANDIDATO", "ESTRATEGISTA", "LIDERANCA", "ESCRITORIO")
+  async getMostUsed(@CurrentUser("id") userId: string) {
     return this.savedReportsService.getMostUsed(userId);
   }
 
-  @Get(':id')
-  @Roles('CANDIDATO', 'ESTRATEGISTA', 'LIDERANCA', 'ESCRITORIO')
-  async findOne(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  @Get(":id")
+  @Roles("CANDIDATO", "ESTRATEGISTA", "LIDERANCA", "ESCRITORIO")
+  async findOne(@Param("id") id: string, @CurrentUser("id") userId: string) {
     return this.savedReportsService.findOne(id, userId);
   }
 
-  @Patch(':id')
-  @Roles('CANDIDATO', 'ESTRATEGISTA')
+  @Patch(":id")
+  @Roles("CANDIDATO", "ESTRATEGISTA")
   async update(
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Body() dto: UpdateReportDto,
-    @CurrentUser('id') userId: string,
+    @CurrentUser("id") userId: string
   ) {
     return this.savedReportsService.update(id, userId, dto);
   }
 
-  @Delete(':id')
-  @Roles('CANDIDATO', 'ESTRATEGISTA')
-  async remove(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  @Delete(":id")
+  @Roles("CANDIDATO", "ESTRATEGISTA")
+  async remove(@Param("id") id: string, @CurrentUser("id") userId: string) {
     await this.savedReportsService.remove(id, userId);
-    return { message: 'Report deleted successfully' };
+    return { message: "Report deleted successfully" };
   }
 
-  @Post(':id/preview')
-  @Roles('CANDIDATO', 'ESTRATEGISTA', 'LIDERANCA', 'ESCRITORIO')
+  @Post(":id/preview")
+  @Roles("CANDIDATO", "ESTRATEGISTA", "LIDERANCA", "ESCRITORIO")
   async preview(
-    @Param('id') id: string,
-    @Query('page') page: number = 1,
-    @Query('perPage') perPage: number = 50,
-    @CurrentUser('id') userId: string,
+    @Param("id") id: string,
+    @Query("page") page: number = 1,
+    @Query("perPage") perPage: number = 50,
+    @CurrentUser("id") userId: string
   ) {
     const report = await this.savedReportsService.findOne(id, userId);
     return this.reportsService.previewReport(report, page, perPage);
   }
 
-  @Post(':id/export')
-  @Roles('CANDIDATO', 'ESTRATEGISTA', 'LIDERANCA')
+  @Post(":id/export")
+  @Roles("CANDIDATO", "ESTRATEGISTA", "LIDERANCA")
   async export(
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Body() dto: ExportReportDto,
-    @CurrentUser('id') userId: string,
-    @Res() res: Response,
+    @CurrentUser("id") userId: string,
+    @Res() res: Response
   ) {
     const report = await this.savedReportsService.findOne(id, userId);
     await this.savedReportsService.incrementUsage(id);
@@ -1142,7 +1216,7 @@ export class ReportsController {
     // Check if should queue (large dataset)
     if (result.data.length > 5000) {
       // Add to queue
-      const job = await this.exportQueue.add('export', {
+      const job = await this.exportQueue.add("export", {
         reportId: id,
         userId,
         format: dto.format,
@@ -1151,7 +1225,7 @@ export class ReportsController {
       });
 
       return res.status(HttpStatus.ACCEPTED).json({
-        message: 'Export queued for processing',
+        message: "Export queued for processing",
         jobId: job.id,
       });
     }
@@ -1162,45 +1236,46 @@ export class ReportsController {
     let contentType: string;
 
     switch (dto.format) {
-      case 'pdf':
+      case "pdf":
         buffer = await this.pdfGenerator.generate(result.data, report);
-        filename = `${report.name.replace(/[^a-z0-9]/gi, '_')}.pdf`;
-        contentType = 'application/pdf';
+        filename = `${report.name.replace(/[^a-z0-9]/gi, "_")}.pdf`;
+        contentType = "application/pdf";
         break;
 
-      case 'csv':
+      case "csv":
         buffer = await this.csvGenerator.generate(result.data, report.columns);
-        filename = `${report.name.replace(/[^a-z0-9]/gi, '_')}.csv`;
-        contentType = 'text/csv; charset=utf-8';
+        filename = `${report.name.replace(/[^a-z0-9]/gi, "_")}.csv`;
+        contentType = "text/csv; charset=utf-8";
         break;
 
-      case 'excel':
+      case "excel":
         buffer = await this.excelGenerator.generate(
           result.data,
           report.columns,
-          report.name,
+          report.name
         );
-        filename = `${report.name.replace(/[^a-z0-9]/gi, '_')}.xlsx`;
-        contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        filename = `${report.name.replace(/[^a-z0-9]/gi, "_")}.xlsx`;
+        contentType =
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         break;
     }
 
     res.set({
-      'Content-Type': contentType,
-      'Content-Disposition': `attachment; filename="${filename}"`,
-      'Content-Length': buffer.length,
+      "Content-Type": contentType,
+      "Content-Disposition": `attachment; filename="${filename}"`,
+      "Content-Length": buffer.length,
     });
 
     return res.send(buffer);
   }
 
-  @Get('exports/:jobId/status')
-  @Roles('CANDIDATO', 'ESTRATEGISTA', 'LIDERANCA')
-  async getExportStatus(@Param('jobId') jobId: string) {
+  @Get("exports/:jobId/status")
+  @Roles("CANDIDATO", "ESTRATEGISTA", "LIDERANCA")
+  async getExportStatus(@Param("jobId") jobId: string) {
     const job = await this.exportQueue.getJob(jobId);
-    
+
     if (!job) {
-      throw new NotFoundException('Job not found');
+      throw new NotFoundException("Job not found");
     }
 
     const state = await job.getState();
@@ -1211,7 +1286,7 @@ export class ReportsController {
       state,
       progress,
       data: job.data,
-      result: state === 'completed' ? await job.finished() : null,
+      result: state === "completed" ? await job.finished() : null,
     };
   }
 }
@@ -1223,25 +1298,25 @@ export class ReportsController {
 
 ```typescript
 // apps/api/src/reports/reports.module.ts
-import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bull';
-import { ReportsController } from './reports.controller';
-import { ReportsService } from './reports.service';
-import { SavedReportsService } from './saved-reports.service';
-import { QueryBuilderService } from './query-builder.service';
-import { PdfGeneratorService } from './export/pdf-generator.service';
-import { CsvGeneratorService } from './export/csv-generator.service';
-import { ExcelGeneratorService } from './export/excel-generator.service';
-import { ExportReportProcessor } from './processors/export-report.processor';
+import { Module } from "@nestjs/common";
+import { BullModule } from "@nestjs/bull";
+import { ReportsController } from "./reports.controller";
+import { ReportsService } from "./reports.service";
+import { SavedReportsService } from "./saved-reports.service";
+import { QueryBuilderService } from "./query-builder.service";
+import { PdfGeneratorService } from "./export/pdf-generator.service";
+import { CsvGeneratorService } from "./export/csv-generator.service";
+import { ExcelGeneratorService } from "./export/excel-generator.service";
+import { ExportReportProcessor } from "./processors/export-report.processor";
 
 @Module({
   imports: [
     BullModule.registerQueue({
-      name: 'export-report',
+      name: "export-report",
       defaultJobOptions: {
         attempts: 3,
         backoff: {
-          type: 'exponential',
+          type: "exponential",
           delay: 1000,
         },
         removeOnComplete: true,
@@ -1270,15 +1345,15 @@ export class ReportsModule {}
 
 ```typescript
 // apps/api/src/reports/processors/export-report.processor.ts
-import { Process, Processor } from '@nestjs/bull';
-import { Job } from 'bull';
-import { Injectable, Logger } from '@nestjs/common';
-import { PdfGeneratorService } from '../export/pdf-generator.service';
-import { CsvGeneratorService } from '../export/csv-generator.service';
-import { ExcelGeneratorService } from '../export/excel-generator.service';
-import { S3 } from 'aws-sdk';
+import { Process, Processor } from "@nestjs/bull";
+import { Job } from "bull";
+import { Injectable, Logger } from "@nestjs/common";
+import { PdfGeneratorService } from "../export/pdf-generator.service";
+import { CsvGeneratorService } from "../export/csv-generator.service";
+import { ExcelGeneratorService } from "../export/excel-generator.service";
+import { S3 } from "aws-sdk";
 
-@Processor('export-report')
+@Processor("export-report")
 @Injectable()
 export class ExportReportProcessor {
   private readonly logger = new Logger(ExportReportProcessor.name);
@@ -1287,7 +1362,7 @@ export class ExportReportProcessor {
   constructor(
     private pdfGenerator: PdfGeneratorService,
     private csvGenerator: CsvGeneratorService,
-    private excelGenerator: ExcelGeneratorService,
+    private excelGenerator: ExcelGeneratorService
   ) {
     this.s3 = new S3({
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -1296,7 +1371,7 @@ export class ExportReportProcessor {
     });
   }
 
-  @Process('export')
+  @Process("export")
   async handleExport(job: Job) {
     const { reportId, userId, format, data, config } = job.data;
 
@@ -1309,17 +1384,21 @@ export class ExportReportProcessor {
       let extension: string;
 
       switch (format) {
-        case 'pdf':
+        case "pdf":
           buffer = await this.pdfGenerator.generate(data, config);
-          extension = 'pdf';
+          extension = "pdf";
           break;
-        case 'csv':
+        case "csv":
           buffer = await this.csvGenerator.generate(data, config.columns);
-          extension = 'csv';
+          extension = "csv";
           break;
-        case 'excel':
-          buffer = await this.excelGenerator.generate(data, config.columns, config.name);
-          extension = 'xlsx';
+        case "excel":
+          buffer = await this.excelGenerator.generate(
+            data,
+            config.columns,
+            config.name
+          );
+          extension = "xlsx";
           break;
       }
 
@@ -1328,7 +1407,7 @@ export class ExportReportProcessor {
 
       // Upload to S3
       const key = `reports/${userId}/${reportId}/${Date.now()}.${extension}`;
-      
+
       await this.s3
         .putObject({
           Bucket: process.env.S3_BUCKET_NAME,
@@ -1361,11 +1440,12 @@ export class ExportReportProcessor {
 
   private getContentType(format: string): string {
     const types = {
-      pdf: 'application/pdf',
-      csv: 'text/csv',
-      excel: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      pdf: "application/pdf",
+      csv: "text/csv",
+      excel:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     };
-    return types[format] || 'application/octet-stream';
+    return types[format] || "application/octet-stream";
   }
 }
 ```
@@ -1398,6 +1478,7 @@ export class ExportReportProcessor {
 ## 🚀 Implementação em Fases
 
 ### **Fase 1: Core (Semana 1)** ⏳
+
 - [ ] Database schemas e migrations
 - [ ] DTOs e validação
 - [ ] QueryBuilderService
@@ -1410,6 +1491,7 @@ export class ExportReportProcessor {
 ---
 
 ### **Fase 2: Exportação Síncrona (Semana 2)** ⏳
+
 - [ ] PdfGeneratorService
 - [ ] CsvGeneratorService
 - [ ] ExcelGeneratorService
@@ -1422,6 +1504,7 @@ export class ExportReportProcessor {
 ---
 
 ### **Fase 3: Filas e Processamento Assíncrono (Semana 3)** ⏳
+
 - [ ] Bull/BullMQ setup
 - [ ] Redis configuration
 - [ ] ExportReportProcessor
@@ -1434,6 +1517,7 @@ export class ExportReportProcessor {
 ---
 
 ### **Fase 4: Otimizações e Produção (Semana 4)** ⏳
+
 - [ ] S3 integration para arquivos exportados
 - [ ] Cache (Redis) para relatórios frequentes
 - [ ] Rate limiting (max 10 exports/minuto)
@@ -1470,6 +1554,7 @@ GET    /campaigns/:campaignId/reports/exports/:jobId/status  # Check export job 
 ## 🔐 Security & Performance
 
 ### Rate Limiting
+
 ```typescript
 // Guard ou interceptor
 @UseGuards(RateLimitGuard)
@@ -1479,6 +1564,7 @@ async export() {}
 ```
 
 ### Caching (Redis)
+
 ```typescript
 // Cache relatórios frequentes
 @CacheTTL(300) // 5 minutes
@@ -1487,18 +1573,20 @@ async getMostUsed() {}
 ```
 
 ### File Size Limits
+
 ```typescript
 // Max 10MB para PDFs
 if (buffer.length > 10 * 1024 * 1024) {
-  throw new BadRequestException('Export too large');
+  throw new BadRequestException("Export too large");
 }
 ```
 
 ### Timeouts
+
 ```typescript
 // Max 30s para gerar
 const timeout = setTimeout(() => {
-  throw new RequestTimeoutException('Export timeout');
+  throw new RequestTimeoutException("Export timeout");
 }, 30000);
 ```
 
@@ -1507,12 +1595,14 @@ const timeout = setTimeout(() => {
 ## 📈 Monitoring
 
 ### Logs Importantes
+
 - Export iniciado (userId, reportId, format, recordCount)
 - Export concluído (duration, fileSize)
 - Export falhado (error, stack trace)
 - Queue metrics (waiting, active, completed, failed)
 
 ### Métricas
+
 - Exports por usuário/dia
 - Tempo médio de geração por formato
 - Taxa de sucesso/falha
@@ -1524,17 +1614,20 @@ const timeout = setTimeout(() => {
 ## 🧪 Testing Strategy
 
 ### Unit Tests
+
 - QueryBuilderService (cada operador)
 - ReportsService (execute, preview)
 - SavedReportsService (CRUD)
 - Generators (PDF, CSV, Excel)
 
 ### Integration Tests
+
 - Controller endpoints
 - Database operations
 - Queue processing
 
 ### E2E Tests
+
 - Create report → Save → Export → Download
 - Large dataset → Queue → Status → Download
 - Access control (public vs private reports)
@@ -1547,144 +1640,144 @@ const timeout = setTimeout(() => {
 <!-- apps/api/src/reports/templates/report-template.html -->
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>{{reportName}}</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 20px;
-      color: #333;
-    }
-    .header {
-      text-align: center;
-      border-bottom: 2px solid #4CAF50;
-      padding-bottom: 20px;
-      margin-bottom: 30px;
-    }
-    .header h1 {
-      color: #4CAF50;
-      margin: 0 0 10px 0;
-    }
-    .meta {
-      color: #666;
-      font-size: 0.9em;
-    }
-    .filters {
-      background: #f5f5f5;
-      padding: 15px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-    }
-    .filters h3 {
-      margin-top: 0;
-    }
-    .filter-item {
-      margin: 5px 0;
-      padding: 5px 0;
-    }
-    .summary {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .summary-box {
-      text-align: center;
-      padding: 15px;
-      background: #e3f2fd;
-      border-radius: 5px;
-    }
-    .summary-box .number {
-      font-size: 2em;
-      font-weight: bold;
-      color: #1976d2;
-    }
-    .summary-box .label {
-      color: #666;
-      font-size: 0.9em;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background-color: #4CAF50;
-      color: white;
-      font-weight: bold;
-    }
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    .footer {
-      margin-top: 50px;
-      text-align: center;
-      color: #999;
-      font-size: 0.8em;
-      border-top: 1px solid #ddd;
-      padding-top: 20px;
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>{{reportName}}</h1>
-    {{#if description}}
-    <p>{{description}}</p>
-    {{/if}}
-    <div class="meta">
-      Gerado em {{generatedAt}} | Ele.ia Platform
+  <head>
+    <meta charset="utf-8" />
+    <title>{{reportName}}</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+      }
+      .header {
+        text-align: center;
+        border-bottom: 2px solid #4caf50;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+      }
+      .header h1 {
+        color: #4caf50;
+        margin: 0 0 10px 0;
+      }
+      .meta {
+        color: #666;
+        font-size: 0.9em;
+      }
+      .filters {
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+      .filters h3 {
+        margin-top: 0;
+      }
+      .filter-item {
+        margin: 5px 0;
+        padding: 5px 0;
+      }
+      .summary {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 30px;
+      }
+      .summary-box {
+        text-align: center;
+        padding: 15px;
+        background: #e3f2fd;
+        border-radius: 5px;
+      }
+      .summary-box .number {
+        font-size: 2em;
+        font-weight: bold;
+        color: #1976d2;
+      }
+      .summary-box .label {
+        color: #666;
+        font-size: 0.9em;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+      }
+      th {
+        background-color: #4caf50;
+        color: white;
+        font-weight: bold;
+      }
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+      .footer {
+        margin-top: 50px;
+        text-align: center;
+        color: #999;
+        font-size: 0.8em;
+        border-top: 1px solid #ddd;
+        padding-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>{{reportName}}</h1>
+      {{#if description}}
+      <p>{{description}}</p>
+      {{/if}}
+      <div class="meta">Gerado em {{generatedAt}} | Ele.ia Platform</div>
     </div>
-  </div>
 
-  {{#if filters}}
-  <div class="filters">
-    <h3>Filtros Aplicados</h3>
-    {{#each filters}}
-    <div class="filter-item">
-      <strong>{{this.field}}</strong> {{this.operator}} <em>{{this.value}}</em>
-    </div>
-    {{/each}}
-  </div>
-  {{/if}}
-
-  <div class="summary">
-    <div class="summary-box">
-      <div class="number">{{summary.total}}</div>
-      <div class="label">Registros</div>
-    </div>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        {{#each columns}}
-        <th>{{this}}</th>
-        {{/each}}
-      </tr>
-    </thead>
-    <tbody>
-      {{#each data}}
-      <tr>
-        {{#each this}}
-        <td>{{this}}</td>
-        {{/each}}
-      </tr>
+    {{#if filters}}
+    <div class="filters">
+      <h3>Filtros Aplicados</h3>
+      {{#each filters}}
+      <div class="filter-item">
+        <strong>{{this.field}}</strong> {{this.operator}}
+        <em>{{this.value}}</em>
+      </div>
       {{/each}}
-    </tbody>
-  </table>
+    </div>
+    {{/if}}
 
-  <div class="footer">
-    Relatório gerado pela plataforma Ele.ia<br>
-    © 2026 Todos os direitos reservados
-  </div>
-</body>
+    <div class="summary">
+      <div class="summary-box">
+        <div class="number">{{summary.total}}</div>
+        <div class="label">Registros</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          {{#each columns}}
+          <th>{{this}}</th>
+          {{/each}}
+        </tr>
+      </thead>
+      <tbody>
+        {{#each data}}
+        <tr>
+          {{#each this}}
+          <td>{{this}}</td>
+          {{/each}}
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+    <div class="footer">
+      Relatório gerado pela plataforma Ele.ia<br />
+      © 2026 Todos os direitos reservados
+    </div>
+  </body>
 </html>
 ```
 

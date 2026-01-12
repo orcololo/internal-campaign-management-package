@@ -19,7 +19,10 @@ interface ColumnSelectorProps {
   onChange: (columns: Array<keyof Voter>) => void;
 }
 
-export function ColumnSelector({ selectedColumns, onChange }: ColumnSelectorProps) {
+export function ColumnSelector({
+  selectedColumns,
+  onChange,
+}: ColumnSelectorProps) {
   const [expanded, setExpanded] = useState<string[]>(["basic", "contact"]);
 
   const toggleColumn = (column: keyof Voter) => {
@@ -31,9 +34,9 @@ export function ColumnSelector({ selectedColumns, onChange }: ColumnSelectorProp
   };
 
   const selectAllInCategory = (category: string) => {
-    const categoryFields = VOTER_FIELDS_METADATA.filter((f) => f.category === category).map(
-      (f) => f.key
-    );
+    const categoryFields = VOTER_FIELDS_METADATA.filter(
+      (f) => f.category === category
+    ).map((f) => f.key);
     const newColumns = [...selectedColumns];
     categoryFields.forEach((field) => {
       if (!newColumns.includes(field)) {
@@ -44,9 +47,9 @@ export function ColumnSelector({ selectedColumns, onChange }: ColumnSelectorProp
   };
 
   const clearAllInCategory = (category: string) => {
-    const categoryFields = VOTER_FIELDS_METADATA.filter((f) => f.category === category).map(
-      (f) => f.key
-    );
+    const categoryFields = VOTER_FIELDS_METADATA.filter(
+      (f) => f.category === category
+    ).map((f) => f.key);
     onChange(selectedColumns.filter((c) => !categoryFields.includes(c)));
   };
 
@@ -59,9 +62,9 @@ export function ColumnSelector({ selectedColumns, onChange }: ColumnSelectorProp
   };
 
   const getCategoryCount = (category: string) => {
-    const categoryFields = VOTER_FIELDS_METADATA.filter((f) => f.category === category).map(
-      (f) => f.key
-    );
+    const categoryFields = VOTER_FIELDS_METADATA.filter(
+      (f) => f.category === category
+    ).map((f) => f.key);
     return selectedColumns.filter((c) => categoryFields.includes(c)).length;
   };
 
@@ -84,9 +87,16 @@ export function ColumnSelector({ selectedColumns, onChange }: ColumnSelectorProp
         </div>
       </div>
 
-      <Accordion type="multiple" value={expanded} onValueChange={setExpanded} className="w-full">
+      <Accordion
+        type="multiple"
+        value={expanded}
+        onValueChange={setExpanded}
+        className="w-full"
+      >
         {categories.map(([key, label]) => {
-          const categoryFields = VOTER_FIELDS_METADATA.filter((f) => f.category === key);
+          const categoryFields = VOTER_FIELDS_METADATA.filter(
+            (f) => f.category === key
+          );
           const selectedCount = getCategoryCount(key);
 
           return (
@@ -94,7 +104,10 @@ export function ColumnSelector({ selectedColumns, onChange }: ColumnSelectorProp
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center justify-between w-full pr-4">
                   <span className="text-sm font-medium">{label}</span>
-                  <Badge variant={selectedCount > 0 ? "default" : "outline"} className="text-xs">
+                  <Badge
+                    variant={selectedCount > 0 ? "default" : "outline"}
+                    className="text-xs"
+                  >
                     {selectedCount}/{categoryFields.length}
                   </Badge>
                 </div>
@@ -121,7 +134,10 @@ export function ColumnSelector({ selectedColumns, onChange }: ColumnSelectorProp
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     {categoryFields.map((field) => (
-                      <div key={field.key as string} className="flex items-center space-x-2">
+                      <div
+                        key={field.key as string}
+                        className="flex items-center space-x-2"
+                      >
                         <Checkbox
                           id={field.key as string}
                           checked={selectedColumns.includes(field.key)}

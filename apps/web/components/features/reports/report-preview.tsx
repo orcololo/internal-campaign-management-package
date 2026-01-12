@@ -60,13 +60,21 @@ export function ReportPreview({
           case "notEquals":
             return value !== filterValue;
           case "contains":
-            return String(value || "").toLowerCase().includes(String(filterValue).toLowerCase());
+            return String(value || "")
+              .toLowerCase()
+              .includes(String(filterValue).toLowerCase());
           case "notContains":
-            return !String(value || "").toLowerCase().includes(String(filterValue).toLowerCase());
+            return !String(value || "")
+              .toLowerCase()
+              .includes(String(filterValue).toLowerCase());
           case "startsWith":
-            return String(value || "").toLowerCase().startsWith(String(filterValue).toLowerCase());
+            return String(value || "")
+              .toLowerCase()
+              .startsWith(String(filterValue).toLowerCase());
           case "endsWith":
-            return String(value || "").toLowerCase().endsWith(String(filterValue).toLowerCase());
+            return String(value || "")
+              .toLowerCase()
+              .endsWith(String(filterValue).toLowerCase());
           case "greaterThan":
             return Number(value) > Number(filterValue);
           case "lessThan":
@@ -78,7 +86,10 @@ export function ReportPreview({
           case "between":
             if (Array.isArray(filterValue) && filterValue.length === 2) {
               const numValue = Number(value);
-              return numValue >= Number(filterValue[0]) && numValue <= Number(filterValue[1]);
+              return (
+                numValue >= Number(filterValue[0]) &&
+                numValue <= Number(filterValue[1])
+              );
             }
             return false;
           case "in":
@@ -163,7 +174,8 @@ export function ReportPreview({
         <div>
           <h3 className="text-lg font-semibold">Preview do Relatório</h3>
           <p className="text-sm text-muted-foreground">
-            {sortedData.length} registro{sortedData.length !== 1 ? "s" : ""} encontrado
+            {sortedData.length} registro{sortedData.length !== 1 ? "s" : ""}{" "}
+            encontrado
             {sortedData.length !== 1 ? "s" : ""}
           </p>
         </div>
@@ -212,14 +224,19 @@ export function ReportPreview({
           <TableHeader>
             <TableRow>
               {columns.map((column) => (
-                <TableHead key={column as string}>{getColumnLabel(column)}</TableHead>
+                <TableHead key={column as string}>
+                  {getColumnLabel(column)}
+                </TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center py-8">
+                <TableCell
+                  colSpan={columns.length}
+                  className="text-center py-8"
+                >
                   Nenhum registro encontrado com os filtros aplicados.
                 </TableCell>
               </TableRow>

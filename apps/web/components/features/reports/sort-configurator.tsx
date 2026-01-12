@@ -40,7 +40,9 @@ export function SortConfigurator({ sorting, onChange }: SortConfiguratorProps) {
 
   const toggleDirection = (index: number) => {
     const current = sorting[index];
-    updateSort(index, { direction: current.direction === "asc" ? "desc" : "asc" });
+    updateSort(index, {
+      direction: current.direction === "asc" ? "desc" : "asc",
+    });
   };
 
   const moveSort = (index: number, direction: "up" | "down") => {
@@ -48,7 +50,10 @@ export function SortConfigurator({ sorting, onChange }: SortConfiguratorProps) {
     const targetIndex = direction === "up" ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= sorting.length) return;
 
-    [newSorting[index], newSorting[targetIndex]] = [newSorting[targetIndex], newSorting[index]];
+    [newSorting[index], newSorting[targetIndex]] = [
+      newSorting[targetIndex],
+      newSorting[index],
+    ];
     onChange(newSorting);
   };
 
@@ -61,7 +66,9 @@ export function SortConfigurator({ sorting, onChange }: SortConfiguratorProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-medium">Ordenação</h3>
-          {sorting.length > 0 && <Badge variant="secondary">{sorting.length} níveis</Badge>}
+          {sorting.length > 0 && (
+            <Badge variant="secondary">{sorting.length} níveis</Badge>
+          )}
         </div>
         <Button variant="outline" size="sm" onClick={addSort}>
           <Plus className="h-4 w-4 mr-1" />
@@ -116,14 +123,19 @@ export function SortConfigurator({ sorting, onChange }: SortConfiguratorProps) {
               {/* Field Selector */}
               <Select
                 value={sort.field as string}
-                onValueChange={(value) => updateSort(index, { field: value as keyof Voter })}
+                onValueChange={(value) =>
+                  updateSort(index, { field: value as keyof Voter })
+                }
               >
                 <SelectTrigger className="flex-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {VOTER_FIELDS_METADATA.map((field) => (
-                    <SelectItem key={field.key as string} value={field.key as string}>
+                    <SelectItem
+                      key={field.key as string}
+                      value={field.key as string}
+                    >
                       {field.label}
                     </SelectItem>
                   ))}
@@ -151,7 +163,11 @@ export function SortConfigurator({ sorting, onChange }: SortConfiguratorProps) {
               </Button>
 
               {/* Remove Button */}
-              <Button variant="ghost" size="icon" onClick={() => removeSort(index)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => removeSort(index)}
+              >
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -161,8 +177,8 @@ export function SortConfigurator({ sorting, onChange }: SortConfiguratorProps) {
 
       {sorting.length > 1 && (
         <div className="text-xs text-muted-foreground bg-muted p-3 rounded-lg">
-          <strong>Ordem de prioridade:</strong> Os dados serão ordenados primeiro por{" "}
-          <strong>{getFieldLabel(sorting[0].field)}</strong>
+          <strong>Ordem de prioridade:</strong> Os dados serão ordenados
+          primeiro por <strong>{getFieldLabel(sorting[0].field)}</strong>
           {sorting.length > 1 && (
             <>
               , depois por <strong>{getFieldLabel(sorting[1].field)}</strong>

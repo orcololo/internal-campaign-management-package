@@ -31,8 +31,17 @@ import { VoterDemographics } from "@/components/features/analytics/voter-demogra
 import { EngagementChart } from "@/components/features/analytics/engagement-chart";
 import { GeographicHeatmap } from "@/components/features/analytics/geographic-heatmap";
 import { MetricCard } from "@/components/composed/charts/metric-card";
-import { chartData, demographicData, dashboardMetrics } from "@/mock-data/analytics";
-import { Users, Calendar as CalendarIcon2, TrendingUp, MapPin } from "lucide-react";
+import {
+  chartData,
+  demographicData,
+  dashboardMetrics,
+} from "@/mock-data/analytics";
+import {
+  Users,
+  Calendar as CalendarIcon2,
+  TrendingUp,
+  MapPin,
+} from "lucide-react";
 
 type DateRange = {
   from: Date | undefined;

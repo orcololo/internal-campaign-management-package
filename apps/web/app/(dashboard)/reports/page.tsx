@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -8,7 +14,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, FileText, MoreVertical, Eye, Edit, Trash2, Copy, Calendar, TrendingUp } from "lucide-react";
+import {
+  Plus,
+  FileText,
+  MoreVertical,
+  Eye,
+  Edit,
+  Trash2,
+  Copy,
+  Calendar,
+  TrendingUp,
+} from "lucide-react";
 import { savedReports } from "@/mock-data/reports";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -40,7 +56,9 @@ export default function ReportsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Relatórios</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total de Relatórios
+            </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -61,7 +79,10 @@ export default function ReportsPage() {
               {Math.max(...savedReports.map((r) => r.usageCount))}
             </div>
             <p className="text-xs text-muted-foreground">
-              {savedReports.sort((a, b) => b.usageCount - a.usageCount)[0]?.name}
+              {
+                savedReports.sort((a, b) => b.usageCount - a.usageCount)[0]
+                  ?.name
+              }
             </p>
           </CardContent>
         </Card>
@@ -74,9 +95,13 @@ export default function ReportsPage() {
           <CardContent>
             <div className="text-2xl font-bold">Hoje</div>
             <p className="text-xs text-muted-foreground">
-              {savedReports.filter(
-                (r) => r.lastUsedAt && r.lastUsedAt.toDateString() === new Date().toDateString()
-              ).length}{" "}
+              {
+                savedReports.filter(
+                  (r) =>
+                    r.lastUsedAt &&
+                    r.lastUsedAt.toDateString() === new Date().toDateString()
+                ).length
+              }{" "}
               relatórios usados
             </p>
           </CardContent>
@@ -130,13 +155,17 @@ export default function ReportsPage() {
               {/* Filters & Columns Info */}
               <div className="flex flex-wrap gap-2">
                 <Badge variant="secondary">
-                  {report.filters.length} filtro{report.filters.length !== 1 ? "s" : ""}
+                  {report.filters.length} filtro
+                  {report.filters.length !== 1 ? "s" : ""}
                 </Badge>
                 <Badge variant="secondary">
-                  {report.columns.length} coluna{report.columns.length !== 1 ? "s" : ""}
+                  {report.columns.length} coluna
+                  {report.columns.length !== 1 ? "s" : ""}
                 </Badge>
                 {report.sorting.length > 0 && (
-                  <Badge variant="secondary">{report.sorting.length} ordenação</Badge>
+                  <Badge variant="secondary">
+                    {report.sorting.length} ordenação
+                  </Badge>
                 )}
                 {report.isPublic && <Badge variant="outline">Público</Badge>}
               </div>
@@ -147,12 +176,14 @@ export default function ReportsPage() {
                   <span>Usado {report.usageCount}x</span>
                   {report.lastUsedAt && (
                     <span>
-                      Último uso: {format(report.lastUsedAt, "dd/MM/yy", { locale: ptBR })}
+                      Último uso:{" "}
+                      {format(report.lastUsedAt, "dd/MM/yy", { locale: ptBR })}
                     </span>
                   )}
                 </div>
                 <div className="text-xs">
-                  Criado em {format(report.createdAt, "dd/MM/yyyy", { locale: ptBR })}
+                  Criado em{" "}
+                  {format(report.createdAt, "dd/MM/yyyy", { locale: ptBR })}
                 </div>
               </div>
 
@@ -181,9 +212,12 @@ export default function ReportsPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <FileText className="h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Nenhum relatório criado</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              Nenhum relatório criado
+            </h3>
             <p className="text-sm text-muted-foreground text-center mb-6">
-              Crie seu primeiro relatório personalizado para exportar dados de eleitores
+              Crie seu primeiro relatório personalizado para exportar dados de
+              eleitores
             </p>
             <Link href="/reports/builder">
               <Button>

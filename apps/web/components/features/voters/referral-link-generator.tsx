@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { Copy, Check, QrCode, Share2 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -12,9 +18,12 @@ interface ReferralLinkGeneratorProps {
   voterName: string;
 }
 
-export function ReferralLinkGenerator({ referralCode, voterName }: ReferralLinkGeneratorProps) {
+export function ReferralLinkGenerator({
+  referralCode,
+  voterName,
+}: ReferralLinkGeneratorProps) {
   const [copied, setCopied] = useState(false);
-  
+
   // In production, this would be your actual domain
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
   const referralLink = `${baseUrl}/register?ref=${referralCode}`;
@@ -68,16 +77,8 @@ export function ReferralLinkGenerator({ referralCode, voterName }: ReferralLinkG
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">
-          <Input 
-            value={referralLink} 
-            readOnly 
-            className="font-mono text-sm"
-          />
-          <Button 
-            onClick={handleCopy} 
-            variant="outline"
-            className="shrink-0"
-          >
+          <Input value={referralLink} readOnly className="font-mono text-sm" />
+          <Button onClick={handleCopy} variant="outline" className="shrink-0">
             {copied ? (
               <>
                 <Check className="size-4 mr-2" />
@@ -93,19 +94,11 @@ export function ReferralLinkGenerator({ referralCode, voterName }: ReferralLinkG
         </div>
 
         <div className="flex gap-2">
-          <Button 
-            onClick={handleShare} 
-            variant="default"
-            className="flex-1"
-          >
+          <Button onClick={handleShare} variant="default" className="flex-1">
             <Share2 className="size-4 mr-2" />
             Compartilhar
           </Button>
-          <Button 
-            onClick={handleQRCode} 
-            variant="outline"
-            className="flex-1"
-          >
+          <Button onClick={handleQRCode} variant="outline" className="flex-1">
             <QrCode className="size-4 mr-2" />
             Gerar QR Code
           </Button>
@@ -113,7 +106,9 @@ export function ReferralLinkGenerator({ referralCode, voterName }: ReferralLinkG
 
         <div className="rounded-lg bg-muted p-4 space-y-2">
           <p className="text-sm font-medium">Código de Referência</p>
-          <p className="text-xs text-muted-foreground font-mono">{referralCode}</p>
+          <p className="text-xs text-muted-foreground font-mono">
+            {referralCode}
+          </p>
         </div>
       </CardContent>
     </Card>
