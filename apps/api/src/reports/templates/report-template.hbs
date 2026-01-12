@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{reportName}}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      font-size: 10px;
+      color: #333;
+      padding: 20px;
+      background: #fff;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 3px solid #2563eb;
+      padding-bottom: 15px;
+    }
+
+    .header h1 {
+      color: #1e40af;
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      color: #6b7280;
+      font-size: 12px;
+    }
+
+    .metadata {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 10px;
+      background: #f3f4f6;
+      border-radius: 5px;
+    }
+
+    .metadata-item {
+      font-size: 11px;
+    }
+
+    .metadata-item strong {
+      color: #1e40af;
+    }
+
+    .summary {
+      margin-bottom: 25px;
+      padding: 15px;
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      border-radius: 5px;
+    }
+
+    .summary h2 {
+      font-size: 16px;
+      color: #1e40af;
+      margin-bottom: 10px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+
+    .summary-item {
+      text-align: center;
+      padding: 10px;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .summary-item .value {
+      font-size: 20px;
+      font-weight: bold;
+      color: #2563eb;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .summary-item .label {
+      font-size: 10px;
+      color: #6b7280;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 9px;
+    }
+
+    thead {
+      background: #2563eb;
+      color: white;
+    }
+
+    thead th {
+      padding: 10px 8px;
+      text-align: left;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 9px;
+      letter-spacing: 0.5px;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    tbody tr:hover {
+      background: #f3f4f6;
+    }
+
+    tbody td {
+      padding: 8px;
+      vertical-align: top;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    .footer {
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 2px solid #e5e7eb;
+      text-align: center;
+      font-size: 9px;
+      color: #6b7280;
+    }
+
+    .page-break {
+      page-break-after: always;
+    }
+
+    @media print {
+      body {
+        padding: 10px;
+      }
+
+      .page-break {
+        page-break-after: always;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <h1>{{reportName}}</h1>
+    {{#if description}}
+      <p>{{description}}</p>
+    {{/if}}
+  </div>
+
+  <!-- Metadata -->
+  <div class="metadata">
+    <div class="metadata-item">
+      <strong>Data de Geração:</strong> {{generatedAt}}
+    </div>
+    <div class="metadata-item">
+      <strong>Total de Registros:</strong> {{totalRecords}}
+    </div>
+    <div class="metadata-item">
+      <strong>Gerado por:</strong> {{generatedBy}}
+    </div>
+  </div>
+
+  <!-- Summary Section -->
+  {{#if summary}}
+  <div class="summary">
+    <h2>Resumo do Relatório</h2>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <span class="value">{{summary.total}}</span>
+        <span class="label">Total de Eleitores</span>
+      </div>
+      {{#if summary.supportLevel}}
+        <div class="summary-item">
+          <span class="value">{{summary.supportLevel.ALTO}}</span>
+          <span class="label">Apoio Alto</span>
+        </div>
+        <div class="summary-item">
+          <span class="value">{{summary.supportLevel.MEDIO}}</span>
+          <span class="label">Apoio Médio</span>
+        </div>
+        <div class="summary-item">
+          <span class="value">{{summary.supportLevel.BAIXO}}</span>
+          <span class="label">Apoio Baixo</span>
+        </div>
+      {{/if}}
+    </div>
+  </div>
+  {{/if}}
+
+  <!-- Data Table -->
+  {{#if data.length}}
+    <table>
+      <thead>
+        <tr>
+          {{#each columns}}
+            <th>{{this}}</th>
+          {{/each}}
+        </tr>
+      </thead>
+      <tbody>
+        {{#each data}}
+          <tr>
+            {{#each ../columns}}
+              <td>{{lookup ../this this}}</td>
+            {{/each}}
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <div class="empty-state">
+      <p>Nenhum registro encontrado para os filtros aplicados.</p>
+    </div>
+  {{/if}}
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>Relatório gerado automaticamente pela Plataforma de Campanha Eleitoral</p>
+    <p>{{footerNote}}</p>
+  </div>
+</body>
+</html>

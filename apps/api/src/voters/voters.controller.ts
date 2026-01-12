@@ -33,6 +33,12 @@ import { UpdateVoterDto } from './dto/update-voter.dto';
 import { QueryVotersDto } from './dto/query-voters.dto';
 import { ImportVotersDto } from './dto/import-voters.dto';
 import { BulkDeleteDto, BulkUpdateDto } from './dto/bulk-operations.dto';
+import {
+  CreateReferralDto,
+  ReferralStatsDto,
+  ReferralCodeDto,
+  QueryReferralsDto,
+} from './dto/referral.dto';
 import { Roles, UserRole } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
 
@@ -257,6 +263,78 @@ export class VotersController {
   async exportCsv(@Query() query: QueryVotersDto) {
     const csv = await this.votersService.exportToCsv(query);
     return new StreamableFile(Buffer.from(csv, 'utf-8'));
+  }
+
+  // ==================== REFERRAL SYSTEM ====================
+
+  @Get(':id/referrals')
+  @Roles(UserRole.CANDIDATO, UserRole.ESTRATEGISTA, UserRole.LIDERANCA, UserRole.ESCRITORIO)
+  @ApiOperation({ summary: 'Get list of voters referred by this voter' })
+  @ApiParam({ name: 'id', description: 'Voter UUID' })
+  @ApiResponse({ status: 200, description: 'Returns list of referred voters with pagination' })
+  @ApiResponse({ status: 404, description: 'Voter not found' })
+  async getReferrals(
+    @Param('id') id: string,
+    @Query() query: QueryReferralsDto,
+  ) {
+    return this.votersService.getReferrals(
+      id,
+      query.page,
+      query.perPage,
+      query.supportLevel,
+    );
+  }
+
+  @Get(':id/referral-stats')
+  @Roles(UserRole.CANDIDATO, UserRole.ESTRATEGISTA, UserRole.LIDERANCA, UserRole.ESCRITORIO)
+  @ApiOperation({ summary: 'Get referral statistics for a voter' })
+  @ApiParam({ name: 'id', description: 'Voter UUID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns referral statistics',
+    type: ReferralStatsDto,
+  })
+  @ApiResponse({ status: 404, description: 'Voter not found' })
+  async getReferralStats(@Param('id') id: string): Promise<ReferralStatsDto> {
+    return this.votersService.getReferralStats(id);
+  }
+
+  @Post(':id/referral-code')
+  @Roles(UserRole.CANDIDATO, UserRole.ESTRATEGISTA, UserRole.LIDERANCA)
+  @ApiOperation({ summary: 'Generate or retrieve referral code for a voter' })
+  @ApiParam({ name: 'id', description: 'Voter UUID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns referral code and URL',
+    type: ReferralCodeDto,
+  })
+  @ApiResponse({ status: 404, description: 'Voter not found' })
+  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
+  async generateReferralCode(@Param('id') id: string): Promise<ReferralCodeDto> {
+    const code = await this.votersService.generateReferralCode(id);
+
+    // Generate full URL (you can configure this via environment variable)
+    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+    const referralUrl = `${baseUrl}/cadastro?ref=${code}`;
+
+    return {
+      referralCode: code,
+      referralUrl,
+    };
+  }
+
+  @Post('register-referral')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Register new voter via referral code (public endpoint)',
+    description: 'Used when someone clicks on a referral link and signs up',
+  })
+  @ApiResponse({ status: 201, description: 'Voter created via referral successfully' })
+  @ApiResponse({ status: 404, description: 'Invalid referral code' })
+  @ApiResponse({ status: 400, description: 'Bad request - validation failed' })
+  async registerReferral(@Body() dto: CreateReferralDto) {
+    const { referralCode, ...voterData } = dto;
+    return this.votersService.registerReferral(referralCode, voterData);
   }
 }
 

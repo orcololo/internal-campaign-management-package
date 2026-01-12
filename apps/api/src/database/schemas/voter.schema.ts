@@ -196,6 +196,11 @@ export const voters = pgTable('voters', {
   notes: text('notes'),
   tags: text('tags'), // JSON array of tags for flexible categorization
 
+  // Referral System
+  referralCode: varchar('referral_code', { length: 50 }).unique(), // Unique referral code (e.g., JOAO-SILVA-ABC123)
+  referredBy: uuid('referred_by').references((): any => voters.id, { onDelete: 'set null' }), // Self-reference to referrer
+  referralDate: timestamp('referral_date'), // Date when referred
+
   // Audit fields
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),

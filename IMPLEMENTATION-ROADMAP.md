@@ -1,4 +1,5 @@
 # Implementation Roadmap - Campaign Platform
+
 **Data:** 12 de janeiro de 2026  
 **Estratégia:** Core Features First → Authentication Last
 
@@ -9,6 +10,7 @@
 **Philosophy:** Build and validate core functionality with mock auth, then integrate real authentication as the final layer.
 
 **Benefits:**
+
 - ✅ Faster iteration on features
 - ✅ No auth blockers during development
 - ✅ Test business logic independently
@@ -20,22 +22,27 @@
 ## 📊 Implementation Phases (12 Weeks)
 
 ### **Phase 1: Database & Core Backend** (Weeks 1-2)
-*Foundation - Get the data layer solid*
+
+_Foundation - Get the data layer solid_
 
 #### Week 1: Database Setup
+
 - [ ] **Reports Tables Migration**
+
   - Create `0004_create_reports_tables.sql`
   - Add `saved_reports` table
   - Add `report_exports` table
   - Run migration and verify
 
 - [ ] **Schema Validation**
+
   - Review existing `voters` schema
   - Review `calendar_events` schema
   - Verify `geofences` schema exists
   - Document all table relationships
 
 - [ ] **Drizzle Schema Files**
+
   - Create `saved-report.schema.ts`
   - Create `report-export.schema.ts`
   - Update schema exports
@@ -52,7 +59,9 @@
 ---
 
 #### Week 2: Core Backend Services
+
 - [ ] **Reports Module Structure**
+
   ```
   reports/
   ├── reports.module.ts
@@ -64,6 +73,7 @@
   ```
 
 - [ ] **Query Builder Service**
+
   - Implement all 15 filter operators
   - Build dynamic WHERE clauses
   - Build ORDER BY clauses
@@ -71,12 +81,14 @@
   - Unit tests for each operator
 
 - [ ] **Reports Service**
+
   - `executeReport()` method
   - `previewReport()` with pagination
   - Integration with QueryBuilder
   - Test with mock data
 
 - [ ] **Saved Reports Service**
+
   - CRUD operations (create, findAll, findOne, update, remove)
   - Soft delete implementation
   - Usage statistics tracking
@@ -96,16 +108,20 @@
 ---
 
 ### **Phase 2: Export & Processing** (Weeks 3-4)
-*Make reports downloadable*
+
+_Make reports downloadable_
 
 #### Week 3: Export Services
+
 - [ ] **Dependencies Installation**
+
   ```bash
   pnpm add puppeteer handlebars exceljs csv-writer
   pnpm add -D @types/puppeteer
   ```
 
 - [ ] **PDF Generator Service**
+
   - Setup Puppeteer
   - Create HTML template (`templates/report-template.html`)
   - Implement `generate()` method
@@ -113,12 +129,14 @@
   - Handle charts/images if `includeCharts: true`
 
 - [ ] **CSV Generator Service**
+
   - Implement with csv-writer
   - Proper encoding (UTF-8 BOM for Excel)
   - Delimiter configuration (`;` for Brazil)
   - Test with special characters
 
 - [ ] **Excel Generator Service**
+
   - Implement with ExcelJS
   - Header styling (bold, colored)
   - Auto-filter on first row
@@ -137,7 +155,9 @@
 ---
 
 #### Week 4: Queue System (Optional - for large exports)
+
 - [ ] **Redis Setup**
+
   ```yaml
   # docker-compose.yml - add Redis service
   redis:
@@ -147,12 +167,14 @@
   ```
 
 - [ ] **Bull Integration**
+
   ```bash
   pnpm add @nestjs/bull bull
   pnpm add -D @types/bull
   ```
 
 - [ ] **Export Queue**
+
   - Configure Bull module
   - Create `ExportReportProcessor`
   - Handle job retries
@@ -160,6 +182,7 @@
   - Error handling
 
 - [ ] **Job Status Endpoint**
+
   - GET `/reports/exports/:jobId/status`
   - Return job state (pending, processing, completed, failed)
   - Return download URL when complete
@@ -174,21 +197,25 @@
 ---
 
 ### **Phase 3: Frontend Integration** (Week 5)
-*Connect real APIs to replace mock data*
+
+_Connect real APIs to replace mock data_
 
 - [ ] **API Client Setup**
+
   ```typescript
   // lib/api/client.ts - Axios instance with interceptors
   // lib/api/reports.ts - Reports API methods
   ```
 
 - [ ] **Reports Store Update**
+
   - Replace mock data with API calls
   - Add loading states
   - Add error handling
   - Implement optimistic updates
 
 - [ ] **API Integration**
+
   - `fetchReports()` → GET `/reports`
   - `createReport()` → POST `/reports`
   - `updateReport()` → PATCH `/reports/:id`
@@ -197,6 +224,7 @@
   - `exportReport()` → POST `/reports/:id/export`
 
 - [ ] **Error Handling**
+
   - Toast notifications for errors
   - Retry logic for network failures
   - Validation error display
@@ -214,20 +242,24 @@
 ---
 
 ### **Phase 4: Voters Module Enhancement** (Week 6)
-*Complete the voters functionality*
+
+_Complete the voters functionality_
 
 - [ ] **Backend Verification**
+
   - Ensure voters CRUD exists
   - Test all endpoints
   - Add missing endpoints if needed
 
 - [ ] **Google Maps Integration**
+
   - Address autocomplete component
   - Map view with voter markers
   - Clustering for many voters
   - Click marker to see voter details
 
 - [ ] **Import/Export**
+
   - CSV import endpoint (POST `/voters/import`)
   - Parse CSV with validation
   - Bulk create voters
@@ -235,6 +267,7 @@
   - CSV/Excel export of voters list
 
 - [ ] **Bulk Operations**
+
   - Select multiple voters (checkboxes)
   - Bulk delete
   - Bulk update (change support level, tags, etc.)
@@ -251,9 +284,11 @@
 ---
 
 ### **Phase 5: Geofences Implementation** (Week 7)
-*Geographic segmentation*
+
+_Geographic segmentation_
 
 - [ ] **Backend Schema**
+
   ```typescript
   // geofences table
   - id, name, description
@@ -263,6 +298,7 @@
   ```
 
 - [ ] **Geofences CRUD**
+
   - POST `/geofences` - Create
   - GET `/geofences` - List all
   - GET `/geofences/:id` - Get one
@@ -270,11 +306,13 @@
   - DELETE `/geofences/:id` - Delete
 
 - [ ] **Geographic Queries**
+
   - GET `/geofences/:id/voters` - Voters inside geofence
   - POST `/voters/filter-by-location` - Filter by coordinates
   - Use PostGIS or point-in-polygon algorithms
 
 - [ ] **Frontend Drawing Tools**
+
   - Integrate Google Maps Drawing Manager
   - Draw polygon/circle on map
   - Edit existing geofences
@@ -291,19 +329,25 @@
 ---
 
 ### **Phase 6: Calendar & Events** (Week 8)
-*Event management system*
+
+_Event management system_
 
 - [ ] **Backend Schema Verification**
+
   ```typescript
   // calendar_events table (likely exists)
-  - id, title, description
-  - startDate, endDate, allDay
-  - location, address
-  - type, category
-  - attendees, capacity
+  -id,
+    title,
+    description - startDate,
+    endDate,
+    allDay - location,
+    address - type,
+    category - attendees,
+    capacity;
   ```
 
 - [ ] **Events CRUD**
+
   - POST `/events` - Create
   - GET `/events` - List (with date range filter)
   - GET `/events/:id` - Get one
@@ -311,12 +355,14 @@
   - DELETE `/events/:id` - Delete
 
 - [ ] **Calendar Views**
+
   - Month view (already implemented?)
   - Week view
   - Day view
   - List view
 
 - [ ] **Event-Voter Linking**
+
   - Invite voters to events
   - Track RSVPs
   - Attendance tracking
@@ -332,10 +378,13 @@
 ---
 
 ### **Phase 7: Analytics Dashboard** (Weeks 9-10)
-*Data insights and visualizations*
+
+_Data insights and visualizations_
 
 #### Week 9: Backend Analytics
+
 - [ ] **Analytics Endpoints**
+
   - GET `/analytics/overview` - Dashboard summary
   - GET `/analytics/voters-by-support-level`
   - GET `/analytics/voters-by-city`
@@ -344,10 +393,11 @@
   - GET `/analytics/engagement-metrics`
 
 - [ ] **Aggregation Queries**
+
   ```sql
   -- Support level distribution
-  SELECT support_level, COUNT(*) 
-  FROM voters 
+  SELECT support_level, COUNT(*)
+  FROM voters
   GROUP BY support_level
 
   -- Geographic distribution
@@ -371,13 +421,16 @@
 ---
 
 #### Week 10: Frontend Charts
+
 - [ ] **Chart Library**
+
   ```bash
   pnpm add recharts
   # or chart.js, victory, visx
   ```
 
 - [ ] **Dashboard Widgets**
+
   - Total voters (Card)
   - Growth rate (Card with trend)
   - Support level distribution (Pie chart)
@@ -387,6 +440,7 @@
   - Recent activity (Timeline)
 
 - [ ] **Real-time Updates** (Optional)
+
   - WebSocket connection
   - Live dashboard updates
   - Notification on new voters
@@ -402,9 +456,11 @@
 ---
 
 ### **Phase 8: n8n Integration & Workflows** (Week 11)
-*Automation layer*
+
+_Automation layer_
 
 - [ ] **n8n Setup**
+
   ```yaml
   # docker-compose.yml - add n8n
   n8n:
@@ -418,27 +474,33 @@
   ```
 
 - [ ] **Webhook Endpoints in API**
+
   - POST `/webhooks/voter-created`
   - POST `/webhooks/event-reminder`
   - POST `/webhooks/campaign-milestone`
 
 - [ ] **n8n Workflows**
+
   1. **Welcome New Voter**
+
      - Trigger: Voter created webhook
      - Action: Send welcome email/WhatsApp
      - Action: Assign to onboarding list
 
   2. **Event Reminder**
+
      - Trigger: Scheduled (24h before event)
      - Fetch: Events tomorrow
      - Action: Send reminders to attendees
 
   3. **Birthday Messages**
+
      - Trigger: Daily at 9am
      - Fetch: Voters with birthday today
      - Action: Send birthday wishes
 
   4. **Inactive Voter Re-engagement**
+
      - Trigger: Weekly
      - Fetch: Voters not engaged in 30 days
      - Action: Send re-engagement message
@@ -458,27 +520,32 @@
 ---
 
 ### **Phase 9: Testing & Bug Fixes** (Week 12)
-*Quality assurance*
+
+_Quality assurance_
 
 - [ ] **Backend Testing**
+
   - Unit tests for all services (>80% coverage)
   - Integration tests for controllers
   - E2E tests for critical flows
   - Load testing (k6 or Artillery)
 
 - [ ] **Frontend Testing**
+
   - Component tests (Jest + React Testing Library)
   - E2E tests (Playwright or Cypress)
   - Visual regression tests (Chromatic)
   - Accessibility audit (a11y)
 
 - [ ] **Bug Bash**
+
   - Manual testing of all features
   - Fix critical bugs
   - Fix high-priority bugs
   - Document known issues
 
 - [ ] **Performance Optimization**
+
   - Database query optimization
   - Add missing indexes
   - Frontend bundle size optimization
@@ -496,28 +563,34 @@
 ---
 
 ### **Phase 10: Authentication Integration** (Weeks 13-14) 🔐
-*Final layer - plug in real auth*
+
+_Final layer - plug in real auth_
 
 #### Week 13: Backend Auth
+
 - [ ] **Keycloak Setup**
+
   - Configure realm
   - Create clients (api, web)
   - Setup roles (CANDIDATO, ESTRATEGISTA, LIDERANCA, ESCRITORIO)
   - Configure user federation (if needed)
 
 - [ ] **NestJS JWT Guard**
+
   - Install `@nestjs/passport` `passport-jwt`
   - Create `JwtAuthGuard`
   - Validate tokens with Keycloak public key
   - Extract user from token
 
 - [ ] **RBAC Guards**
+
   - Create `RolesGuard`
   - Create `@Roles()` decorator
   - Apply to all endpoints
   - Test each role's permissions
 
 - [ ] **Replace Mock Auth**
+
   - Remove `MockAuthGuard`
   - Apply `JwtAuthGuard` to all controllers
   - Update `@CurrentUser()` decorator
@@ -532,29 +605,35 @@
 ---
 
 #### Week 14: Frontend Auth
+
 - [ ] **Keycloak Client Integration**
+
   ```bash
   pnpm add keycloak-js
   ```
 
 - [ ] **Auth Context**
+
   ```typescript
   // context/auth-context.tsx
   // Manage login, logout, token refresh
   ```
 
 - [ ] **Protected Routes**
+
   - Wrap routes with auth check
   - Redirect to login if not authenticated
   - Store return URL for after login
 
 - [ ] **Login/Logout Flows**
+
   - Login page or redirect to Keycloak
   - Logout and clear tokens
   - Token refresh logic
   - Handle expired tokens
 
 - [ ] **Role-Based UI**
+
   - Show/hide features based on role
   - `useAuth()` hook with `hasRole()`
   - Conditionally render admin features
@@ -572,7 +651,9 @@
 ## 🎯 Quick Start Action Plan
 
 ### **This Week (Week 1)**
+
 **Day 1-2:** Database migration for reports tables
+
 ```bash
 cd apps/api
 # Create migration file
@@ -583,16 +664,17 @@ pnpm db:studio # Verify tables created
 ```
 
 **Day 3-4:** Create mock auth service
+
 ```typescript
 // apps/api/src/common/mock-auth.service.ts
 @Injectable()
 export class MockAuthService {
   getMockUser() {
     return {
-      id: 'mock-user-123',
-      email: 'candidato@example.com',
-      role: 'CANDIDATO',
-      tenantId: 'mock-tenant-123',
+      id: "mock-user-123",
+      email: "candidato@example.com",
+      role: "CANDIDATO",
+      tenantId: "mock-tenant-123",
     };
   }
 }
@@ -603,10 +685,10 @@ export class MockAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
     request.user = {
-      id: 'mock-user-123',
-      email: 'candidato@example.com',
-      role: 'CANDIDATO',
-      tenantId: 'mock-tenant-123',
+      id: "mock-user-123",
+      email: "candidato@example.com",
+      role: "CANDIDATO",
+      tenantId: "mock-tenant-123",
     };
     return true;
   }
@@ -614,6 +696,7 @@ export class MockAuthGuard implements CanActivate {
 ```
 
 **Day 5:** Reports module structure + DTOs
+
 ```bash
 mkdir -p apps/api/src/reports/dto
 mkdir -p apps/api/src/reports/export
@@ -622,6 +705,7 @@ mkdir -p apps/api/src/reports/export
 ```
 
 ### **Next Week (Week 2)**
+
 Focus on QueryBuilderService and ReportsService implementation
 
 ---
@@ -629,6 +713,7 @@ Focus on QueryBuilderService and ReportsService implementation
 ## 📦 Dependencies Checklist
 
 ### Backend
+
 ```json
 {
   "dependencies": {
@@ -643,6 +728,7 @@ Focus on QueryBuilderService and ReportsService implementation
 ```
 
 ### Frontend
+
 ```json
 {
   "dependencies": {
@@ -653,6 +739,7 @@ Focus on QueryBuilderService and ReportsService implementation
 ```
 
 ### Infrastructure
+
 - Redis (Docker)
 - PostgreSQL (already setup)
 - n8n (Docker)
@@ -663,6 +750,7 @@ Focus on QueryBuilderService and ReportsService implementation
 ## 🔄 Development Workflow
 
 ### Without Authentication (Weeks 1-12)
+
 ```typescript
 // Every request uses mock user
 const user = mockAuthService.getMockUser();
@@ -673,6 +761,7 @@ const user = mockAuthService.getMockUser();
 ```
 
 ### With Authentication (Weeks 13-14)
+
 ```typescript
 // Replace mock guard with JWT guard
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -686,6 +775,7 @@ const user = mockAuthService.getMockUser();
 ## 🎉 Success Criteria
 
 ### By Week 6 (Mid-point)
+
 - ✅ Reports system fully working (frontend + backend)
 - ✅ Voters CRUD complete with import/export
 - ✅ Geofences implemented
@@ -693,6 +783,7 @@ const user = mockAuthService.getMockUser();
 - ✅ No authentication blockers
 
 ### By Week 12 (Pre-Auth)
+
 - ✅ All core features complete
 - ✅ Analytics dashboard working
 - ✅ n8n workflows setup
@@ -700,6 +791,7 @@ const user = mockAuthService.getMockUser();
 - ✅ Ready for auth integration
 
 ### By Week 14 (Complete)
+
 - ✅ Keycloak integrated
 - ✅ Role-based access control working
 - ✅ Multi-tenancy validated

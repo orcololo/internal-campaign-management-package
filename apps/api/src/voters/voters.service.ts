@@ -935,6 +935,200 @@ export class VotersService {
       longitude: voter.longitude ? parseFloat(voter.longitude) : null,
     };
   }
+
+  // ==================== REFERRAL SYSTEM ====================
+
+  /**
+   * Generate or retrieve referral code for a voter
+   */
+  async generateReferralCode(voterId: string): Promise<string> {
+    const db = this.databaseService.getDb();
+    const voter = await this.findOne(voterId);
+
+    // If voter already has a code, return it
+    if (voter.referralCode) {
+      return voter.referralCode;
+    }
+
+    // Generate new unique code
+    const code = await this.createUniqueReferralCode(voter.name);
+
+    // Update voter with new code
+    await db
+      .update(voters)
+      .set({ referralCode: code })
+      .where(eq(voters.id, voterId));
+
+    return code;
+  }
+
+  /**
+   * Get list of voters referred by this voter
+   */
+  async getReferrals(voterId: string, page = 1, perPage = 20, supportLevel?: string) {
+    const db = this.databaseService.getDb();
+    const offset = (page - 1) * perPage;
+
+    // Build conditions
+    const conditions = [
+      eq(voters.referredBy, voterId),
+      isNull(voters.deletedAt),
+    ];
+
+    if (supportLevel) {
+      conditions.push(eq(voters.supportLevel, supportLevel as any));
+    }
+
+    // Get referrals
+    const referrals = await db
+      .select()
+      .from(voters)
+      .where(and(...conditions))
+      .limit(perPage)
+      .offset(offset)
+      .orderBy(voters.referralDate);
+
+    // Get total count
+    const [{ count }] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(voters)
+      .where(and(...conditions));
+
+    return {
+      data: referrals.map(v => this.formatVoter(v)),
+      meta: {
+        total: count,
+        page,
+        perPage,
+        totalPages: Math.ceil(count / perPage),
+      },
+    };
+  }
+
+  /**
+   * Get referral statistics for a voter
+   */
+  async getReferralStats(voterId: string) {
+    const db = this.databaseService.getDb();
+
+    // Get all referrals (including deleted for total count)
+    const allReferrals = await db
+      .select()
+      .from(voters)
+      .where(eq(voters.referredBy, voterId));
+
+    // Get active referrals only
+    const activeReferrals = allReferrals.filter(r => !r.deletedAt);
+
+    // Calculate this month's referrals
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const thisMonthReferrals = activeReferrals.filter(
+      r => r.referralDate && new Date(r.referralDate) >= firstDayOfMonth
+    );
+
+    // Group by support level
+    const byLevel = activeReferrals.reduce((acc, r) => {
+      const level = r.supportLevel || 'NAO_DEFINIDO';
+      acc[level] = (acc[level] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return {
+      total: allReferrals.length,
+      active: activeReferrals.length,
+      thisMonth: thisMonthReferrals.length,
+      byLevel,
+    };
+  }
+
+  /**
+   * Register a new voter via referral code
+   */
+  async registerReferral(referralCode: string, data: any) {
+    const db = this.databaseService.getDb();
+
+    // Find the referrer by code
+    const [referrer] = await db
+      .select()
+      .from(voters)
+      .where(and(
+        eq(voters.referralCode, referralCode),
+        isNull(voters.deletedAt)
+      ));
+
+    if (!referrer) {
+      throw new NotFoundException('Invalid referral code');
+    }
+
+    // Generate referral code for new voter
+    const newReferralCode = await this.createUniqueReferralCode(data.name);
+
+    // Create new voter with referral information
+    const [newVoter] = await db
+      .insert(voters)
+      .values({
+        ...data,
+        referralCode: newReferralCode,
+        referredBy: referrer.id,
+        referralDate: new Date(),
+      } as any)
+      .returning();
+
+    // Increment referrer's count
+    await db
+      .update(voters)
+      .set({
+        referredVoters: sql`COALESCE(${voters.referredVoters}, 0) + 1`,
+      })
+      .where(eq(voters.id, referrer.id));
+
+    return this.formatVoter(newVoter);
+  }
+
+  /**
+   * Create a unique referral code
+   * Format: FIRSTNAME-LASTNAME-RANDOM (e.g., JOAO-SILVA-AB12CD)
+   */
+  private async createUniqueReferralCode(name: string): Promise<string> {
+    const db = this.databaseService.getDb();
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    while (attempts < maxAttempts) {
+      // Create slug from name
+      const slug = name
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .substring(0, 15)
+        .toUpperCase()
+        .replace(/[^A-Z\s]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+
+      // Generate random suffix (6 characters)
+      const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const code = `${slug}-${random}`;
+
+      // Check if code already exists
+      const [existing] = await db
+        .select({ id: voters.id })
+        .from(voters)
+        .where(eq(voters.referralCode, code))
+        .limit(1);
+
+      if (!existing) {
+        return code;
+      }
+
+      attempts++;
+    }
+
+    // Fallback: use UUID if all attempts failed
+    const uuid = crypto.randomUUID().substring(0, 12).toUpperCase();
+    return `USER-${uuid}`;
+  }
 }
 
 interface CircleGeofenceData {
