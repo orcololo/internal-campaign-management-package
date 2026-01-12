@@ -1,4 +1,15 @@
-import { pgTable, uuid, varchar, timestamp, text, integer, numeric, date, pgEnum, jsonb } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  timestamp,
+  text,
+  integer,
+  numeric,
+  date,
+  pgEnum,
+  jsonb,
+} from 'drizzle-orm/pg-core';
 
 /**
  * Enums for analytics
@@ -121,5 +132,5 @@ export type Dashboard = typeof dashboards.$inferSelect;
 export type NewDashboard = typeof dashboards.$inferInsert;
 export type Report = typeof reports.$inferSelect;
 export type NewReport = typeof reports.$inferInsert;
-export type MetricType = typeof metricTypeEnum.enumValues[number];
-export type DashboardType = typeof dashboardTypeEnum.enumValues[number];
+export type MetricType = (typeof metricTypeEnum.enumValues)[number];
+export type DashboardType = (typeof dashboardTypeEnum.enumValues)[number];

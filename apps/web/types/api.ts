@@ -10,6 +10,11 @@ export interface ApiResponse<T> {
   meta?: PaginationMeta;
 }
 
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: PaginationMeta;
+}
+
 export interface ApiError {
   message: string;
   code: string;

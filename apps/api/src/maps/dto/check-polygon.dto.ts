@@ -39,10 +39,10 @@ export class CheckPolygonDto {
     description: 'Polygon coordinates (array of lat/lng points)',
     type: [LatLng],
     example: [
-      { lat: -23.5500, lng: -46.6300 },
-      { lat: -23.5600, lng: -46.6300 },
-      { lat: -23.5600, lng: -46.6400 },
-      { lat: -23.5500, lng: -46.6400 },
+      { lat: -23.55, lng: -46.63 },
+      { lat: -23.56, lng: -46.63 },
+      { lat: -23.56, lng: -46.64 },
+      { lat: -23.55, lng: -46.64 },
     ],
   })
   @IsArray()

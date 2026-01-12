@@ -2,6 +2,9 @@
 node_modules/
 .pnpm-store/
 .next
+*.md
+.md
+*.md*
 
 # Build outputs
 dist/

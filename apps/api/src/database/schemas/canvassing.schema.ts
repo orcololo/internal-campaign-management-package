@@ -1,4 +1,14 @@
-import { pgTable, uuid, varchar, timestamp, text, boolean, date, integer, pgEnum } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  timestamp,
+  text,
+  boolean,
+  date,
+  integer,
+  pgEnum,
+} from 'drizzle-orm/pg-core';
 
 /**
  * Enums for canvassing
@@ -76,7 +86,9 @@ export const doorKnocks = pgTable('door_knocks', {
   id: uuid('id').primaryKey().defaultRandom(),
 
   // Session Reference
-  sessionId: uuid('session_id').notNull().references(() => canvassingSessions.id),
+  sessionId: uuid('session_id')
+    .notNull()
+    .references(() => canvassingSessions.id),
 
   // Voter Reference (optional - might be a new contact)
   voterId: uuid('voter_id'), // References voters.id
@@ -119,5 +131,5 @@ export type CanvassingSession = typeof canvassingSessions.$inferSelect;
 export type NewCanvassingSession = typeof canvassingSessions.$inferInsert;
 export type DoorKnock = typeof doorKnocks.$inferSelect;
 export type NewDoorKnock = typeof doorKnocks.$inferInsert;
-export type CanvassingSessionStatus = typeof canvassingSessionStatusEnum.enumValues[number];
-export type DoorKnockResult = typeof doorKnockResultEnum.enumValues[number];
+export type CanvassingSessionStatus = (typeof canvassingSessionStatusEnum.enumValues)[number];
+export type DoorKnockResult = (typeof doorKnockResultEnum.enumValues)[number];

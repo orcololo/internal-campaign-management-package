@@ -232,7 +232,9 @@ describe('VotersService', () => {
       jest.spyOn(mockDb, 'where').mockReturnValueOnce(mockDb);
       jest.spyOn(mockDb, 'limit').mockReturnValueOnce(mockDb);
       jest.spyOn(mockDb, 'offset').mockReturnValueOnce(mockDb);
-      jest.spyOn(mockDb, 'orderBy').mockReturnValueOnce([{ id: '1', educationLevel: 'SUPERIOR_COMPLETO' }]);
+      jest
+        .spyOn(mockDb, 'orderBy')
+        .mockReturnValueOnce([{ id: '1', educationLevel: 'SUPERIOR_COMPLETO' }]);
 
       await service.findAll(query);
 
@@ -247,7 +249,9 @@ describe('VotersService', () => {
       jest.spyOn(mockDb, 'where').mockReturnValueOnce(mockDb);
       jest.spyOn(mockDb, 'limit').mockReturnValueOnce(mockDb);
       jest.spyOn(mockDb, 'offset').mockReturnValueOnce(mockDb);
-      jest.spyOn(mockDb, 'orderBy').mockReturnValueOnce([{ id: '1', incomeLevel: 'ACIMA_5_SALARIOS' }]);
+      jest
+        .spyOn(mockDb, 'orderBy')
+        .mockReturnValueOnce([{ id: '1', incomeLevel: 'ACIMA_5_SALARIOS' }]);
 
       await service.findAll(query);
 
@@ -437,11 +441,13 @@ describe('VotersService', () => {
       // Mock update
       jest.spyOn(mockDb, 'set').mockReturnValueOnce(mockDb);
       jest.spyOn(mockDb, 'where').mockReturnValueOnce(mockDb);
-      mockDb.returning.mockResolvedValueOnce([{
-        ...mockVoter,
-        latitude: '-23.5505',
-        longitude: '-46.6333',
-      }]);
+      mockDb.returning.mockResolvedValueOnce([
+        {
+          ...mockVoter,
+          latitude: '-23.5505',
+          longitude: '-46.6333',
+        },
+      ]);
 
       const result = await service.geocodeVoter('123');
 

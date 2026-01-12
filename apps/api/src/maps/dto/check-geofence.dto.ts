@@ -22,7 +22,7 @@ export class CheckGeofenceDto {
 
   @ApiProperty({
     description: 'Latitude of geofence center',
-    example: -23.5500,
+    example: -23.55,
   })
   @IsNumber()
   @Min(-90)
@@ -31,7 +31,7 @@ export class CheckGeofenceDto {
 
   @ApiProperty({
     description: 'Longitude of geofence center',
-    example: -46.6300,
+    example: -46.63,
   })
   @IsNumber()
   @Min(-180)

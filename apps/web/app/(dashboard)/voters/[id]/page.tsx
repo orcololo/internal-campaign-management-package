@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { VoterDetail } from "@/components/features/voters/voter-detail";
-import { voters } from "@/mock-data/voters";
+import { votersApi } from "@/lib/api/voters";
 
 interface VoterPageProps {
   params: Promise<{
@@ -9,9 +9,13 @@ interface VoterPageProps {
 }
 
 async function getVoter(id: string) {
-  // Find voter from mock data
-  const voter = voters.find((v) => v.id === id);
-  return voter || null;
+  try {
+    const response = await votersApi.getById(id);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching voter:', error);
+    return null;
+  }
 }
 
 export default async function VoterPage({ params }: VoterPageProps) {

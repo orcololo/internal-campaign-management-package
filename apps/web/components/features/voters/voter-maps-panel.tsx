@@ -25,6 +25,7 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { Voter, SupportLevel } from "@/types/voters";
+import { getTags } from "@/lib/transformers/voter-transformer";
 
 const SUPPORT_LEVEL_COLORS: Record<SupportLevel, string> = {
   MUITO_FAVORAVEL: "#22c55e",
@@ -81,7 +82,7 @@ export function VoterMapsPanel({
   }, [voters]);
 
   const uniqueTags = React.useMemo(() => {
-    const tags = Array.from(new Set(voters.flatMap((v) => v.tags)));
+    const tags = Array.from(new Set(voters.flatMap((v) => getTags(v))));
     return tags.sort();
   }, [voters]);
 
@@ -689,19 +690,22 @@ export function VoterMapsPanel({
                         )}
                       </div>
 
-                      {voter.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {voter.tags.map((tag) => (
-                            <Badge
-                              key={tag}
-                              variant="secondary"
-                              className="text-xs"
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
+                      {(() => {
+                        const tags = getTags(voter);
+                        return tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {tags.map((tag) => (
+                              <Badge
+                                key={tag}
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        );
+                      })()}
 
                       {voter.notes && (
                         <div className="mt-3 p-2 bg-muted/50 rounded text-sm">
@@ -776,24 +780,27 @@ export function VoterMapsPanel({
                     </div>
                   </div>
 
-                  {voter.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {voter.tags.slice(0, 2).map((tag) => (
-                        <Badge
-                          key={tag}
-                          variant="secondary"
-                          className="text-[10px] h-5"
-                        >
-                          {tag}
-                        </Badge>
-                      ))}
-                      {voter.tags.length > 2 && (
-                        <Badge variant="outline" className="text-[10px] h-5">
-                          +{voter.tags.length - 2}
-                        </Badge>
-                      )}
-                    </div>
-                  )}
+                  {(() => {
+                    const tags = getTags(voter);
+                    return tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {tags.slice(0, 2).map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="text-[10px] h-5"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                        {tags.length > 2 && (
+                          <Badge variant="outline" className="text-[10px] h-5">
+                            +{tags.length - 2}
+                          </Badge>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               );
             })

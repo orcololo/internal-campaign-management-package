@@ -20,13 +20,23 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { savedReports } from "@/mock-data/reports";
-import { voters as mockVoters } from "@/mock-data/voters";
+import { votersApi } from "@/lib/api/voters";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { getOperatorLabel, getFieldMetadata } from "@/types/reports";
 
-export default function ViewReportPage({ params }: { params: { id: string } }) {
+async function getVoters() {
+  try {
+    const response = await votersApi.list({ page: 1, perPage: 1000 });
+    return response.data?.data || [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function ViewReportPage({ params }: { params: { id: string } }) {
   const report = savedReports.find((r) => r.id === params.id);
+  const voters = await getVoters();
 
   if (!report) {
     notFound();
@@ -221,7 +231,7 @@ export default function ViewReportPage({ params }: { params: { id: string } }) {
       <Card>
         <CardContent className="pt-6">
           <ReportPreview
-            data={mockVoters}
+            data={voters}
             columns={report.columns}
             filters={report.filters}
             sorting={report.sorting}

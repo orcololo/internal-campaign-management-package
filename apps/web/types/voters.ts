@@ -76,106 +76,106 @@ export interface Voter {
 
   // Basic Information
   name: string;
-  motherName?: string;
-  cpf?: string;
-  dateOfBirth?: string;
-  gender?: Gender;
+  cpf?: string | null;
+  dateOfBirth?: string | null;
+  gender?: Gender | null;
 
   // Contact Information
-  email?: string;
-  phone?: string;
-  whatsapp?: string;
+  email?: string | null;
+  phone?: string | null;
+  whatsapp?: string | null;
 
   // Address Information
-  address?: string;
-  addressNumber?: string;
-  addressComplement?: string;
-  neighborhood?: string;
-  city: string;
-  state: string;
-  zipCode?: string;
-  latitude?: number;
-  longitude?: number;
+  address?: string | null;
+  addressNumber?: string | null;
+  addressComplement?: string | null;
+  neighborhood?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zipCode?: string | null;
+  latitude?: number | string | null; // numeric from backend
+  longitude?: number | string | null; // numeric from backend
 
   // Electoral Information
-  electoralTitle?: string;
-  electoralZone?: string;
-  electoralSection?: string;
-  votingLocation?: string;
+  electoralTitle?: string | null;
+  electoralZone?: string | null;
+  electoralSection?: string | null;
+  votingLocation?: string | null;
 
   // Social Segmentation
-  educationLevel?: EducationLevel;
-  occupation?: string;
-  incomeLevel?: IncomeLevel;
-  maritalStatus?: MaritalStatus;
-  religion?: string;
-  ethnicity?: string;
-  familyMembers?: number;
+  educationLevel?: EducationLevel | null;
+  occupation?: string | null;
+  incomeLevel?: IncomeLevel | null;
+  maritalStatus?: MaritalStatus | null;
+  religion?: string | null;
+  ethnicity?: string | null;
+  familyMembers?: number | null;
 
   // Social Media
-  facebook?: string;
-  instagram?: string;
-  twitter?: string;
+  facebook?: string | null;
+  instagram?: string | null;
+  twitter?: string | null;
 
   // Contact Preferences
-  hasWhatsapp?: boolean;
-  preferredContact?: PreferredContact;
+  hasWhatsapp?: string | null; // 'SIM' | 'NAO' from backend
+  preferredContact?: string | null; // 'TELEFONE' | 'WHATSAPP' | 'EMAIL'
 
   // Political Information
-  supportLevel?: SupportLevel;
-  politicalParty?: string;
-  votingHistory?: string;
-  topIssues?: string[]; // Array of issues they care about
-  issuePositions?: Record<string, string>; // Their stance on issues
-  previousCandidateSupport?: string;
-  influencerScore?: number; // 0-100
-  persuadability?: "ALTO" | "MEDIO" | "BAIXO";
-  turnoutLikelihood?: TurnoutLikelihood;
-  tags: string[];
-  notes?: string;
+  supportLevel?: SupportLevel | null;
+  politicalParty?: string | null;
+  votingHistory?: string | null;
+  topIssues?: string | null; // JSON string from backend
+  issuePositions?: string | null; // JSON string from backend
+  previousCandidateSupport?: string | null;
+  influencerScore?: number | null; // 0-100
+  persuadability?: string | null; // 'ALTO' | 'MEDIO' | 'BAIXO'
+  turnoutLikelihood?: TurnoutLikelihood | null;
+  tags?: string | null; // JSON string from backend
+  notes?: string | null;
 
   // Engagement & Behavioral
-  registrationDate?: string;
-  lastEngagementDate?: string;
-  engagementTrend?: EngagementTrend;
-  seasonalActivity?: Record<string, number>; // month/season patterns
-  lastContactDate?: string;
-  contactFrequency?: number; // times contacted
-  responseRate?: number; // percentage 0-100
-  eventAttendance?: string[]; // Array of event IDs or names
-  volunteerStatus?: VolunteerStatus;
-  donationHistory?: Array<{ date: string; amount: number }>;
-  engagementScore?: number; // 0-100
+  registrationDate?: string | null;
+  lastEngagementDate?: string | null;
+  engagementTrend?: EngagementTrend | null;
+  seasonalActivity?: string | null; // JSON string from backend
+  lastContactDate?: string | null;
+  contactFrequency?: number | null; // times contacted
+  responseRate?: number | null; // percentage 0-100
+  eventAttendance?: string | null; // JSON string from backend
+  volunteerStatus?: VolunteerStatus | null;
+  donationHistory?: string | null; // JSON string from backend
+  engagementScore?: number | null; // 0-100
 
   // Demographics Extended
-  ageGroup?: string; // "18-25", "26-35", "36-50", "51-65", "65+"
-  householdType?: HouseholdType;
-  employmentStatus?: EmploymentStatus;
-  vehicleOwnership?: boolean;
-  internetAccess?: string; // "Fibra", "4G", "3G", "Limitado", "Sem acesso"
+  ageGroup?: string | null; // "18-25", "26-35", "36-50", "51-65", "65+"
+  householdType?: HouseholdType | null;
+  employmentStatus?: EmploymentStatus | null;
+  vehicleOwnership?: string | null; // 'SIM' | 'NAO' from backend
+  internetAccess?: string | null; // "Fibra", "4G", "3G", "Limitado", "Sem acesso"
 
   // Communication Preferences Extended
-  communicationStyle?: CommunicationStyle;
-  contentPreference?: string[]; // ["video", "texto", "imagens"]
-  bestContactTime?: string; // "Manhã", "Tarde", "Noite"
-  bestContactDay?: string[]; // Days of week
+  communicationStyle?: CommunicationStyle | null;
+  contentPreference?: string | null; // JSON string from backend
+  bestContactTime?: string | null; // "Manhã", "Tarde", "Noite"
+  bestContactDay?: string | null; // JSON string from backend
 
   // Social Network & Influence
-  socialMediaFollowers?: number;
-  communityRole?: CommunityRole;
-  referredVoters?: number;
-  networkSize?: number;
-  influenceRadius?: number; // km
+  socialMediaFollowers?: number | null;
+  communityRole?: CommunityRole | null;
+  referredVoters?: number | null;
+  networkSize?: number | null;
+  influenceRadius?: number | null; // km
 
   // Referral System
-  referralCode: string; // Código único de referência (ex: "JOAO-SILVA-ABC123")
-  referredBy?: string; // ID do eleitor que o indicou
-  referralDate?: string; // Data em que foi referenciado
-  referralStats: ReferralStats; // Estatísticas de referenciamento
+  referralCode?: string | null; // Código único de referência (ex: "JOAO-SILVA-ABC123")
+  referredBy?: string | null; // ID do eleitor que o indicou
+  referralDate?: string | null; // Data em que foi referenciado
+  referralStats?: ReferralStats; // Calculated field, not from backend
 
   // Audit fields
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string | null;
 }
 
 export interface VoterFilters {

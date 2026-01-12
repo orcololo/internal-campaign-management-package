@@ -164,10 +164,7 @@ describe('CalendarController', () => {
       const result = await controller.getByDateRange(startDate, endDate);
 
       expect(result).toEqual(mockEvents);
-      expect(mockCalendarService.getEventsByDateRange).toHaveBeenCalledWith(
-        startDate,
-        endDate,
-      );
+      expect(mockCalendarService.getEventsByDateRange).toHaveBeenCalledWith(startDate, endDate);
     });
   });
 
@@ -187,9 +184,7 @@ describe('CalendarController', () => {
     });
 
     it('should use default limit when not provided', async () => {
-      const mockEvents = [
-        { id: '1', title: 'Upcoming Event 1' },
-      ];
+      const mockEvents = [{ id: '1', title: 'Upcoming Event 1' }];
 
       mockCalendarService.getUpcomingEvents.mockResolvedValue(mockEvents);
 

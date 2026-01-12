@@ -19,6 +19,25 @@ export class QueryVotersDto {
   @Max(100)
   limit?: number = 10;
 
+  // Sorting
+  @ApiPropertyOptional({
+    description: 'Sort by field',
+    example: 'createdAt',
+    enum: ['name', 'email', 'city', 'state', 'supportLevel', 'createdAt', 'updatedAt'],
+  })
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
+
+  @ApiPropertyOptional({
+    description: 'Sort order',
+    example: 'desc',
+    enum: ['asc', 'desc'],
+  })
+  @IsOptional()
+  @IsEnum(['asc', 'desc'])
+  sortOrder?: 'asc' | 'desc';
+
   // Search
   @ApiPropertyOptional({ description: 'Search by name or CPF', example: 'João' })
   @IsOptional()

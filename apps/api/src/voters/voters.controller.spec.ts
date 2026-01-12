@@ -243,9 +243,7 @@ describe('VotersController', () => {
 
     it('should use default maxDistanceKm when not provided', async () => {
       const body = {
-        locations: [
-          { name: 'Location 1', lat: -23.5505, lng: -46.6333 },
-        ],
+        locations: [{ name: 'Location 1', lat: -23.5505, lng: -46.6333 }],
       };
       const mockGroups: any[] = [];
       mockVotersService.groupByProximity.mockResolvedValue(mockGroups);

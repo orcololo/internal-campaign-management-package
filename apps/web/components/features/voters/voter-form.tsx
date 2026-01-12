@@ -20,8 +20,8 @@ import {
   type VoterPolitical,
   type VoterEngagement,
 } from "@/lib/validators/voters";
-import { votersApi } from "@/lib/api/endpoints/voters";
 import { Voter } from "@/types/voters";
+import { useVotersStore } from "@/store/voters-store";
 import {
   MultiStepForm,
   FormStep,
@@ -106,6 +106,7 @@ interface ViaCepResponse {
 
 export function VoterForm({ voter, mode }: VoterFormProps) {
   const router = useRouter();
+  const { createVoter, updateVoter } = useVotersStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFetchingCep, setIsFetchingCep] = useState(false);
@@ -406,14 +407,22 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
     setIsSubmitting(true);
     try {
       if (mode === "edit" && voter) {
-        await votersApi.update(voter.id, finalData as Partial<Voter>);
-        toast.success("Eleitor atualizado com sucesso!");
+        const updated = await updateVoter(voter.id, finalData as Partial<Voter>);
+        if (updated) {
+          toast.success("Eleitor atualizado com sucesso!");
+          router.push("/voters");
+        } else {
+          toast.error("Erro ao atualizar eleitor. Tente novamente.");
+        }
       } else {
-        await votersApi.create(finalData as Partial<Voter>);
-        toast.success("Eleitor criado com sucesso!");
+        const created = await createVoter(finalData as Partial<Voter>);
+        if (created) {
+          toast.success("Eleitor criado com sucesso!");
+          router.push("/voters");
+        } else {
+          toast.error("Erro ao criar eleitor. Tente novamente.");
+        }
       }
-      router.push("/voters");
-      router.refresh();
     } catch (error) {
       toast.error("Erro ao salvar eleitor. Tente novamente.");
       console.error(error);

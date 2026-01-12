@@ -28,10 +28,30 @@ export class QueryEventsDto {
   // Type filter
   @ApiPropertyOptional({
     description: 'Filter by event type',
-    enum: ['COMICIO', 'REUNIAO', 'VISITA', 'ENTREVISTA', 'DEBATE', 'CAMINHADA', 'CORPO_A_CORPO', 'EVENTO_PRIVADO', 'OUTRO'],
+    enum: [
+      'COMICIO',
+      'REUNIAO',
+      'VISITA',
+      'ENTREVISTA',
+      'DEBATE',
+      'CAMINHADA',
+      'CORPO_A_CORPO',
+      'EVENTO_PRIVADO',
+      'OUTRO',
+    ],
   })
   @IsOptional()
-  @IsEnum(['COMICIO', 'REUNIAO', 'VISITA', 'ENTREVISTA', 'DEBATE', 'CAMINHADA', 'CORPO_A_CORPO', 'EVENTO_PRIVADO', 'OUTRO'])
+  @IsEnum([
+    'COMICIO',
+    'REUNIAO',
+    'VISITA',
+    'ENTREVISTA',
+    'DEBATE',
+    'CAMINHADA',
+    'CORPO_A_CORPO',
+    'EVENTO_PRIVADO',
+    'OUTRO',
+  ])
   type?: string;
 
   // Status filter
@@ -53,12 +73,18 @@ export class QueryEventsDto {
   visibility?: string;
 
   // Date filters
-  @ApiPropertyOptional({ description: 'Filter events starting from this date', example: '2024-03-01' })
+  @ApiPropertyOptional({
+    description: 'Filter events starting from this date',
+    example: '2024-03-01',
+  })
   @IsOptional()
   @IsDateString()
   startDateFrom?: string;
 
-  @ApiPropertyOptional({ description: 'Filter events starting until this date', example: '2024-03-31' })
+  @ApiPropertyOptional({
+    description: 'Filter events starting until this date',
+    example: '2024-03-31',
+  })
   @IsOptional()
   @IsDateString()
   startDateTo?: string;

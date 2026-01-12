@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Client, GeocodeResult, PlaceAutocompleteResult, AddressComponent } from '@googlemaps/google-maps-services-js';
+import {
+  Client,
+  GeocodeResult,
+  PlaceAutocompleteResult,
+  AddressComponent,
+} from '@googlemaps/google-maps-services-js';
 
 export interface GeocodingResult {
   latitude: number;
@@ -73,7 +78,10 @@ export class MapsService {
   /**
    * Reverse geocode coordinates to get address
    */
-  async reverseGeocode(latitude: number, longitude: number): Promise<ReverseGeocodingResult | null> {
+  async reverseGeocode(
+    latitude: number,
+    longitude: number,
+  ): Promise<ReverseGeocodingResult | null> {
     if (!this.apiKey) {
       this.logger.warn('Reverse geocoding skipped: API key not configured');
       return null;
@@ -173,12 +181,7 @@ export class MapsService {
    * Calculate distance between two points using Haversine formula
    * Returns distance in kilometers
    */
-  calculateDistance(
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number,
-  ): number {
+  calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const R = 6371; // Earth's radius in km
     const dLat = this.toRadians(lat2 - lat1);
     const dLon = this.toRadians(lon2 - lon1);
@@ -227,8 +230,7 @@ export class MapsService {
       const xj = polygon[j].lng;
       const yj = polygon[j].lat;
 
-      const intersect =
-        yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+      const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
 
       if (intersect) inside = !inside;
     }

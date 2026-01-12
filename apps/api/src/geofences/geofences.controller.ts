@@ -68,11 +68,7 @@ export class GeofencesController {
   @ApiQuery({ name: 'lat', description: 'Latitude', example: -23.5505 })
   @ApiQuery({ name: 'lng', description: 'Longitude', example: -46.6333 })
   @ApiResponse({ status: 200, description: 'Returns whether point is inside geofence' })
-  checkPoint(
-    @Param('id') id: string,
-    @Query('lat') lat: string,
-    @Query('lng') lng: string,
-  ) {
+  checkPoint(@Param('id') id: string, @Query('lat') lat: string, @Query('lng') lng: string) {
     return this.geofencesService.checkPoint(id, parseFloat(lat), parseFloat(lng));
   }
 
@@ -82,9 +78,6 @@ export class GeofencesController {
   @ApiQuery({ name: 'lng', description: 'Longitude', example: -46.6333 })
   @ApiResponse({ status: 200, description: 'Returns geofences containing the point' })
   findByPoint(@Query('lat') lat: string, @Query('lng') lng: string) {
-    return this.geofencesService.findGeofencesContainingPoint(
-      parseFloat(lat),
-      parseFloat(lng),
-    );
+    return this.geofencesService.findGeofencesContainingPoint(parseFloat(lat), parseFloat(lng));
   }
 }

@@ -31,7 +31,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Plus, Save, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { voters as mockVoters } from "@/mock-data/voters";
 
 interface ReportsBuilderProps {
   initialFilters?: ReportFilter[];
@@ -39,6 +38,7 @@ interface ReportsBuilderProps {
   initialColumns?: Array<keyof Voter>;
   initialName?: string;
   initialDescription?: string;
+  data?: Voter[];
 }
 
 export function ReportsBuilder({
@@ -47,6 +47,7 @@ export function ReportsBuilder({
   initialColumns = ["name", "phone", "email", "city", "supportLevel"],
   initialName = "",
   initialDescription = "",
+  data = [],
 }: ReportsBuilderProps) {
   const router = useRouter();
   const [filters, setFilters] = useState<ReportFilter[]>(initialFilters);
@@ -285,7 +286,7 @@ export function ReportsBuilder({
           <Card>
             <CardContent className="pt-6">
               <ReportPreview
-                data={mockVoters}
+                data={data}
                 columns={
                   columns.length > 0
                     ? columns

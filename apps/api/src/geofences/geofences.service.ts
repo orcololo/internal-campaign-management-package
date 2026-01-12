@@ -105,10 +105,7 @@ export class GeofencesService {
     await this.findOne(id);
 
     // Soft delete
-    await db
-      .update(geofences)
-      .set({ deletedAt: new Date() })
-      .where(eq(geofences.id, id));
+    await db.update(geofences).set({ deletedAt: new Date() }).where(eq(geofences.id, id));
 
     return { message: 'Geofence deleted successfully' };
   }
@@ -121,7 +118,12 @@ export class GeofencesService {
 
     let isInside = false;
 
-    if (geofence.type === 'CIRCLE' && geofence.centerLatitude !== null && geofence.centerLongitude !== null && geofence.radiusKm !== null) {
+    if (
+      geofence.type === 'CIRCLE' &&
+      geofence.centerLatitude !== null &&
+      geofence.centerLongitude !== null &&
+      geofence.radiusKm !== null
+    ) {
       isInside = this.mapsService.isPointInCircle(
         latitude,
         longitude,
@@ -154,7 +156,12 @@ export class GeofencesService {
     for (const geofence of allGeofences) {
       let isInside = false;
 
-      if (geofence.type === 'CIRCLE' && geofence.centerLatitude !== null && geofence.centerLongitude !== null && geofence.radiusKm !== null) {
+      if (
+        geofence.type === 'CIRCLE' &&
+        geofence.centerLatitude !== null &&
+        geofence.centerLongitude !== null &&
+        geofence.radiusKm !== null
+      ) {
         isInside = this.mapsService.isPointInCircle(
           latitude,
           longitude,
@@ -181,19 +188,17 @@ export class GeofencesService {
   /**
    * Format geofence data - convert string coordinates back to numbers
    */
-  private formatGeofence<T extends Record<string, any>>(geofence: T): T & {
+  private formatGeofence<T extends Record<string, any>>(
+    geofence: T,
+  ): T & {
     centerLatitude: number | null;
     centerLongitude: number | null;
     radiusKm: number | null;
   } {
     return {
       ...geofence,
-      centerLatitude: geofence.centerLatitude
-        ? parseFloat(geofence.centerLatitude)
-        : null,
-      centerLongitude: geofence.centerLongitude
-        ? parseFloat(geofence.centerLongitude)
-        : null,
+      centerLatitude: geofence.centerLatitude ? parseFloat(geofence.centerLatitude) : null,
+      centerLongitude: geofence.centerLongitude ? parseFloat(geofence.centerLongitude) : null,
       radiusKm: geofence.radiusKm ? parseFloat(geofence.radiusKm) : null,
     };
   }

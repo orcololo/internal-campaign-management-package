@@ -1,4 +1,13 @@
-import { pgTable, uuid, varchar, timestamp, text, numeric, pgEnum, jsonb } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  timestamp,
+  text,
+  numeric,
+  pgEnum,
+  jsonb,
+} from 'drizzle-orm/pg-core';
 
 /**
  * Geofence type enum
@@ -41,4 +50,4 @@ export const geofences = pgTable('geofences', {
 
 export type Geofence = typeof geofences.$inferSelect;
 export type NewGeofence = typeof geofences.$inferInsert;
-export type GeofenceType = typeof geofenceTypeEnum.enumValues[number];
+export type GeofenceType = (typeof geofenceTypeEnum.enumValues)[number];

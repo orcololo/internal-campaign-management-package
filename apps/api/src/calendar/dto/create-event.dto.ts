@@ -19,17 +19,40 @@ export class CreateEventDto {
   @MaxLength(255)
   title: string;
 
-  @ApiPropertyOptional({ description: 'Event description', example: 'Grande comício com artistas locais' })
+  @ApiPropertyOptional({
+    description: 'Event description',
+    example: 'Grande comício com artistas locais',
+  })
   @IsOptional()
   @IsString()
   description?: string;
 
   @ApiProperty({
     description: 'Event type',
-    enum: ['COMICIO', 'REUNIAO', 'VISITA', 'ENTREVISTA', 'DEBATE', 'CAMINHADA', 'CORPO_A_CORPO', 'EVENTO_PRIVADO', 'OUTRO'],
+    enum: [
+      'COMICIO',
+      'REUNIAO',
+      'VISITA',
+      'ENTREVISTA',
+      'DEBATE',
+      'CAMINHADA',
+      'CORPO_A_CORPO',
+      'EVENTO_PRIVADO',
+      'OUTRO',
+    ],
     example: 'COMICIO',
   })
-  @IsEnum(['COMICIO', 'REUNIAO', 'VISITA', 'ENTREVISTA', 'DEBATE', 'CAMINHADA', 'CORPO_A_CORPO', 'EVENTO_PRIVADO', 'OUTRO'])
+  @IsEnum([
+    'COMICIO',
+    'REUNIAO',
+    'VISITA',
+    'ENTREVISTA',
+    'DEBATE',
+    'CAMINHADA',
+    'CORPO_A_CORPO',
+    'EVENTO_PRIVADO',
+    'OUTRO',
+  ])
   type: string;
 
   @ApiPropertyOptional({
@@ -154,7 +177,10 @@ export class CreateEventDto {
   @IsString()
   notes?: string;
 
-  @ApiPropertyOptional({ description: 'Tags (JSON array)', example: '["importante", "eleicao2024"]' })
+  @ApiPropertyOptional({
+    description: 'Tags (JSON array)',
+    example: '["importante", "eleicao2024"]',
+  })
   @IsOptional()
   @IsString()
   tags?: string;

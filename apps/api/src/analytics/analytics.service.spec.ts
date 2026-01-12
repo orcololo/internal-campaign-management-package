@@ -225,7 +225,10 @@ describe('AnalyticsService', () => {
 
       expect(result.total).toBe(2);
       expect(result.demographics.byGender).toEqual({ MASCULINO: 1, FEMININO: 1 });
-      expect(result.demographics.byEducationLevel).toEqual({ SUPERIOR_COMPLETO: 1, ENSINO_MEDIO: 1 });
+      expect(result.demographics.byEducationLevel).toEqual({
+        SUPERIOR_COMPLETO: 1,
+        ENSINO_MEDIO: 1,
+      });
       expect(result.geographic.byCity).toEqual({ 'São Paulo': 1, 'Rio de Janeiro': 1 });
       expect(result.political.bySupportLevel).toEqual({ FAVORAVEL: 1, MUITO_FAVORAVEL: 1 });
       expect(result.contact.withEmail).toBe(1);
@@ -258,7 +261,9 @@ describe('AnalyticsService', () => {
     it('should return comprehensive event analytics', async () => {
       const today = new Date().toISOString().split('T')[0];
       const pastDate = '2024-01-15';
-      const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0];
 
       const mockEvents = [
         {
@@ -464,7 +469,11 @@ describe('AnalyticsService', () => {
 
       jest.spyOn(mockDb, 'where').mockReturnValueOnce(mockVoters);
 
-      const result = await service.getTimeSeriesData('2024-03-01', '2024-03-31', 'voter-registrations');
+      const result = await service.getTimeSeriesData(
+        '2024-03-01',
+        '2024-03-31',
+        'voter-registrations',
+      );
 
       expect(result).toBeDefined();
       expect(Array.isArray(result)).toBe(true);

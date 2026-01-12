@@ -104,12 +104,7 @@ export class MapsController {
     },
   })
   async calculateDistance(@Body() dto: CalculateDistanceDto) {
-    const distance = this.mapsService.calculateDistance(
-      dto.lat1,
-      dto.lng1,
-      dto.lat2,
-      dto.lng2,
-    );
+    const distance = this.mapsService.calculateDistance(dto.lat1, dto.lng1, dto.lat2, dto.lng2);
     return { distance, unit: 'km' };
   }
 
@@ -147,11 +142,7 @@ export class MapsController {
     },
   })
   async checkPolygon(@Body() dto: CheckPolygonDto) {
-    const isInside = this.mapsService.isPointInPolygon(
-      dto.pointLat,
-      dto.pointLng,
-      dto.polygon,
-    );
+    const isInside = this.mapsService.isPointInPolygon(dto.pointLat, dto.pointLng, dto.polygon);
     return { isInside };
   }
 }

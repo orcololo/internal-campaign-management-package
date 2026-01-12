@@ -99,7 +99,10 @@ export class CreateGeofenceDto {
   @MaxLength(7)
   color?: string;
 
-  @ApiPropertyOptional({ description: 'Tags (JSON array)', example: '["prioridade", "zona_eleitoral_1"]' })
+  @ApiPropertyOptional({
+    description: 'Tags (JSON array)',
+    example: '["prioridade", "zona_eleitoral_1"]',
+  })
   @IsOptional()
   @IsString()
   tags?: string;

@@ -75,10 +75,7 @@ export class CalendarController {
   @ApiQuery({ name: 'startDate', description: 'Start date', example: '2024-03-01', required: true })
   @ApiQuery({ name: 'endDate', description: 'End date', example: '2024-03-31', required: true })
   @ApiResponse({ status: 200, description: 'Returns events in date range' })
-  getByDateRange(
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string,
-  ) {
+  getByDateRange(@Query('startDate') startDate: string, @Query('endDate') endDate: string) {
     return this.calendarService.getEventsByDateRange(startDate, endDate);
   }
 

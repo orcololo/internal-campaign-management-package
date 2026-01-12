@@ -34,43 +34,45 @@ export class AnalyticsService {
       },
       voters: {
         total: allVoters.length,
-        withEmail: allVoters.filter(v => v.email).length,
-        withPhone: allVoters.filter(v => v.phone).length,
-        withWhatsapp: allVoters.filter(v => v.hasWhatsapp === 'SIM').length,
-        withCoordinates: allVoters.filter(v => v.latitude && v.longitude).length,
+        withEmail: allVoters.filter((v) => v.email).length,
+        withPhone: allVoters.filter((v) => v.phone).length,
+        withWhatsapp: allVoters.filter((v) => v.hasWhatsapp === 'SIM').length,
+        withCoordinates: allVoters.filter((v) => v.latitude && v.longitude).length,
         bySupportLevel: this.groupBy(allVoters, 'supportLevel'),
         byCity: this.groupBy(allVoters, 'city'),
         byGender: this.groupBy(allVoters, 'gender'),
         recent: {
-          last7Days: allVoters.filter(v => new Date(v.createdAt) >= new Date(last7Days)).length,
-          last30Days: allVoters.filter(v => new Date(v.createdAt) >= new Date(last30Days)).length,
+          last7Days: allVoters.filter((v) => new Date(v.createdAt) >= new Date(last7Days)).length,
+          last30Days: allVoters.filter((v) => new Date(v.createdAt) >= new Date(last30Days)).length,
         },
       },
       events: {
         total: allEvents.length,
-        upcoming: allEvents.filter(e => e.startDate >= today && e.status === 'AGENDADO').length,
-        completed: allEvents.filter(e => e.status === 'CONCLUIDO').length,
-        cancelled: allEvents.filter(e => e.status === 'CANCELADO').length,
+        upcoming: allEvents.filter((e) => e.startDate >= today && e.status === 'AGENDADO').length,
+        completed: allEvents.filter((e) => e.status === 'CONCLUIDO').length,
+        cancelled: allEvents.filter((e) => e.status === 'CANCELADO').length,
         byType: this.groupBy(allEvents, 'type'),
         byStatus: this.groupBy(allEvents, 'status'),
         byVisibility: this.groupBy(allEvents, 'visibility'),
-        thisMonth: allEvents.filter(e => {
+        thisMonth: allEvents.filter((e) => {
           const eventDate = new Date(e.startDate);
           const now = new Date();
-          return eventDate.getMonth() === now.getMonth() && eventDate.getFullYear() === now.getFullYear();
+          return (
+            eventDate.getMonth() === now.getMonth() && eventDate.getFullYear() === now.getFullYear()
+          );
         }).length,
       },
       canvassing: {
         totalSessions: allSessions.length,
-        completedSessions: allSessions.filter(s => s.status === 'CONCLUIDA').length,
-        inProgressSessions: allSessions.filter(s => s.status === 'EM_ANDAMENTO').length,
+        completedSessions: allSessions.filter((s) => s.status === 'CONCLUIDA').length,
+        inProgressSessions: allSessions.filter((s) => s.status === 'EM_ANDAMENTO').length,
         totalDoorKnocks: allDoorKnocks.length,
         results: {
-          supporters: allDoorKnocks.filter(d => d.result === 'APOIADOR').length,
-          undecided: allDoorKnocks.filter(d => d.result === 'INDECISO').length,
-          opponents: allDoorKnocks.filter(d => d.result === 'OPOSITOR').length,
-          notHome: allDoorKnocks.filter(d => d.result === 'NAO_ATENDEU').length,
-          refused: allDoorKnocks.filter(d => d.result === 'RECUSOU_CONTATO').length,
+          supporters: allDoorKnocks.filter((d) => d.result === 'APOIADOR').length,
+          undecided: allDoorKnocks.filter((d) => d.result === 'INDECISO').length,
+          opponents: allDoorKnocks.filter((d) => d.result === 'OPOSITOR').length,
+          notHome: allDoorKnocks.filter((d) => d.result === 'NAO_ATENDEU').length,
+          refused: allDoorKnocks.filter((d) => d.result === 'RECUSOU_CONTATO').length,
         },
         byResult: this.groupBy(allDoorKnocks, 'result'),
         conversionRate: this.calculateConversionRate(allDoorKnocks),
@@ -93,10 +95,7 @@ export class AnalyticsService {
   async getVoterAnalytics() {
     const db = this.databaseService.getDb();
 
-    const allVoters = await db
-      .select()
-      .from(voters)
-      .where(isNull(voters.deletedAt));
+    const allVoters = await db.select().from(voters).where(isNull(voters.deletedAt));
 
     return {
       total: allVoters.length,
@@ -118,14 +117,14 @@ export class AnalyticsService {
         byPoliticalParty: this.groupBy(allVoters, 'politicalParty'),
       },
       contact: {
-        withEmail: allVoters.filter(v => v.email).length,
-        withPhone: allVoters.filter(v => v.phone).length,
-        withWhatsapp: allVoters.filter(v => v.hasWhatsapp === 'SIM').length,
+        withEmail: allVoters.filter((v) => v.email).length,
+        withPhone: allVoters.filter((v) => v.phone).length,
+        withWhatsapp: allVoters.filter((v) => v.hasWhatsapp === 'SIM').length,
         preferredContactMethod: this.groupBy(allVoters, 'preferredContact'),
       },
       engagement: {
-        withCoordinates: allVoters.filter(v => v.latitude && v.longitude).length,
-        withSocialMedia: allVoters.filter(v => v.facebook || v.instagram || v.twitter).length,
+        withCoordinates: allVoters.filter((v) => v.latitude && v.longitude).length,
+        withSocialMedia: allVoters.filter((v) => v.facebook || v.instagram || v.twitter).length,
       },
     };
   }
@@ -136,10 +135,7 @@ export class AnalyticsService {
   async getEventAnalytics() {
     const db = this.databaseService.getDb();
 
-    const allEvents = await db
-      .select()
-      .from(events)
-      .where(isNull(events.deletedAt));
+    const allEvents = await db.select().from(events).where(isNull(events.deletedAt));
 
     const today = new Date().toISOString().split('T')[0];
 
@@ -148,10 +144,10 @@ export class AnalyticsService {
       byType: this.groupBy(allEvents, 'type'),
       byStatus: this.groupBy(allEvents, 'status'),
       byVisibility: this.groupBy(allEvents, 'visibility'),
-      upcoming: allEvents.filter(e => e.startDate >= today && e.status === 'AGENDADO').length,
-      past: allEvents.filter(e => e.startDate < today).length,
-      completed: allEvents.filter(e => e.status === 'CONCLUIDO').length,
-      cancelled: allEvents.filter(e => e.status === 'CANCELADO').length,
+      upcoming: allEvents.filter((e) => e.startDate >= today && e.status === 'AGENDADO').length,
+      past: allEvents.filter((e) => e.startDate < today).length,
+      completed: allEvents.filter((e) => e.status === 'CONCLUIDO').length,
+      cancelled: allEvents.filter((e) => e.status === 'CANCELADO').length,
       geographic: {
         byCity: this.groupBy(allEvents, 'city'),
         byState: this.groupBy(allEvents, 'state'),
@@ -179,21 +175,21 @@ export class AnalyticsService {
       sessions: {
         total: allSessions.length,
         byStatus: this.groupBy(allSessions, 'status'),
-        completed: allSessions.filter(s => s.status === 'CONCLUIDA').length,
-        inProgress: allSessions.filter(s => s.status === 'EM_ANDAMENTO').length,
-        planned: allSessions.filter(s => s.status === 'PLANEJADA').length,
+        completed: allSessions.filter((s) => s.status === 'CONCLUIDA').length,
+        inProgress: allSessions.filter((s) => s.status === 'EM_ANDAMENTO').length,
+        planned: allSessions.filter((s) => s.status === 'PLANEJADA').length,
         byRegion: this.groupBy(allSessions, 'region'),
         byNeighborhood: this.groupBy(allSessions, 'neighborhood'),
       },
       doorKnocks: {
         total: allDoorKnocks.length,
         byResult: this.groupBy(allDoorKnocks, 'result'),
-        supporters: allDoorKnocks.filter(d => d.result === 'APOIADOR').length,
-        undecided: allDoorKnocks.filter(d => d.result === 'INDECISO').length,
-        opponents: allDoorKnocks.filter(d => d.result === 'OPOSITOR').length,
-        notHome: allDoorKnocks.filter(d => d.result === 'NAO_ATENDEU').length,
-        refused: allDoorKnocks.filter(d => d.result === 'RECUSOU_CONTATO').length,
-        requiresFollowUp: allDoorKnocks.filter(d => d.followUpRequired).length,
+        supporters: allDoorKnocks.filter((d) => d.result === 'APOIADOR').length,
+        undecided: allDoorKnocks.filter((d) => d.result === 'INDECISO').length,
+        opponents: allDoorKnocks.filter((d) => d.result === 'OPOSITOR').length,
+        notHome: allDoorKnocks.filter((d) => d.result === 'NAO_ATENDEU').length,
+        refused: allDoorKnocks.filter((d) => d.result === 'RECUSOU_CONTATO').length,
+        requiresFollowUp: allDoorKnocks.filter((d) => d.followUpRequired).length,
       },
       performance: {
         conversionRate: this.calculateConversionRate(allDoorKnocks),
@@ -221,7 +217,7 @@ export class AnalyticsService {
       );
 
     return {
-      points: votersWithCoordinates.map(v => ({
+      points: votersWithCoordinates.map((v) => ({
         lat: parseFloat(v.latitude as string),
         lng: parseFloat(v.longitude as string),
         supportLevel: v.supportLevel,
@@ -290,22 +286,28 @@ export class AnalyticsService {
 
   // Helper methods
 
-  private groupBy<T extends Record<string, any>>(items: T[], field: keyof T): Record<string, number> {
-    return items.reduce((acc, item) => {
-      const value = item[field] || 'NOT_SPECIFIED';
-      acc[value as string] = (acc[value as string] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+  private groupBy<T extends Record<string, any>>(
+    items: T[],
+    field: keyof T,
+  ): Record<string, number> {
+    return items.reduce(
+      (acc, item) => {
+        const value = item[field] || 'NOT_SPECIFIED';
+        acc[value as string] = (acc[value as string] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }
 
   private calculateAgeDistribution<T extends { dateOfBirth?: string | null }>(voters: T[]) {
-    const votersWithAge = voters.filter(v => v.dateOfBirth);
+    const votersWithAge = voters.filter((v) => v.dateOfBirth);
 
     if (votersWithAge.length === 0) {
       return { ageRanges: {}, averageAge: null };
     }
 
-    const ages = votersWithAge.map(v => {
+    const ages = votersWithAge.map((v) => {
       const birthDate = new Date(v.dateOfBirth!);
       const today = new Date();
       let age = today.getFullYear() - birthDate.getFullYear();
@@ -320,11 +322,11 @@ export class AnalyticsService {
 
     return {
       ageRanges: {
-        '16-24': ages.filter(age => age >= 16 && age <= 24).length,
-        '25-34': ages.filter(age => age >= 25 && age <= 34).length,
-        '35-44': ages.filter(age => age >= 35 && age <= 44).length,
-        '45-59': ages.filter(age => age >= 45 && age <= 59).length,
-        '60+': ages.filter(age => age >= 60).length,
+        '16-24': ages.filter((age) => age >= 16 && age <= 24).length,
+        '25-34': ages.filter((age) => age >= 25 && age <= 34).length,
+        '35-44': ages.filter((age) => age >= 35 && age <= 44).length,
+        '45-59': ages.filter((age) => age >= 45 && age <= 59).length,
+        '60+': ages.filter((age) => age >= 60).length,
       },
       averageAge,
     };
@@ -332,15 +334,15 @@ export class AnalyticsService {
 
   private calculateConversionRate<T extends { result?: string | null }>(doorKnocks: T[]): number {
     if (doorKnocks.length === 0) return 0;
-    const contacted = doorKnocks.filter(d => d.result !== 'NAO_ATENDEU').length;
-    const supporters = doorKnocks.filter(d => d.result === 'APOIADOR').length;
+    const contacted = doorKnocks.filter((d) => d.result !== 'NAO_ATENDEU').length;
+    const supporters = doorKnocks.filter((d) => d.result === 'APOIADOR').length;
     return contacted > 0 ? Math.round((supporters / contacted) * 100) : 0;
   }
 
   private calculateSuccessRate<T extends { result?: string | null }>(doorKnocks: T[]): number {
     if (doorKnocks.length === 0) return 0;
-    const successful = doorKnocks.filter(d =>
-      d.result === 'APOIADOR' || d.result === 'INDECISO'
+    const successful = doorKnocks.filter(
+      (d) => d.result === 'APOIADOR' || d.result === 'INDECISO',
     ).length;
     return Math.round((successful / doorKnocks.length) * 100);
   }
@@ -356,7 +358,7 @@ export class AnalyticsService {
 
   private groupEventsByMonth<T extends { startDate: string }>(events: T[]) {
     const byMonth: Record<string, number> = {};
-    events.forEach(event => {
+    events.forEach((event) => {
       const date = new Date(event.startDate);
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       byMonth[key] = (byMonth[key] || 0) + 1;
@@ -366,10 +368,14 @@ export class AnalyticsService {
 
   private groupByDate<T extends Record<string, any>>(items: T[], type: string) {
     const byDate: Record<string, number> = {};
-    const dateField = type === 'voter-registrations' ? 'createdAt' :
-                     type === 'events' ? 'startDate' : 'contactedAt';
+    const dateField =
+      type === 'voter-registrations'
+        ? 'createdAt'
+        : type === 'events'
+          ? 'startDate'
+          : 'contactedAt';
 
-    items.forEach(item => {
+    items.forEach((item) => {
       const date = new Date(item[dateField]);
       const key = date.toISOString().split('T')[0];
       byDate[key] = (byDate[key] || 0) + 1;
@@ -388,12 +394,7 @@ export class AnalyticsService {
     const recentVoters = await db
       .select()
       .from(voters)
-      .where(
-        and(
-          isNull(voters.deletedAt),
-          gte(sql`DATE(${voters.createdAt})`, last30Days),
-        ),
-      );
+      .where(and(isNull(voters.deletedAt), gte(sql`DATE(${voters.createdAt})`, last30Days)));
 
     return this.groupByDate(recentVoters, 'voter-registrations');
   }
@@ -405,12 +406,7 @@ export class AnalyticsService {
     const recentEvents = await db
       .select()
       .from(events)
-      .where(
-        and(
-          isNull(events.deletedAt),
-          gte(events.startDate, last30Days),
-        ),
-      );
+      .where(and(isNull(events.deletedAt), gte(events.startDate, last30Days)));
 
     return this.groupByDate(recentEvents, 'events');
   }
@@ -423,10 +419,7 @@ export class AnalyticsService {
       .select()
       .from(doorKnocks)
       .where(
-        and(
-          isNull(doorKnocks.deletedAt),
-          gte(sql`DATE(${doorKnocks.contactedAt})`, last30Days),
-        ),
+        and(isNull(doorKnocks.deletedAt), gte(sql`DATE(${doorKnocks.contactedAt})`, last30Days)),
       );
 
     return this.groupByDate(recentDoorKnocks, 'canvassing');

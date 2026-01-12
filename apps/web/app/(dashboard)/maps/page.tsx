@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { VoterMapView } from "@/components/features/voters/voter-map-view";
 import { VoterMapsPanel } from "@/components/features/voters/voter-maps-panel";
 import { GeofenceMapView } from "@/components/features/geofences/geofence-map-view";
 import { GeofencePanel } from "@/components/features/geofences/geofence-panel";
 import { GeofenceSaveDialog } from "@/components/features/geofences/geofence-save-dialog";
 import { Button } from "@/components/ui/button";
-import { voters } from "@/mock-data/voters";
+import { useVotersStore } from "@/store/voters-store";
 import {
   geofences as initialGeofences,
   isPointInPolygon,
@@ -36,6 +36,7 @@ const SUPPORT_LEVEL_LABELS: Record<SupportLevel, string> = {
 };
 
 export default function MapsPage() {
+  const { voters, fetchVoters } = useVotersStore();
   const [selectedVoterId, setSelectedVoterId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"voters" | "geofences">("voters");
   const [geofences, setGeofences] = useState<Geofence[]>(initialGeofences);
@@ -47,6 +48,10 @@ export default function MapsPage() {
     null
   );
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+
+  useEffect(() => {
+    fetchVoters({ page: 1, perPage: 1000 });
+  }, [fetchVoters]);
 
   // Filter voters by active geofences
   const filteredVoters = useMemo(() => {

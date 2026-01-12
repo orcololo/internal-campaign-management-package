@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useMemo } from "react";
+import { use, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VotersTable } from "@/components/features/voters/voters-table";
 import { geofences, isPointInPolygon } from "@/mock-data/geofences";
-import { voters } from "@/mock-data/voters";
+import { useVotersStore } from "@/store/voters-store";
 import { ArrowLeft, MapPin, Users, Calendar, TrendingUp } from "lucide-react";
 import { notFound } from "next/navigation";
 
@@ -26,6 +26,11 @@ export default function GeofenceDetailPage({
 }: GeofenceDetailPageProps) {
   const { id } = use(params);
   const router = useRouter();
+  const { voters, fetchVoters } = useVotersStore();
+
+  useEffect(() => {
+    fetchVoters({ page: 1, perPage: 1000 });
+  }, [fetchVoters]);
 
   const geofence = geofences.find((g) => g.id === id);
 

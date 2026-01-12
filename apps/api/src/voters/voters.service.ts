@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { eq, and, isNull, ilike, or, sql, isNotNull } from 'drizzle-orm';
+import { eq, and, isNull, ilike, or, sql, isNotNull, asc, desc } from 'drizzle-orm';
 import { DatabaseService } from '../database/database.service';
 import { voters } from '../database/schemas';
 import { MapsService } from '../maps/maps.service';
@@ -101,6 +101,22 @@ export class VotersService {
       conditions.push(eq(voters.hasWhatsapp, query.hasWhatsapp));
     }
 
+    // Determine sort field and order
+    const sortBy = query.sortBy || 'createdAt';
+    const sortOrder = query.sortOrder || 'desc';
+
+    // Map sortBy to actual column
+    const sortColumn =
+      {
+        name: voters.name,
+        email: voters.email,
+        city: voters.city,
+        state: voters.state,
+        supportLevel: voters.supportLevel,
+        createdAt: voters.createdAt,
+        updatedAt: voters.updatedAt,
+      }[sortBy] || voters.createdAt;
+
     // Get total count and paginated results in parallel
     const [countResult, results] = await Promise.all([
       db
@@ -113,7 +129,7 @@ export class VotersService {
         .where(and(...conditions))
         .limit(limit)
         .offset(offset)
-        .orderBy(voters.createdAt),
+        .orderBy(sortOrder === 'asc' ? asc(sortColumn) : desc(sortColumn)),
     ]);
 
     const [{ count }] = countResult;
@@ -919,13 +935,35 @@ export class VotersService {
   /**
    * Format voter data - convert string coordinates back to numbers
    */
-  private formatVoter<T extends Record<string, any>>(
-    voter: T,
-  ): T & { latitude: number | null; longitude: number | null } {
+  private formatVoter<T extends Record<string, any>>(voter: T): any {
+    // Parse JSON fields
+    const parseJsonField = (field: any): any => {
+      if (!field) return null;
+      if (typeof field === 'string') {
+        try {
+          return JSON.parse(field);
+        } catch {
+          return field;
+        }
+      }
+      return field;
+    };
+
     return {
       ...voter,
+      // Convert numeric coordinates to numbers
       latitude: voter.latitude ? parseFloat(voter.latitude) : null,
       longitude: voter.longitude ? parseFloat(voter.longitude) : null,
+      // Keep 'SIM'/'NAO' as strings - frontend will handle conversion if needed
+      // Parse JSON text fields
+      tags: parseJsonField(voter.tags),
+      topIssues: parseJsonField(voter.topIssues),
+      issuePositions: parseJsonField(voter.issuePositions),
+      eventAttendance: parseJsonField(voter.eventAttendance),
+      donationHistory: parseJsonField(voter.donationHistory),
+      seasonalActivity: parseJsonField(voter.seasonalActivity),
+      contentPreference: parseJsonField(voter.contentPreference),
+      bestContactDay: parseJsonField(voter.bestContactDay),
     };
   }
 

@@ -1,14 +1,17 @@
 import { VoterForm } from "@/components/features/voters/voter-form";
-import { voters } from "@/mock-data/voters";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
+import { votersApi } from "@/lib/api/voters";
 
 async function getVoter(id: string) {
-  // Find voter from mock data
-  const voter = voters.find((v) => v.id === id);
-  return voter || null;
+  try {
+    const voter = await votersApi.getById(id);
+    return voter;
+  } catch {
+    return null;
+  }
 }
 
 export default async function EditVoterPage({

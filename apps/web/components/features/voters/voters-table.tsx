@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -25,7 +25,6 @@ import {
   Search,
   SlidersHorizontal,
   ArrowUpDown,
-  Upload,
   PieChart,
   ArrowUp,
   ArrowDown,
@@ -40,6 +39,8 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Loader2,
+  Download,
 } from "lucide-react";
 import {
   Select,
@@ -51,9 +52,12 @@ import {
 import { Voter, VoterSortField, SortOrder } from "@/types/voters";
 import { SupportLevelBadge, WhatsAppBadge } from "./voter-badges";
 import { useRouter } from "next/navigation";
+import { useVotersStore } from "@/store/voters-store";
+import { VoterFilters } from "@/lib/api/voters";
+import { toast } from "sonner";
 
 interface VotersTableProps {
-  data: Voter[];
+  data?: Voter[]; // Make optional for backward compatibility
 }
 
 function getSortIcon(
@@ -69,8 +73,34 @@ function getSortIcon(
   );
 }
 
-export function VotersTable({ data }: VotersTableProps) {
+export function VotersTable({ data: propData }: VotersTableProps) {
   const router = useRouter();
+  
+  // Use store for data and actions
+  const {
+    voters: storeVoters,
+    isLoading,
+    error,
+    selectedIds,
+    currentPage: storePage,
+    totalPages: storeTotalPages,
+    perPage: storePerPage,
+    fetchVoters,
+    deleteVoter,
+    bulkDelete,
+    exportCsv,
+    setPage,
+    setPerPage,
+    setFilters,
+    toggleSelectedId,
+    setSelectedIds,
+    clearSelection,
+    clearError,
+  } = useVotersStore();
+  
+  // Use store data if available, otherwise fallback to props (for backward compatibility)
+  const data = propData || storeVoters;
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState<string>("all");
   const [stateFilter, setStateFilter] = useState<string>("all");
@@ -80,22 +110,83 @@ export function VotersTable({ data }: VotersTableProps) {
 
   const [sortField, setSortField] = useState<VoterSortField>("name");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
-  const [selectedVoters, setSelectedVoters] = useState<string[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+  // Use local pagination state only if using prop data
+  const [localCurrentPage, setLocalCurrentPage] = useState(1);
+  const [localItemsPerPage, setLocalItemsPerPage] = useState(10);
+  
+  // Determine if we're using store or local state
+  const usingStore = !propData;
+  const currentPage = usingStore ? (storePage || 1) : localCurrentPage;
+  const itemsPerPage = usingStore ? (storePerPage || 20) : localItemsPerPage;
+  const totalPages = usingStore ? (storeTotalPages || 1) : Math.ceil((data?.length || 0) / itemsPerPage);
+  
+  // Fetch voters on mount if using store
+  useEffect(() => {
+    if (usingStore) {
+      fetchVoters({
+        page: 1,
+        limit: 20,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+      });
+    }
+  }, [usingStore, fetchVoters]);
+  
+  // Update filters in store
+  useEffect(() => {
+    if (usingStore) {
+      const filters: Partial<VoterFilters> = {};
+      
+      if (searchQuery) filters.search = searchQuery;
+      if (cityFilter !== 'all') filters.city = cityFilter;
+      if (stateFilter !== 'all') filters.state = stateFilter;
+      if (supportLevelFilter !== 'all') filters.supportLevel = supportLevelFilter;
+      
+      setFilters(filters);
+      
+      // Debounce the fetch
+      const timeout = setTimeout(() => {
+        fetchVoters({
+          ...filters,
+          page: 1,
+          limit: itemsPerPage,
+          sortBy: sortField,
+          sortOrder,
+        });
+      }, 300);
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [usingStore, searchQuery, cityFilter, stateFilter, supportLevelFilter, sortField, sortOrder, itemsPerPage, setFilters, fetchVoters]);
+  
+  // Show error toast
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      clearError();
+    }
+  }, [error, clearError]);
 
   // Extract unique cities and states for filters
   const uniqueCities = useMemo(() => {
-    const cities = Array.from(new Set(data.map((v) => v.city))).sort();
+    const cities = Array.from(new Set(data.map((v) => v.city).filter(Boolean))).sort();
     return cities;
   }, [data]);
 
   const uniqueStates = useMemo(() => {
-    const states = Array.from(new Set(data.map((v) => v.state))).sort();
+    const states = Array.from(new Set(data.map((v) => v.state).filter(Boolean))).sort();
     return states;
   }, [data]);
 
+  // For local filtering (when using prop data), otherwise server handles it
   const filteredAndSortedVoters = useMemo(() => {
+    // If using store, return data as-is (server-side filtering)
+    if (usingStore) {
+      return data;
+    }
+    
+    // Otherwise, do client-side filtering
     let result = [...data];
 
     // Apply search filter
@@ -174,6 +265,7 @@ export function VotersTable({ data }: VotersTableProps) {
 
     return result;
   }, [
+    usingStore,
     data,
     searchQuery,
     cityFilter,
@@ -184,12 +276,17 @@ export function VotersTable({ data }: VotersTableProps) {
     sortField,
     sortOrder,
   ]);
-
-  const totalPages = Math.ceil(filteredAndSortedVoters.length / itemsPerPage);
+  
   const paginatedVoters = useMemo(() => {
+    // If using store, data is already paginated
+    if (usingStore) {
+      return filteredAndSortedVoters;
+    }
+    
+    // Otherwise, paginate locally
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredAndSortedVoters.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredAndSortedVoters, currentPage, itemsPerPage]);
+  }, [usingStore, filteredAndSortedVoters, currentPage, itemsPerPage]);
 
   const toggleSort = (field: VoterSortField) => {
     if (sortField === field) {
@@ -198,20 +295,46 @@ export function VotersTable({ data }: VotersTableProps) {
       setSortField(field);
       setSortOrder("asc");
     }
-  };
-
-  const toggleSelectAll = () => {
-    if (selectedVoters.length === paginatedVoters.length) {
-      setSelectedVoters([]);
-    } else {
-      setSelectedVoters(paginatedVoters.map((voter) => voter.id));
+    
+    // If using store, trigger refetch with new sort
+    if (usingStore) {
+      fetchVoters({
+        search: searchQuery || undefined,
+        city: cityFilter !== 'all' ? cityFilter : undefined,
+        state: stateFilter !== 'all' ? stateFilter : undefined,
+        supportLevel: supportLevelFilter !== 'all' ? supportLevelFilter : undefined,
+        page: currentPage,
+        limit: itemsPerPage,
+        sortBy: field,
+        sortOrder: sortField === field ? (sortOrder === "asc" ? "desc" : "asc") : "asc",
+      });
     }
   };
 
-  const toggleSelectVoter = (id: string) => {
-    setSelectedVoters((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+  const toggleSelectAll = () => {
+    if (selectedIds.length === paginatedVoters.length) {
+      if (usingStore) {
+        clearSelection();
+      } else {
+        setSelectedIds([]);
+      }
+    } else {
+      if (usingStore) {
+        setSelectedIds(paginatedVoters.map((voter) => voter.id));
+      } else {
+        setSelectedIds(paginatedVoters.map((voter) => voter.id));
+      }
+    }
+  };
+
+  const handleToggleSelectVoter = (id: string) => {
+    if (usingStore) {
+      toggleSelectedId(id);
+    } else {
+      setSelectedIds((prev) =>
+        prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      );
+    }
   };
 
   const clearFilters = () => {
@@ -232,14 +355,68 @@ export function VotersTable({ data }: VotersTableProps) {
     hasLocationFilter !== null;
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    setSelectedVoters([]);
+    if (usingStore) {
+      setPage(page);
+      clearSelection();
+    } else {
+      setLocalCurrentPage(page);
+      setSelectedIds([]);
+    }
   };
 
   const handleItemsPerPageChange = (value: string) => {
-    setItemsPerPage(Number(value));
-    setCurrentPage(1);
-    setSelectedVoters([]);
+    const newPerPage = Number(value);
+    if (usingStore) {
+      setPerPage(newPerPage);
+      clearSelection();
+    } else {
+      setLocalItemsPerPage(newPerPage);
+      setLocalCurrentPage(1);
+      setSelectedIds([]);
+    }
+  };
+  
+  // Handle delete voter
+  const handleDeleteVoter = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this voter?')) return;
+    
+    if (usingStore) {
+      const success = await deleteVoter(id);
+      if (success) {
+        toast.success('Voter deleted successfully');
+      }
+    } else {
+      toast.error('Delete not available in offline mode');
+    }
+  };
+  
+  // Handle bulk delete
+  const handleBulkDelete = async () => {
+    if (!confirm(`Delete ${selectedIds.length} voters?`)) return;
+    
+    if (usingStore) {
+      const success = await bulkDelete(selectedIds);
+      if (success) {
+        toast.success(`${selectedIds.length} voters deleted`);
+      }
+    } else {
+      toast.error('Bulk delete not available in offline mode');
+    }
+  };
+  
+  // Handle export
+  const handleExport = async () => {
+    if (usingStore) {
+      await exportCsv({
+        search: searchQuery || undefined,
+        city: cityFilter !== 'all' ? cityFilter : undefined,
+        state: stateFilter !== 'all' ? stateFilter : undefined,
+        supportLevel: supportLevelFilter !== 'all' ? supportLevelFilter : undefined,
+      });
+      toast.success('Export started');
+    } else {
+      toast.error('Export not available in offline mode');
+    }
   };
 
   return (
@@ -401,22 +578,43 @@ export function VotersTable({ data }: VotersTableProps) {
         </div>
 
         <div className="flex items-center gap-2">
+          {selectedIds.length > 0 && (
+            <Button
+              variant="destructive"
+              size="sm"
+              className="h-8 gap-1.5"
+              onClick={handleBulkDelete}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Trash2 className="size-3.5" />
+              )}
+              <span>Delete {selectedIds.length}</span>
+            </Button>
+          )}
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
                 className="h-8 gap-1.5 bg-muted/50 border-border/50"
+                disabled={isLoading}
               >
-                <Upload className="size-3.5" />
-                <span className="hidden sm:inline">Exportar/Importar</span>
+                {isLoading ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Download className="size-3.5" />
+                )}
+                <span className="hidden sm:inline">Export</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Exportar como CSV</DropdownMenuItem>
-              <DropdownMenuItem>Exportar como Excel</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Importar de CSV</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExport}>
+                Export as CSV
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <DropdownMenu>
@@ -468,7 +666,7 @@ export function VotersTable({ data }: VotersTableProps) {
                 <div className="flex items-center gap-2">
                   <Checkbox
                     checked={
-                      selectedVoters.length === paginatedVoters.length &&
+                      selectedIds.length === paginatedVoters.length &&
                       paginatedVoters.length > 0
                     }
                     onCheckedChange={toggleSelectAll}
@@ -519,7 +717,45 @@ export function VotersTable({ data }: VotersTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedVoters.map((voter) => (
+            {isLoading ? (
+              // Loading skeleton
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell>
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-4 w-4 rounded bg-muted animate-pulse" />
+                      <div className="h-6 w-6 rounded-full bg-muted animate-pulse" />
+                      <div className="h-4 w-32 rounded bg-muted animate-pulse" />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 w-40 rounded bg-muted animate-pulse" />
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 w-28 rounded bg-muted animate-pulse" />
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 w-36 rounded bg-muted animate-pulse" />
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-6 w-20 rounded-full bg-muted animate-pulse" />
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 w-16 rounded bg-muted animate-pulse" />
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-8 w-8 rounded bg-muted animate-pulse" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : paginatedVoters.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  No voters found. Try adjusting your filters.
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedVoters.map((voter) => (
               <TableRow
                 key={voter.id}
                 className="border-border/50 cursor-pointer hover:bg-muted/50"
@@ -531,8 +767,8 @@ export function VotersTable({ data }: VotersTableProps) {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Checkbox
-                      checked={selectedVoters.includes(voter.id)}
-                      onCheckedChange={() => toggleSelectVoter(voter.id)}
+                      checked={selectedIds.includes(voter.id)}
+                      onCheckedChange={() => handleToggleSelectVoter(voter.id)}
                       className="border-border/50 bg-background/70"
                     />
                     <Avatar className="size-6">
@@ -616,7 +852,7 @@ export function VotersTable({ data }: VotersTableProps) {
                         className="text-destructive focus:text-destructive"
                         onClick={(e) => {
                           e.stopPropagation();
-                          // TODO: Implement delete
+                          handleDeleteVoter(voter.id);
                         }}
                       >
                         <Trash2 className="size-4 mr-2" />
@@ -626,7 +862,8 @@ export function VotersTable({ data }: VotersTableProps) {
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
+            ))
+            )}
           </TableBody>
         </Table>
       </div>
@@ -636,8 +873,8 @@ export function VotersTable({ data }: VotersTableProps) {
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>
             Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
-            {Math.min(currentPage * itemsPerPage, filteredAndSortedVoters.length)} de{" "}
-            {filteredAndSortedVoters.length} eleitores
+            {Math.min(currentPage * itemsPerPage, usingStore ? storeVoters.length : filteredAndSortedVoters.length)} de{" "}
+            {usingStore ? totalPages * itemsPerPage : filteredAndSortedVoters.length} eleitores
           </span>
           <div className="h-4 w-px bg-border hidden sm:block" />
           <div className="flex items-center gap-2">
@@ -645,6 +882,7 @@ export function VotersTable({ data }: VotersTableProps) {
             <Select
               value={itemsPerPage.toString()}
               onValueChange={handleItemsPerPageChange}
+              disabled={isLoading}
             >
               <SelectTrigger className="h-8 w-[70px] bg-muted/50">
                 <SelectValue />

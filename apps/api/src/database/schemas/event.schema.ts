@@ -1,4 +1,14 @@
-import { pgTable, uuid, varchar, timestamp, text, boolean, date, time, pgEnum } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  timestamp,
+  text,
+  boolean,
+  date,
+  time,
+  pgEnum,
+} from 'drizzle-orm/pg-core';
 
 /**
  * Enums for events
@@ -23,11 +33,7 @@ export const eventStatusEnum = pgEnum('event_status', [
   'ADIADO',
 ]);
 
-export const eventVisibilityEnum = pgEnum('event_visibility', [
-  'PUBLICO',
-  'PRIVADO',
-  'INTERNO',
-]);
+export const eventVisibilityEnum = pgEnum('event_visibility', ['PUBLICO', 'PRIVADO', 'INTERNO']);
 
 /**
  * Events/Calendar table - This table structure is replicated in each tenant schema
@@ -89,6 +95,6 @@ export const events = pgTable('events', {
 
 export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
-export type EventType = typeof eventTypeEnum.enumValues[number];
-export type EventStatus = typeof eventStatusEnum.enumValues[number];
-export type EventVisibility = typeof eventVisibilityEnum.enumValues[number];
+export type EventType = (typeof eventTypeEnum.enumValues)[number];
+export type EventStatus = (typeof eventStatusEnum.enumValues)[number];
+export type EventVisibility = (typeof eventVisibilityEnum.enumValues)[number];

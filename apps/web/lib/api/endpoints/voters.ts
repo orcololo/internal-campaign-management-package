@@ -1,10 +1,6 @@
 import { apiClient } from "../client";
 import { Voter, VoterFilters, VoterSortOptions } from "@/types/voters";
 import { ApiResponse } from "@/types/api";
-import voters from "@/mock-data/voters";
-
-// Register mock data
-apiClient.registerMockData("/voters", voters);
 
 export interface GetVotersParams extends VoterFilters, Partial<VoterSortOptions> {
   page?: number;

@@ -24,7 +24,7 @@ export class CalendarService {
     if (conflicts.length > 0) {
       throw new ConflictException({
         message: 'Event conflicts with existing events',
-        conflicts: conflicts.map(c => ({
+        conflicts: conflicts.map((c) => ({
           id: c.id,
           title: c.title,
           startDate: c.startDate,
@@ -157,7 +157,7 @@ export class CalendarService {
       if (conflicts.length > 0) {
         throw new ConflictException({
           message: 'Event update would create conflicts with existing events',
-          conflicts: conflicts.map(c => ({
+          conflicts: conflicts.map((c) => ({
             id: c.id,
             title: c.title,
             startDate: c.startDate,
@@ -185,10 +185,7 @@ export class CalendarService {
     await this.findOne(id);
 
     // Soft delete
-    await db
-      .update(events)
-      .set({ deletedAt: new Date() })
-      .where(eq(events.id, id));
+    await db.update(events).set({ deletedAt: new Date() }).where(eq(events.id, id));
 
     return { message: 'Event deleted successfully' };
   }
@@ -268,11 +265,7 @@ export class CalendarService {
       .select()
       .from(events)
       .where(
-        and(
-          isNull(events.deletedAt),
-          gte(events.startDate, today),
-          eq(events.status, 'AGENDADO'),
-        ),
+        and(isNull(events.deletedAt), gte(events.startDate, today), eq(events.status, 'AGENDADO')),
       )
       .orderBy(events.startDate, events.startTime)
       .limit(limit);
@@ -286,10 +279,7 @@ export class CalendarService {
   async getStatistics() {
     const db = this.databaseService.getDb();
 
-    const allEvents = await db
-      .select()
-      .from(events)
-      .where(isNull(events.deletedAt));
+    const allEvents = await db.select().from(events).where(isNull(events.deletedAt));
 
     const today = new Date().toISOString().split('T')[0];
 
@@ -298,13 +288,15 @@ export class CalendarService {
       byType: this.groupBy(allEvents, 'type'),
       byStatus: this.groupBy(allEvents, 'status'),
       byVisibility: this.groupBy(allEvents, 'visibility'),
-      upcoming: allEvents.filter(e => e.startDate >= today && e.status === 'AGENDADO').length,
-      completed: allEvents.filter(e => e.status === 'CONCLUIDO').length,
-      cancelled: allEvents.filter(e => e.status === 'CANCELADO').length,
-      thisMonth: allEvents.filter(e => {
+      upcoming: allEvents.filter((e) => e.startDate >= today && e.status === 'AGENDADO').length,
+      completed: allEvents.filter((e) => e.status === 'CONCLUIDO').length,
+      cancelled: allEvents.filter((e) => e.status === 'CANCELADO').length,
+      thisMonth: allEvents.filter((e) => {
         const eventDate = new Date(e.startDate);
         const now = new Date();
-        return eventDate.getMonth() === now.getMonth() && eventDate.getFullYear() === now.getFullYear();
+        return (
+          eventDate.getMonth() === now.getMonth() && eventDate.getFullYear() === now.getFullYear()
+        );
       }).length,
     };
 
@@ -314,11 +306,17 @@ export class CalendarService {
   /**
    * Helper: Group events by a field
    */
-  private groupBy<T extends Record<string, any>>(events: T[], field: keyof T): Record<string, number> {
-    return events.reduce((acc, event) => {
-      const value = event[field] || 'NOT_SPECIFIED';
-      acc[value as string] = (acc[value as string] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+  private groupBy<T extends Record<string, any>>(
+    events: T[],
+    field: keyof T,
+  ): Record<string, number> {
+    return events.reduce(
+      (acc, event) => {
+        const value = event[field] || 'NOT_SPECIFIED';
+        acc[value as string] = (acc[value as string] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }
 }

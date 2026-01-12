@@ -207,7 +207,7 @@ export function ReferralsList({ referrals }: ReferralsListProps) {
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge variant="outline">
-                        {voter.referralStats.total}
+                        {voter.referralStats?.total ?? 0}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">

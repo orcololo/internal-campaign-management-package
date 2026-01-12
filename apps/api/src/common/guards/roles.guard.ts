@@ -16,6 +16,12 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
+    // TODO: Remove this after Phase 10 (Authentication) is implemented
+    // Allow all requests in development mode for frontend integration testing
+    if (process.env.NODE_ENV === 'development') {
+      return true;
+    }
+
     const { user } = context.switchToHttp().getRequest();
 
     if (!user) {

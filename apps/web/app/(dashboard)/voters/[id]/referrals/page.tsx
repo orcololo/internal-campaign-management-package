@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { voters } from "@/mock-data/voters";
+import { votersApi } from "@/lib/api/voters";
 import { ReferralsStats } from "@/components/features/voters/referrals-stats";
 import { ReferralLinkGenerator } from "@/components/features/voters/referral-link-generator";
 import { ReferralsList } from "@/components/features/voters/referrals-list";
@@ -20,12 +20,21 @@ interface VoterReferralsPageProps {
 }
 
 async function getVoter(id: string) {
-  const voter = voters.find((v) => v.id === id);
-  return voter || null;
+  try {
+    const response = await votersApi.getById(id);
+    return response.data;
+  } catch {
+    return null;
+  }
 }
 
-function getReferrals(voterId: string) {
-  return voters.filter((v) => v.referredBy === voterId);
+async function getReferrals(voterId: string) {
+  try {
+    const response = await votersApi.getReferrals(voterId);
+    return response.data?.data || [];
+  } catch {
+    return [];
+  }
 }
 
 export default async function VoterReferralsPage({
@@ -38,10 +47,10 @@ export default async function VoterReferralsPage({
     notFound();
   }
 
-  const referrals = getReferrals(voter.id);
+  const referrals = await getReferrals(voter.id);
   const initials = voter.name
     .split(" ")
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join("")
     .toUpperCase()
     .substring(0, 2);
@@ -74,57 +83,59 @@ export default async function VoterReferralsPage({
       </div>
 
       {/* Stats Cards */}
-      <ReferralsStats stats={voter.referralStats} />
+      {voter.referralStats && <ReferralsStats stats={voter.referralStats} />}
 
       {/* Link Generator */}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <ReferralLinkGenerator
-            referralCode={voter.referralCode}
+            referralCode={voter.referralCode || ''}
             voterName={voter.name}
           />
         </div>
 
         {/* Quick Stats Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Desempenho</CardTitle>
-            <CardDescription>Resumo de indicações</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                Taxa de Conversão
-              </span>
-              <span className="text-lg font-bold">
-                {voter.referralStats.total > 0
-                  ? Math.round(
-                      (voter.referralStats.active / voter.referralStats.total) *
-                        100
-                    )
-                  : 0}
-                %
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                Média Mensal
-              </span>
-              <span className="text-lg font-bold">
-                {Math.round(voter.referralStats.total / 6)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Melhor Mês</span>
-              <span className="text-lg font-bold">
-                {Math.max(
-                  voter.referralStats.thisMonth,
-                  Math.round(voter.referralStats.total / 6)
-                )}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+        {voter.referralStats && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Desempenho</CardTitle>
+              <CardDescription>Resumo de indicações</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">
+                  Taxa de Conversão
+                </span>
+                <span className="text-lg font-bold">
+                  {voter.referralStats.total > 0
+                    ? Math.round(
+                        (voter.referralStats.active / voter.referralStats.total) *
+                          100
+                      )
+                    : 0}
+                  %
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">
+                  Média Mensal
+                </span>
+                <span className="text-lg font-bold">
+                  {Math.round(voter.referralStats.total / 6)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Melhor Mês</span>
+                <span className="text-lg font-bold">
+                  {Math.max(
+                    voter.referralStats.thisMonth,
+                    Math.round(voter.referralStats.total / 6)
+                  )}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Referrals List */}
@@ -152,7 +163,7 @@ export default async function VoterReferralsPage({
 
       {/* Referral Network Tree (Future Enhancement) */}
       {referrals.length > 0 &&
-        referrals.some((r) => r.referralStats.total > 0) && (
+        referrals.some((r) => r.referralStats && r.referralStats.total > 0) && (
           <Card>
             <CardHeader>
               <CardTitle>Rede de Referenciamento</CardTitle>
@@ -166,7 +177,7 @@ export default async function VoterReferralsPage({
                   Visualização de árvore de referenciamento em desenvolvimento
                 </p>
                 <p className="text-sm text-muted-foreground mt-2">
-                  {referrals.filter((r) => r.referralStats.total > 0).length}{" "}
+                  {referrals.filter((r) => r.referralStats && r.referralStats.total > 0).length}{" "}
                   referenciados já estão indicando outras pessoas
                 </p>
               </div>

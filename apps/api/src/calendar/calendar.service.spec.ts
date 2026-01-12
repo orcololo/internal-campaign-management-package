@@ -274,12 +274,7 @@ describe('CalendarService', () => {
       jest.spyOn(mockDb, 'from').mockReturnValueOnce(mockDb);
       jest.spyOn(mockDb, 'where').mockReturnValueOnce([]);
 
-      const result = await service.checkConflicts(
-        '2024-03-15',
-        '14:00',
-        '2024-03-15',
-        '18:00',
-      );
+      const result = await service.checkConflicts('2024-03-15', '14:00', '2024-03-15', '18:00');
 
       expect(result).toEqual([]);
     });
@@ -297,12 +292,7 @@ describe('CalendarService', () => {
       jest.spyOn(mockDb, 'from').mockReturnValueOnce(mockDb);
       jest.spyOn(mockDb, 'where').mockReturnValueOnce([existingEvent]);
 
-      const result = await service.checkConflicts(
-        '2024-03-15',
-        '14:00',
-        '2024-03-15',
-        '18:00',
-      );
+      const result = await service.checkConflicts('2024-03-15', '14:00', '2024-03-15', '18:00');
 
       expect(result.length).toBeGreaterThan(0);
     });

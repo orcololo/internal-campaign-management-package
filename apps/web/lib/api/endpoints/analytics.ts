@@ -1,15 +1,5 @@
 import { apiClient } from "../client";
 import { ApiResponse } from "@/types/api";
-import {
-  dashboardMetrics,
-  chartData,
-  demographicData,
-  recentActivities,
-  DashboardMetrics,
-  ChartDataPoint,
-  DemographicData,
-  RecentActivity,
-} from "@/mock-data/analytics";
 import type {
   CampaignOverview,
   InfluenceAnalytics,
@@ -24,6 +14,18 @@ import type {
   AnalyticsPeriod,
 } from "@/types/analytics";
 
+// Legacy types for backward compatibility
+import {
+  dashboardMetrics,
+  chartData,
+  demographicData,
+  recentActivities,
+  DashboardMetrics,
+  ChartDataPoint,
+  DemographicData,
+  RecentActivity,
+} from "@/mock-data/analytics";
+
 // Import new mock data
 import {
   campaignOverviewMock,
@@ -37,22 +39,31 @@ import {
   campaignMetricsMock,
 } from "@/mock-data/analytics";
 
-// Register mock data (existing)
-apiClient.registerMockData("/analytics/dashboard-metrics", dashboardMetrics);
-apiClient.registerMockData("/analytics/chart-data", chartData);
-apiClient.registerMockData("/analytics/demographic-data", demographicData);
-apiClient.registerMockData("/analytics/recent-activities", recentActivities);
+// Register mock data only when using mock mode (controlled by ApiClient)
+if (process.env.NEXT_PUBLIC_USE_MOCK !== "false") {
+  // Register legacy mock data
+  apiClient.registerMockData("/analytics/dashboard-metrics", dashboardMetrics);
+  apiClient.registerMockData("/analytics/chart-data", chartData);
+  apiClient.registerMockData("/analytics/demographic-data", demographicData);
+  apiClient.registerMockData("/analytics/recent-activities", recentActivities);
 
-// Register new analytics mock data
-apiClient.registerMockData("/analytics/overview", campaignOverviewMock);
-apiClient.registerMockData("/analytics/influence", influenceAnalyticsMock);
-apiClient.registerMockData("/analytics/engagement", engagementAnalyticsMock);
-apiClient.registerMockData("/analytics/voters", voterAnalyticsMock);
-apiClient.registerMockData("/analytics/events", eventAnalyticsMock);
-apiClient.registerMockData("/analytics/canvassing", canvassingAnalyticsMock);
-apiClient.registerMockData("/analytics/geographic-heatmap", geographicDataMock);
-apiClient.registerMockData("/analytics/time-series", timeSeriesDataMock);
-apiClient.registerMockData("/analytics/campaign-metrics", campaignMetricsMock);
+  // Register new analytics mock data
+  apiClient.registerMockData("/analytics/overview", campaignOverviewMock);
+  apiClient.registerMockData("/analytics/influence", influenceAnalyticsMock);
+  apiClient.registerMockData("/analytics/engagement", engagementAnalyticsMock);
+  apiClient.registerMockData("/analytics/voters", voterAnalyticsMock);
+  apiClient.registerMockData("/analytics/events", eventAnalyticsMock);
+  apiClient.registerMockData("/analytics/canvassing", canvassingAnalyticsMock);
+  apiClient.registerMockData(
+    "/analytics/geographic-heatmap",
+    geographicDataMock
+  );
+  apiClient.registerMockData("/analytics/time-series", timeSeriesDataMock);
+  apiClient.registerMockData(
+    "/analytics/campaign-metrics",
+    campaignMetricsMock
+  );
+}
 
 export const analyticsApi = {
   /**
@@ -119,7 +130,9 @@ export const analyticsApi = {
   /**
    * Get canvassing analytics
    */
-  getCanvassingAnalytics: async (): Promise<ApiResponse<CanvassingAnalytics>> => {
+  getCanvassingAnalytics: async (): Promise<
+    ApiResponse<CanvassingAnalytics>
+  > => {
     return apiClient.get<CanvassingAnalytics>("/analytics/canvassing");
   },
 
@@ -127,9 +140,11 @@ export const analyticsApi = {
    * Get geographic heatmap data
    */
   getGeographicHeatmap: async (params?: {
-    metric?: 'support' | 'influence' | 'engagement';
+    metric?: "support" | "influence" | "engagement";
   }): Promise<ApiResponse<GeographicData>> => {
-    return apiClient.get<GeographicData>("/analytics/geographic-heatmap", { params });
+    return apiClient.get<GeographicData>("/analytics/geographic-heatmap", {
+      params,
+    });
   },
 
   /**
@@ -138,7 +153,7 @@ export const analyticsApi = {
   getTimeSeries: async (params: {
     startDate: string;
     endDate: string;
-    metric: 'voter-registrations' | 'events' | 'canvassing' | 'engagement';
+    metric: "voter-registrations" | "events" | "canvassing" | "engagement";
   }): Promise<ApiResponse<TimeSeriesData>> => {
     return apiClient.get<TimeSeriesData>("/analytics/time-series", { params });
   },
@@ -151,7 +166,9 @@ export const analyticsApi = {
     filters?: AnalyticsFilters;
     minScore?: number;
   }): Promise<ApiResponse<InfluenceAnalytics>> => {
-    return apiClient.get<InfluenceAnalytics>("/analytics/influence", { params });
+    return apiClient.get<InfluenceAnalytics>("/analytics/influence", {
+      params,
+    });
   },
 
   /**
@@ -162,7 +179,9 @@ export const analyticsApi = {
     filters?: AnalyticsFilters;
     trend?: string;
   }): Promise<ApiResponse<EngagementAnalytics>> => {
-    return apiClient.get<EngagementAnalytics>("/analytics/engagement", { params });
+    return apiClient.get<EngagementAnalytics>("/analytics/engagement", {
+      params,
+    });
   },
 
   /**

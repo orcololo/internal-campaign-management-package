@@ -114,7 +114,7 @@ export const voterSchema = z.object({
   motherName: z.string().optional(),
   cpf: z.union([cpfSchema, z.literal(""), z.undefined()]),
   dateOfBirth: z.string().optional(),
-  gender: genderEnum.optional(),
+  gender: optionalEnum(genderEnum),
 
   // Contact Information
   email: optionalEmailSchema,
@@ -139,10 +139,10 @@ export const voterSchema = z.object({
   votingLocation: z.string().optional(),
 
   // Social Segmentation
-  educationLevel: educationLevelEnum.optional(),
+  educationLevel: optionalEnum(educationLevelEnum),
   occupation: z.string().optional(),
-  incomeLevel: incomeLevelEnum.optional(),
-  maritalStatus: maritalStatusEnum.optional(),
+  incomeLevel: optionalEnum(incomeLevelEnum),
+  maritalStatus: optionalEnum(maritalStatusEnum),
   religion: z.string().optional(),
   ethnicity: z.string().optional(),
   familyMembers: z.number().optional(),
@@ -154,10 +154,10 @@ export const voterSchema = z.object({
 
   // Contact Preferences
   hasWhatsapp: z.boolean().optional(),
-  preferredContact: preferredContactEnum.optional(),
+  preferredContact: optionalEnum(preferredContactEnum),
 
   // Political Information
-  supportLevel: supportLevelEnum.optional(),
+  supportLevel: optionalEnum(supportLevelEnum),
   politicalParty: z.string().optional(),
   votingHistory: z.string().optional(),
   tags: z.preprocess((val) => val ?? [], z.array(z.string())),
@@ -191,7 +191,7 @@ export const voterBasicInfoSchema = z.object({
 export const voterContactSchema = z.object({
   whatsapp: optionalPhoneSchema,
   hasWhatsapp: z.boolean().optional(),
-  preferredContact: preferredContactEnum.optional(),
+  preferredContact: optionalEnum(preferredContactEnum),
 });
 
 // Step 3: Address (Additional - lat/long)
@@ -210,10 +210,10 @@ export const voterElectoralSchema = z.object({
 
 // Step 5: Social Segmentation
 export const voterSocialSchema = z.object({
-  educationLevel: educationLevelEnum.optional(),
+  educationLevel: optionalEnum(educationLevelEnum),
   occupation: z.string().optional(),
-  incomeLevel: incomeLevelEnum.optional(),
-  maritalStatus: maritalStatusEnum.optional(),
+  incomeLevel: optionalEnum(incomeLevelEnum),
+  maritalStatus: optionalEnum(maritalStatusEnum),
   religion: z.string().optional(),
   ethnicity: z.string().optional(),
   familyMembers: z.number().optional(),
@@ -224,7 +224,7 @@ export const voterSocialSchema = z.object({
 
 // Step 6: Political Info
 export const voterPoliticalSchema = z.object({
-  supportLevel: supportLevelEnum.optional(),
+  supportLevel: optionalEnum(supportLevelEnum),
   politicalParty: z.string().optional(),
   votingHistory: z.string().optional(),
   tags: z.array(z.string()),
@@ -235,13 +235,13 @@ export const voterPoliticalSchema = z.object({
 export const voterEngagementSchema = z.object({
   // Demographics Extended
   ageGroup: z.string().optional(),
-  householdType: householdTypeEnum.optional(),
-  employmentStatus: employmentStatusEnum.optional(),
+  householdType: optionalEnum(householdTypeEnum),
+  employmentStatus: optionalEnum(employmentStatusEnum),
   vehicleOwnership: z.boolean().optional(),
   internetAccess: z.string().optional(),
 
   // Communication Preferences Extended
-  communicationStyle: communicationStyleEnum.optional(),
+  communicationStyle: optionalEnum(communicationStyleEnum),
   contentPreference: z.array(z.string()).optional(),
   bestContactTime: z.string().optional(),
   bestContactDay: z.array(z.string()).optional(),
@@ -250,12 +250,12 @@ export const voterEngagementSchema = z.object({
   topIssues: z.array(z.string()).optional(),
   previousCandidateSupport: z.string().optional(),
   influencerScore: z.number().min(0).max(100).optional(),
-  persuadability: persuadabilityEnum.optional(),
-  turnoutLikelihood: turnoutLikelihoodEnum.optional(),
+  persuadability: optionalEnum(persuadabilityEnum),
+  turnoutLikelihood: optionalEnum(turnoutLikelihoodEnum),
 
   // Social Network & Influence
   socialMediaFollowers: z.number().optional(),
-  communityRole: communityRoleEnum.optional(),
+  communityRole: optionalEnum(communityRoleEnum),
   referredVoters: z.number().optional(),
   networkSize: z.number().optional(),
   influenceRadius: z.number().optional(),
@@ -263,7 +263,7 @@ export const voterEngagementSchema = z.object({
   // Engagement Tracking
   contactFrequency: z.number().optional(),
   responseRate: z.number().min(0).max(100).optional(),
-  volunteerStatus: volunteerStatusEnum.optional(),
+  volunteerStatus: optionalEnum(volunteerStatusEnum),
   engagementScore: z.number().min(0).max(100).optional(),
 });
 
