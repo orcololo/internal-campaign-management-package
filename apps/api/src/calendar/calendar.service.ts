@@ -281,19 +281,46 @@ export class CalendarService {
 
     const allEvents = await db.select().from(events).where(isNull(events.deletedAt));
 
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+
+    // Calculate start and end of current week (Sunday to Saturday)
+    const dayOfWeek = now.getDay();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - dayOfWeek);
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    weekEnd.setHours(23, 59, 59, 999);
+
+    const weekStartStr = weekStart.toISOString().split('T')[0];
+    const weekEndStr = weekEnd.toISOString().split('T')[0];
+
+    // Helper to normalize date from ISO timestamp or date string
+    const normalizeDate = (dateValue: any): string => {
+      if (!dateValue) return '';
+      const dateStr = typeof dateValue === 'string' ? dateValue : dateValue.toISOString();
+      return dateStr.split('T')[0];
+    };
 
     const stats = {
       total: allEvents.length,
       byType: this.groupBy(allEvents, 'type'),
       byStatus: this.groupBy(allEvents, 'status'),
       byVisibility: this.groupBy(allEvents, 'visibility'),
-      upcoming: allEvents.filter((e) => e.startDate >= today && e.status === 'AGENDADO').length,
+      upcoming: allEvents.filter(
+        (e) => normalizeDate(e.startDate) >= today && e.status === 'AGENDADO',
+      ).length,
       completed: allEvents.filter((e) => e.status === 'CONCLUIDO').length,
       cancelled: allEvents.filter((e) => e.status === 'CANCELADO').length,
+      today: allEvents.filter((e) => normalizeDate(e.startDate) === today).length,
+      thisWeek: allEvents.filter((e) => {
+        const eventDate = normalizeDate(e.startDate);
+        return eventDate >= weekStartStr && eventDate <= weekEndStr;
+      }).length,
       thisMonth: allEvents.filter((e) => {
-        const eventDate = new Date(e.startDate);
-        const now = new Date();
+        const eventDateStr = normalizeDate(e.startDate);
+        const eventDate = new Date(eventDateStr);
         return (
           eventDate.getMonth() === now.getMonth() && eventDate.getFullYear() === now.getFullYear()
         );

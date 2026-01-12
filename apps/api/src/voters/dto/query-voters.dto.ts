@@ -16,7 +16,7 @@ export class QueryVotersDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  @Max(100)
+  @Max(1000) // Allow up to 1000 for map views
   limit?: number = 10;
 
   // Sorting

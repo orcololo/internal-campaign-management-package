@@ -1,7 +1,14 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { eq } from 'drizzle-orm';
 import { voters } from '../schemas/voter.schema';
+import { events } from '../schemas/event.schema';
+import { canvassingSessions, doorKnocks } from '../schemas/canvassing.schema';
 import { macapaVotersSeed } from './voters-macapa.seed';
+import { macapaEventsSeed } from './events-macapa.seed';
+import {
+  macapaCanvassingSessionsSeed,
+  generateDoorKnocksForSession,
+} from './canvassing-macapa.seed';
 import * as dotenv from 'dotenv';
 
 // Load environment variables
@@ -66,12 +73,72 @@ async function runSeed() {
 
     console.log(`✅ Set up ${referralUpdates.length} referral relationships`);
 
+    // Seed events
+    console.log('\n📅 Seeding 50 events (20 historical + 30 for January 2026)...');
+    let eventsInserted = 0;
+    const eventBatchSize = 10;
+
+    for (let i = 0; i < macapaEventsSeed.length; i += eventBatchSize) {
+      const batch = macapaEventsSeed.slice(i, i + eventBatchSize);
+      await db.insert(events).values(batch as any);
+      eventsInserted += batch.length;
+      console.log(`✅ Inserted ${eventsInserted}/${macapaEventsSeed.length} events`);
+    }
+
+    // Seed canvassing sessions
+    console.log('\n🚪 Seeding 15 canvassing sessions...');
+    let sessionsInserted = 0;
+
+    for (const sessionData of macapaCanvassingSessionsSeed) {
+      const [insertedSession] = await db
+        .insert(canvassingSessions)
+        .values(sessionData as any)
+        .returning();
+      sessionsInserted++;
+      console.log(`✅ Inserted session ${sessionsInserted}/${macapaCanvassingSessionsSeed.length}`);
+
+      // Generate and insert door knocks for completed sessions
+      if (sessionData.status === 'CONCLUIDA' && insertedSession) {
+        const neighborhood = {
+          name: sessionData.neighborhood!,
+          lat: 0.034,
+          lng: -51.0665,
+        };
+        const doorKnocksData = generateDoorKnocksForSession(
+          insertedSession.id,
+          sessionData,
+          neighborhood,
+        );
+
+        if (doorKnocksData.length > 0) {
+          const doorKnockBatchSize = 20;
+          let doorKnocksInserted = 0;
+
+          for (let i = 0; i < doorKnocksData.length; i += doorKnockBatchSize) {
+            const batch = doorKnocksData.slice(i, i + doorKnockBatchSize);
+            await db.insert(doorKnocks).values(batch as any);
+            doorKnocksInserted += batch.length;
+          }
+
+          console.log(`   ✅ Inserted ${doorKnocksInserted} door knocks for session`);
+        }
+      }
+    }
+
     console.log('\n✨ Seed completed successfully!');
     console.log(`\n📈 Summary:`);
     console.log(`   - Total voters: ${macapaVotersSeed.length}`);
+    console.log(`   - Total events: ${macapaEventsSeed.length}`);
+    console.log(`   - Total canvassing sessions: ${macapaCanvassingSessionsSeed.length}`);
     console.log(`   - City: Macapá-AP`);
     console.log(`   - Referral relationships: ${referralUpdates.length}`);
-    console.log(`\n🎯 All voters are located within Macapá-AP with realistic coordinates`);
+    console.log(`   - Events: 20 historical + 30 for January 2026`);
+    console.log(
+      `   - Date range: Last 60 days (historical) + January 2026 (current/future events)`,
+    );
+    console.log(
+      `\n🎯 All data includes realistic dates for trend visualization and calendar testing`,
+    );
   } catch (error) {
     console.error('❌ Error during seed:', error);
     process.exit(1);

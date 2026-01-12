@@ -83,7 +83,7 @@ const initialState = {
   // Filters
   period: "month" as AnalyticsPeriod,
   dateRange: null,
-  selectedTab: "influence" as AnalyticsTab,
+  selectedTab: "overview" as AnalyticsTab,
   filters: {},
 
   // Data

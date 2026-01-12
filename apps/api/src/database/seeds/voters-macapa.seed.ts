@@ -241,6 +241,24 @@ function generateCoordinatesNearby(
   };
 }
 
+// Generate a creation date over the last 30 days
+// More recent days should have more voters (realistic growth pattern)
+function generateCreatedAt(index: number, total: number): Date {
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now);
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  // Use exponential distribution to favor recent dates
+  // Earlier indices get older dates, later indices get newer dates
+  const progress = index / total;
+  const exponentialFactor = Math.pow(progress, 0.5); // Square root for gradual growth
+  
+  const timeRange = now.getTime() - thirtyDaysAgo.getTime();
+  const offset = timeRange * exponentialFactor;
+  
+  return new Date(thirtyDaysAgo.getTime() + offset);
+}
+
 export const macapaVotersSeed: Partial<NewVoter>[] = Array.from({ length: 200 }, (_, index) => {
   const firstName = randomElement(firstNames);
   const lastName1 = randomElement(lastNames);
@@ -248,6 +266,7 @@ export const macapaVotersSeed: Partial<NewVoter>[] = Array.from({ length: 200 },
   const fullName = `${firstName} ${lastName1} ${lastName2}`;
 
   const birthDate = generateBirthDate();
+  const createdAt = generateCreatedAt(index, 200);
   const ageGroup = getAgeGroup(birthDate);
 
   const neighborhood = randomElement(macapaNeighborhoods);
@@ -476,5 +495,6 @@ export const macapaVotersSeed: Partial<NewVoter>[] = Array.from({ length: 200 },
     referralCode: generateReferralCode(fullName),
     referredBy: null, // Will be set in seeder for some voters
     referralDate: null,
+    createdAt, // Historical creation date over last 30 days
   };
 });

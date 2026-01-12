@@ -2,7 +2,10 @@ import { notFound } from "next/navigation";
 import { ReportsBuilder } from "@/components/features/reports/reports-builder";
 import { savedReports } from "@/mock-data/reports";
 
-export default function EditReportPage({ params }: { params: { id: string } }) {
+export default async function EditReportPage(props: {
+  params: Promise<{ id: string }>;
+}) {
+  const params = await props.params;
   const report = savedReports.find((r) => r.id === params.id);
 
   if (!report) {

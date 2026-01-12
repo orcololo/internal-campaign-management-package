@@ -50,7 +50,13 @@ export default function MapsPage() {
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   useEffect(() => {
-    fetchVoters({ page: 1, perPage: 1000 });
+    const loadVoters = async () => {
+      console.log("[Maps] Fetching voters for map...");
+      // Fetch up to 1000 voters for map display
+      await fetchVoters({ page: 1, perPage: 1000 });
+      console.log("[Maps] Voters loaded:", voters.length);
+    };
+    loadVoters();
   }, [fetchVoters]);
 
   // Filter voters by active geofences

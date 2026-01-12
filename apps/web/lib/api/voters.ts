@@ -83,15 +83,35 @@ export const votersApi = {
   async list(
     filters?: VoterFilters
   ): Promise<ApiResponse<PaginatedResponse<Voter>>> {
-    const response = await realApiClient.get<PaginatedResponse<Voter>>(
-      "/voters",
-      {
-        params: filters,
-      }
-    );
+    // Map frontend params to backend params
+    const params: any = { ...filters };
 
-    if (response.data?.data) {
-      response.data.data = transformVoters(response.data.data);
+    // Backend uses 'limit', frontend uses 'perPage' or 'limit'
+    if (params.perPage) {
+      params.limit = params.perPage;
+      delete params.perPage;
+    }
+
+    const response = await realApiClient.get<any>("/voters", {
+      params,
+    });
+
+    // Backend returns {data: [], meta: {total, page, limit, totalPages}}
+    // Transform to frontend format {data: [], total, page, perPage, totalPages}
+    if (response.data) {
+      const backendData = response.data;
+      const transformedData: PaginatedResponse<Voter> = {
+        data: transformVoters(backendData.data || []),
+        total: backendData.meta?.total || 0,
+        page: backendData.meta?.page || 1,
+        perPage: backendData.meta?.limit || 20,
+        totalPages: backendData.meta?.totalPages || 1,
+      };
+
+      return {
+        ...response,
+        data: transformedData,
+      };
     }
 
     return response;

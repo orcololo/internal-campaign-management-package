@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ReportPreview } from "@/components/features/reports/report-preview";
+import { ReportViewClient } from "@/components/features/reports/report-view-client";
 import {
   ArrowLeft,
   Edit,
@@ -34,22 +34,16 @@ async function getVoters() {
   }
 }
 
-export default async function ViewReportPage({
-  params,
-}: {
-  params: { id: string };
+export default async function ViewReportPage(props: {
+  params: Promise<{ id: string }>;
 }) {
+  const params = await props.params;
   const report = savedReports.find((r) => r.id === params.id);
   const voters = await getVoters();
 
   if (!report) {
     notFound();
   }
-
-  const handleExport = async (format: "pdf" | "csv" | "excel") => {
-    // In a real app, this would call the backend
-    console.log("Exporting:", format);
-  };
 
   return (
     <div className="space-y-6">
@@ -232,17 +226,7 @@ export default async function ViewReportPage({
       </div>
 
       {/* Preview */}
-      <Card>
-        <CardContent className="pt-6">
-          <ReportPreview
-            data={voters}
-            columns={report.columns}
-            filters={report.filters}
-            sorting={report.sorting}
-            onExport={handleExport}
-          />
-        </CardContent>
-      </Card>
+      <ReportViewClient report={report} voters={voters} />
     </div>
   );
 }

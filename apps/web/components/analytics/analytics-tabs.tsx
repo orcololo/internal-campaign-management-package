@@ -1,46 +1,56 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, TrendingUp, Target, BarChart3 } from 'lucide-react';
+import { Users, Calendar, MapPin, Target, BarChart3, TrendingUp } from 'lucide-react';
 import { useAnalyticsStore } from '@/store/analytics-store';
 import type { AnalyticsTab } from '@/types/analytics';
+import { GrowthChart } from './growth-chart';
+import { MultiLineChart } from './multi-line-chart';
 
 /**
  * Analytics Tabs Component
- * Manages tab navigation between Influence, Engagement, and Campaign metrics
+ * Manages tab navigation between Overview, Voters, Events, and Canvassing
  */
 export function AnalyticsTabs() {
-  const { selectedTab, setSelectedTab, influence, engagement, campaignMetrics } = useAnalyticsStore();
+  const { selectedTab, setSelectedTab, overview, voters, events, canvassing } = useAnalyticsStore();
 
   const tabs = [
     {
-      id: 'influence' as AnalyticsTab,
-      label: 'Influência & Rede',
+      id: 'overview' as AnalyticsTab,
+      label: 'Visão Geral',
+      icon: BarChart3,
+      badge: overview?.summary.totalVoters || 0,
+      description: 'Resumo geral da campanha com métricas principais',
+    },
+    {
+      id: 'voters' as AnalyticsTab,
+      label: 'Eleitores',
       icon: Users,
-      badge: influence?.totalInfluencers || 0,
-      description: 'Líderes comunitários, influenciadores e redes sociais',
+      badge: voters?.total || 0,
+      description: 'Demografia, localização e perfil político dos eleitores',
     },
     {
-      id: 'engagement' as AnalyticsTab,
-      label: 'Engajamento',
-      icon: TrendingUp,
-      badge: engagement?.activeVoters7Days || 0,
-      description: 'Pontuações de engajamento, tendências e taxas de resposta',
+      id: 'events' as AnalyticsTab,
+      label: 'Eventos',
+      icon: Calendar,
+      badge: events?.total || 0,
+      description: 'Estatísticas e distribuição de eventos da campanha',
     },
     {
-      id: 'campaign' as AnalyticsTab,
-      label: 'Métricas de Campanha',
+      id: 'canvassing' as AnalyticsTab,
+      label: 'Corpo a Corpo',
       icon: Target,
-      badge: campaignMetrics?.milestones.filter(m => m.status === 'completed').length || 0,
-      description: 'Marcos, área de cobertura, geofencing e atividade voluntária',
+      badge: canvassing?.doorKnocks.total || 0,
+      description: 'Métricas de campanha porta a porta',
     },
   ];
 
   return (
     <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as AnalyticsTab)} className="w-full">
       {/* Tab Navigation */}
-      <TabsList className="grid w-full grid-cols-3 mb-6">
+      <TabsList className="grid w-full grid-cols-4 mb-6">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
@@ -71,9 +81,10 @@ export function AnalyticsTabs() {
           </div>
 
           {/* Tab-specific Content */}
-          {tab.id === 'influence' && <InfluenceTabContent />}
-          {tab.id === 'engagement' && <EngagementTabContent />}
-          {tab.id === 'campaign' && <CampaignTabContent />}
+          {tab.id === 'overview' && <OverviewTabContent />}
+          {tab.id === 'voters' && <VotersTabContent />}
+          {tab.id === 'events' && <EventsTabContent />}
+          {tab.id === 'canvassing' && <CanvassingTabContent />}
         </TabsContent>
       ))}
     </Tabs>
@@ -81,280 +92,409 @@ export function AnalyticsTabs() {
 }
 
 /**
- * Influence Tab Content
- * TODO: Replace with actual components in Phase 3
+ * Overview Tab Content
  */
-function InfluenceTabContent() {
-  const { influence } = useAnalyticsStore();
+function OverviewTabContent() {
+  const { overview } = useAnalyticsStore();
+
+  if (!overview) {
+    return <div className="text-center text-muted-foreground py-8">Carregando dados...</div>;
+  }
 
   return (
     <div className="space-y-6">
-      {/* Placeholder for Stats Cards */}
+      {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Influenciadores Chave"
-          value={influence?.totalInfluencers || 0}
-          description="Pontuação >= 70"
-          trend="+12%"
+          title="Total de Eleitores"
+          value={overview.summary.totalVoters}
+          description="Eleitores cadastrados"
+          icon={Users}
         />
         <StatCard
-          title="Tamanho Total da Rede"
-          value={influence?.totalNetworkSize.toLocaleString() || '0'}
-          description="Conexões pessoais"
-          trend="+8%"
+          title="Eventos"
+          value={overview.summary.totalEvents}
+          description="Total de eventos"
+          icon={Calendar}
         />
         <StatCard
-          title="Alcance nas Redes Sociais"
-          value={influence?.totalSocialMediaReach.toLocaleString() || '0'}
-          description="Seguidores totais"
-          trend="+15%"
+          title="Sessões de Campanha"
+          value={overview.summary.totalCanvassingSessions}
+          description="Porta a porta"
+          icon={Target}
         />
         <StatCard
-          title="Líderes Comunitários"
-          value={influence?.communityLeaders || 0}
-          description="Papel de líder"
-          trend="+5%"
+          title="Contatos Realizados"
+          value={overview.summary.totalDoorKnocks}
+          description="Portas batidas"
+          icon={MapPin}
         />
       </div>
 
-      {/* Placeholder for Charts */}
+      {/* Voter Details */}
       <div className="grid gap-6 md:grid-cols-2">
-        <ChartPlaceholder title="Distribuição de Pontuação de Influência" type="donut" />
-        <ChartPlaceholder title="Crescimento da Rede" type="area" />
+        <Card>
+          <CardHeader>
+            <CardTitle>Perfil dos Eleitores</CardTitle>
+            <CardDescription>Dados de contato e localização</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <StatRow label="Com Email" value={overview.voters.withEmail} total={overview.voters.total} />
+            <StatRow label="Com Telefone" value={overview.voters.withPhone} total={overview.voters.total} />
+            <StatRow label="Com WhatsApp" value={overview.voters.withWhatsapp} total={overview.voters.total} />
+            <StatRow label="Com Localização" value={overview.voters.withCoordinates} total={overview.voters.total} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Nível de Apoio</CardTitle>
+            <CardDescription>Distribuição por nível de apoio</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {Object.entries(overview.voters.bySupportLevel).map(([level, count]) => (
+              <StatRow key={level} label={formatSupportLevel(level)} value={count} total={overview.voters.total} />
+            ))}
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <ChartPlaceholder title="Papéis na Comunidade" type="bar" />
-        <ChartPlaceholder title="Mapa de Influência" type="map" />
-      </div>
+      {/* Geographic Distribution */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Distribuição Geográfica</CardTitle>
+          <CardDescription>Eleitores por cidade</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {Object.entries(overview.voters.byCity).slice(0, 5).map(([city, count]) => (
+              <StatRow key={city} label={city} value={count} total={overview.voters.total} />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Placeholder for Top Influencers List */}
-      <div className="rounded-lg border p-6">
-        <h3 className="mb-4 text-lg font-semibold">Top 5 Influenciadores</h3>
-        <div className="space-y-2">
-          {influence?.topInfluencers.slice(0, 5).map((influencer, index) => (
-            <div
-              key={influencer.id}
-              className="flex items-center justify-between rounded-md border p-3"
-            >
-              <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                  {index + 1}
-                </span>
-                <div>
-                  <p className="font-medium">{influencer.name}</p>
-                  <p className="text-sm text-muted-foreground">{influencer.neighborhood}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-semibold">{influencer.influencerScore}</p>
-                <p className="text-sm text-muted-foreground">
-                  Rede: {influencer.networkSize.toLocaleString()}
-                </p>
-              </div>
-            </div>
-          ))}
+      {/* Growth Trends */}
+      {overview.trends && (
+        <div className="space-y-6">
+          <h3 className="text-lg font-semibold">Tendências de Crescimento</h3>
+          
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Voter Growth Chart */}
+            {overview.trends.voterGrowth && overview.trends.voterGrowth.length > 0 && (
+              <GrowthChart
+                data={overview.trends.voterGrowth}
+                title="Crescimento de Eleitores"
+                description="Novos eleitores ao longo do tempo"
+                color="#3b82f6"
+              />
+            )}
+
+            {/* Event Activity Chart */}
+            {overview.trends.eventActivity && overview.trends.eventActivity.length > 0 && (
+              <GrowthChart
+                data={overview.trends.eventActivity}
+                title="Atividade de Eventos"
+                description="Eventos realizados ao longo do tempo"
+                color="#10b981"
+              />
+            )}
+          </div>
+
+          {/* Canvassing Progress Chart */}
+          {overview.trends.canvassingProgress && overview.trends.canvassingProgress.length > 0 && (
+            <GrowthChart
+              data={overview.trends.canvassingProgress}
+              title="Progresso de Campanha Porta a Porta"
+              description="Contatos realizados ao longo do tempo"
+              color="#8b5cf6"
+            />
+          )}
+
+          {/* Combined Trends Chart */}
+          {(overview.trends.voterGrowth?.length > 0 || 
+            overview.trends.eventActivity?.length > 0 || 
+            overview.trends.canvassingProgress?.length > 0) && (
+            <MultiLineChart
+              title="Visão Geral de Tendências"
+              description="Comparação de todas as métricas de crescimento"
+              series={[
+                {
+                  data: overview.trends.voterGrowth || [],
+                  name: 'Eleitores',
+                  color: '#3b82f6',
+                  dataKey: 'voters'
+                },
+                {
+                  data: overview.trends.eventActivity || [],
+                  name: 'Eventos',
+                  color: '#10b981',
+                  dataKey: 'events'
+                },
+                {
+                  data: overview.trends.canvassingProgress || [],
+                  name: 'Campanha',
+                  color: '#8b5cf6',
+                  dataKey: 'canvassing'
+                }
+              ]}
+            />
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 }
 
 /**
- * Engagement Tab Content
- * TODO: Replace with actual components in Phase 4
+ * Voters Tab Content
  */
-function EngagementTabContent() {
-  const { engagement } = useAnalyticsStore();
+function VotersTabContent() {
+  const { voters } = useAnalyticsStore();
+
+  if (!voters) {
+    return <div className="text-center text-muted-foreground py-8">Carregando dados...</div>;
+  }
 
   return (
     <div className="space-y-6">
-      {/* Placeholder for Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Pontuação Média de Engajamento"
-          value={engagement?.avgEngagementScore.toFixed(1) || '0'}
-          description="De 100"
-          trend="+5%"
-        />
-        <StatCard
-          title="Taxa Média de Resposta"
-          value={`${engagement?.avgResponseRate.toFixed(1) || '0'}%`}
-          description="De contatos"
-          trend="+8%"
-        />
-        <StatCard
-          title="Eleitores Ativos (7 dias)"
-          value={engagement?.activeVoters7Days || 0}
-          description="Últimos 7 dias"
-          trend="+12%"
-        />
-        <StatCard
-          title="Eleitores Inativos"
-          value={engagement?.dormantVoters || 0}
-          description=">30 dias sem contato"
-          trend="-5%"
-          trendPositive={false}
-        />
-      </div>
-
-      {/* Placeholder for Charts */}
+      {/* Demographics */}
       <div className="grid gap-6 md:grid-cols-2">
-        <ChartPlaceholder title="Tendências de Engajamento" type="line" />
-        <ChartPlaceholder title="Distribuição de Pontuação" type="bar" />
+        <Card>
+          <CardHeader>
+            <CardTitle>Demografia por Gênero</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {Object.entries(voters.demographics.byGender).map(([gender, count]) => (
+              <StatRow key={gender} label={formatGender(gender)} value={count} total={voters.total} />
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Distribuição Geográfica</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {Object.entries(voters.geographic.byCity).slice(0, 5).map(([city, count]) => (
+              <StatRow key={city} label={city} value={count} total={voters.total} />
+            ))}
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <ChartPlaceholder title="Tendência de Engajamento" type="pie" />
-        <ChartPlaceholder title="Contato vs Taxa de Resposta" type="scatter" />
-      </div>
-
-      {/* Placeholder for Top Engaged Voters */}
-      <div className="rounded-lg border p-6">
-        <h3 className="mb-4 text-lg font-semibold">Top 5 Eleitores Engajados</h3>
-        <div className="space-y-2">
-          {engagement?.topEngaged.slice(0, 5).map((voter, index) => (
-            <div
-              key={voter.id}
-              className="flex items-center justify-between rounded-md border p-3"
-            >
-              <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500/10 text-sm font-semibold text-green-600">
-                  {index + 1}
-                </span>
-                <div>
-                  <p className="font-medium">{voter.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Taxa de Resposta: {voter.responseRate}%
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-semibold">{voter.engagementScore}</p>
-                <p className="text-sm text-muted-foreground">
-                  {voter.contactFrequency} contatos
-                </p>
-              </div>
+      {/* Contact Info */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Informações de Contato</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="text-center">
+              <div className="text-3xl font-bold">{voters.contact.withEmail}</div>
+              <div className="text-sm text-muted-foreground">Com Email</div>
             </div>
-          ))}
-        </div>
-      </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold">{voters.contact.withPhone}</div>
+              <div className="text-sm text-muted-foreground">Com Telefone</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold">{voters.contact.withWhatsapp}</div>
+              <div className="text-sm text-muted-foreground">Com WhatsApp</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
 /**
- * Campaign Tab Content
- * TODO: Replace with actual components in Phase 5
+ * Events Tab Content
  */
-function CampaignTabContent() {
-  const { campaignMetrics, events } = useAnalyticsStore();
+function EventsTabContent() {
+  const { events } = useAnalyticsStore();
+
+  if (!events) {
+    return <div className="text-center text-muted-foreground py-8">Carregando dados...</div>;
+  }
 
   return (
     <div className="space-y-6">
-      {/* Placeholder for Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Marcos Concluídos"
-          value={campaignMetrics?.milestones.filter((m) => m.status === 'completed').length || 0}
-          description={`De ${campaignMetrics?.milestones.length || 0} totais`}
-          trend="+33%"
-        />
-        <StatCard
-          title="Área de Cobertura"
-          value={campaignMetrics?.coverageArea.coveredNeighborhoods || 0}
-          description="Bairros cobertos"
-          trend="+10%"
-        />
-        <StatCard
-          title="Zonas de Geofencing"
-          value={campaignMetrics?.geofencing.activeZones || 0}
-          description={`De ${campaignMetrics?.geofencing.totalZones || 0} totais`}
-          trend="+2"
-        />
         <StatCard
           title="Total de Eventos"
-          value={events?.total || 0}
-          description={`${events?.upcoming || 0} próximos`}
-          trend="+8%"
+          value={events.total}
+          description="Todos os eventos"
+          icon={Calendar}
+        />
+        <StatCard
+          title="Próximos"
+          value={events.upcoming}
+          description="Agendados"
+          icon={TrendingUp}
+        />
+        <StatCard
+          title="Concluídos"
+          value={events.completed}
+          description="Finalizados"
+          icon={Target}
+        />
+        <StatCard
+          title="Cancelados"
+          value={events.cancelled}
+          description="Não realizados"
+          icon={MapPin}
         />
       </div>
 
-      {/* Placeholder for Charts */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <ChartPlaceholder title="Linha do Tempo de Registro de Eleitores" type="area" />
-        <ChartPlaceholder title="Distribuição de Nível de Apoio" type="donut" />
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <ChartPlaceholder title="Presença em Eventos" type="line" />
-        <ChartPlaceholder title="Atividade Voluntária" type="bar-stacked" />
-      </div>
-
-      <ChartPlaceholder title="Mapa de Cobertura" type="map" fullWidth />
+      {Object.keys(events.byType).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Eventos por Tipo</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {Object.entries(events.byType).map(([type, count]) => (
+              <StatRow key={type} label={type} value={count} total={events.total} />
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
 
 /**
- * Stat Card Component (Placeholder)
+ * Canvassing Tab Content
  */
-function StatCard({
-  title,
-  value,
-  description,
-  trend,
-  trendPositive = true,
-}: {
+function CanvassingTabContent() {
+  const { canvassing } = useAnalyticsStore();
+
+  if (!canvassing) {
+    return <div className="text-center text-muted-foreground py-8">Carregando dados...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Sessões"
+          value={canvassing.sessions.total}
+          description="Total de sessões"
+          icon={Target}
+        />
+        <StatCard
+          title="Portas Batidas"
+          value={canvassing.doorKnocks.total}
+          description="Total de contatos"
+          icon={Users}
+        />
+        <StatCard
+          title="Taxa de Conversão"
+          value={`${canvassing.performance.conversionRate}%`}
+          description="Apoiadores convertidos"
+          icon={TrendingUp}
+        />
+        <StatCard
+          title="Taxa de Sucesso"
+          value={`${canvassing.performance.successRate}%`}
+          description="Contatos positivos"
+          icon={BarChart3}
+        />
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Resultados dos Contatos</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <StatRow label="Apoiadores" value={canvassing.doorKnocks.supporters} total={canvassing.doorKnocks.total} />
+            <StatRow label="Indecisos" value={canvassing.doorKnocks.undecided} total={canvassing.doorKnocks.total} />
+            <StatRow label="Opositores" value={canvassing.doorKnocks.opponents} total={canvassing.doorKnocks.total} />
+            <StatRow label="Não Atendeu" value={canvassing.doorKnocks.notHome} total={canvassing.doorKnocks.total} />
+            <StatRow label="Recusou" value={canvassing.doorKnocks.refused} total={canvassing.doorKnocks.total} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Status das Sessões</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <StatRow label="Completas" value={canvassing.sessions.completed} total={canvassing.sessions.total} />
+            <StatRow label="Em Andamento" value={canvassing.sessions.inProgress} total={canvassing.sessions.total} />
+            <StatRow label="Planejadas" value={canvassing.sessions.planned} total={canvassing.sessions.total} />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// Helper Components
+
+interface StatCardProps {
   title: string;
   value: string | number;
   description: string;
-  trend?: string;
-  trendPositive?: boolean;
-}) {
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+function StatCard({ title, value, description, icon: Icon }: StatCardProps) {
   return (
-    <div className="rounded-lg border bg-card p-6 shadow-sm">
-      <div className="flex flex-col space-y-2">
-        <p className="text-sm font-medium text-muted-foreground">{title}</p>
-        <p className="text-3xl font-bold">{value}</p>
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">{description}</p>
-          {trend && (
-            <span
-              className={`text-xs font-medium ${
-                trendPositive ? 'text-green-600' : 'text-red-600'
-              }`}
-            >
-              {trend}
-            </span>
-          )}
-        </div>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface StatRowProps {
+  label: string;
+  value: number;
+  total: number;
+}
+
+function StatRow({ label, value, total }: StatRowProps) {
+  const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-sm">{label}</span>
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium">{value}</span>
+        <span className="text-xs text-muted-foreground">({percentage}%)</span>
       </div>
     </div>
   );
 }
 
-/**
- * Chart Placeholder Component
- */
-function ChartPlaceholder({
-  title,
-  type,
-  fullWidth = false,
-}: {
-  title: string;
-  type: 'donut' | 'area' | 'bar' | 'line' | 'pie' | 'scatter' | 'map' | 'bar-stacked';
-  fullWidth?: boolean;
-}) {
-  return (
-    <div className={`rounded-lg border bg-card p-6 shadow-sm ${fullWidth ? 'md:col-span-2' : ''}`}>
-      <h3 className="mb-4 text-lg font-semibold">{title}</h3>
-      <div className="flex h-64 items-center justify-center rounded-md bg-muted/50">
-        <div className="text-center text-muted-foreground">
-          <BarChart3 className="mx-auto mb-2 h-12 w-12" />
-          <p className="text-sm">Gráfico {type} será implementado aqui</p>
-        </div>
-      </div>
-    </div>
-  );
+// Helper Functions
+
+function formatSupportLevel(level: string): string {
+  const map: Record<string, string> = {
+    'MUITO_FAVORAVEL': 'Muito Favorável',
+    'FAVORAVEL': 'Favorável',
+    'NEUTRO': 'Neutro',
+    'DESFAVORAVEL': 'Desfavorável',
+    'MUITO_DESFAVORAVEL': 'Muito Desfavorável',
+    'NAO_DEFINIDO': 'Não Definido',
+  };
+  return map[level] || level;
+}
+
+function formatGender(gender: string): string {
+  const map: Record<string, string> = {
+    'MASCULINO': 'Masculino',
+    'FEMININO': 'Feminino',
+    'NAO_INFORMADO': 'Não Informado',
+    'OUTRO': 'Outro',
+  };
+  return map[gender] || gender;
 }

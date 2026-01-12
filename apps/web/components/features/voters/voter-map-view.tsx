@@ -58,7 +58,11 @@ export function VoterMapView({
   }, [resolvedTheme]);
 
   const votersWithLocation = React.useMemo(
-    () => voters.filter((v) => v.latitude && v.longitude),
+    () => {
+      const filtered = voters.filter((v) => v.latitude && v.longitude);
+      console.log("[VoterMapView] Total voters:", voters.length, "With location:", filtered.length);
+      return filtered;
+    },
     [voters]
   );
 

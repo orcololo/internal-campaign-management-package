@@ -455,7 +455,7 @@ export type ExportSection =
 /**
  * Dashboard Tab Types
  */
-export type AnalyticsTab = 'influence' | 'engagement' | 'campaign';
+export type AnalyticsTab = 'overview' | 'voters' | 'events' | 'canvassing' | 'influence' | 'engagement' | 'campaign';
 
 export interface AnalyticsTabConfig {
   id: AnalyticsTab;
