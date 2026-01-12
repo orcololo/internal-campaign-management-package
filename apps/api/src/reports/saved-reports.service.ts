@@ -24,7 +24,7 @@ export class SavedReportsService {
     const db = this.databaseService.getDb();
 
     const newReport: NewSavedReport = {
-      createdBy: userId,
+      createdBy: null, // TODO: Set to userId when users table is populated (Phase 10)
       name: dto.name,
       description: dto.description,
       filters: dto.filters as any,
@@ -48,8 +48,8 @@ export class SavedReportsService {
     const { page = 1, perPage = 20, search, isPublic } = filters;
 
     // Build WHERE conditions
+    // TODO: Add createdBy filter when users table is populated (Phase 10)
     const whereConditions: any[] = [
-      eq(savedReports.createdBy, userId),
       isNull(savedReports.deletedAt),
     ];
 
@@ -97,13 +97,13 @@ export class SavedReportsService {
   async findOne(id: string, userId: string): Promise<SavedReport> {
     const db = this.databaseService.getDb();
 
+    // TODO: Add createdBy filter when users table is populated (Phase 10)
     const [report] = await db
       .select()
       .from(savedReports)
       .where(
         and(
           eq(savedReports.id, id),
-          eq(savedReports.createdBy, userId),
           isNull(savedReports.deletedAt),
         ),
       );

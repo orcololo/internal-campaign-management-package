@@ -60,9 +60,7 @@ export const reportExports = pgTable('report_exports', {
   errorMessage: text('error_message'),
 
   // User
-  exportedBy: uuid('exported_by')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+  exportedBy: uuid('exported_by').references(() => users.id, { onDelete: 'cascade' }), // Made nullable for mock auth
   exportedAt: timestamp('exported_at').defaultNow().notNull(),
 
   // Expiration (auto-delete after X days)

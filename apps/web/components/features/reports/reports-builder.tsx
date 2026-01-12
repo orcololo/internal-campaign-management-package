@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ReportFilter, ReportSort } from "@/types/reports";
 import type { Voter } from "@/types/voters";
+import { useReportsStore } from "@/store/reports-store";
 import { FilterRow } from "./filter-row";
 import { ColumnSelector } from "./column-selector";
 import { SortConfigurator } from "./sort-configurator";
@@ -50,6 +51,7 @@ export function ReportsBuilder({
   data = [],
 }: ReportsBuilderProps) {
   const router = useRouter();
+  const { createReport, isLoading } = useReportsStore();
   const [filters, setFilters] = useState<ReportFilter[]>(initialFilters);
   const [sorting, setSorting] = useState<ReportSort[]>(initialSorting);
   const [columns, setColumns] = useState<Array<keyof Voter>>(initialColumns);
@@ -80,42 +82,34 @@ export function ReportsBuilder({
     setFilters(filters.filter((_, i) => i !== index));
   };
 
-  const handleSaveReport = () => {
+  const handleSaveReport = async () => {
     if (!reportName.trim()) {
       toast.error("Digite um nome para o relatório");
       return;
     }
 
-    // In a real app, this would save to the backend
-    const savedReport = {
-      id: `report-${Date.now()}`,
+    const result = await createReport({
       name: reportName,
       description: reportDescription,
       filters,
       sorting,
-      columns,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+      columns: columns.map((c) => String(c)),
+      isPublic: false,
+    });
 
-    console.log("Saving report:", savedReport);
-    toast.success("Relatório salvo com sucesso!");
-    setIsSaveDialogOpen(false);
-
-    // Navigate to reports list
-    router.push("/reports");
+    if (result) {
+      setIsSaveDialogOpen(false);
+      router.push("/reports");
+    }
   };
 
   const handleExport = async (format: "pdf" | "csv" | "excel") => {
     setIsExporting(true);
 
     try {
-      // Simulate export delay
+      // TODO: Implement export using exportReport from store
+      // This would require first saving the report or using executeReport
       await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // In a real app, this would call the backend API
-      console.log("Exporting report:", { format, filters, sorting, columns });
-
       toast.success(`Relatório exportado em ${format.toUpperCase()}!`);
     } catch (error) {
       toast.error("Erro ao exportar relatório");
@@ -178,10 +172,13 @@ export function ReportsBuilder({
                 <Button
                   variant="outline"
                   onClick={() => setIsSaveDialogOpen(false)}
+                  disabled={isLoading}
                 >
                   Cancelar
                 </Button>
-                <Button onClick={handleSaveReport}>Salvar</Button>
+                <Button onClick={handleSaveReport} disabled={isLoading}>
+                  {isLoading ? "Salvando..." : "Salvar"}
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

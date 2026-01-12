@@ -44,12 +44,12 @@ export class MockAuthService {
    */
   getMockUser(): MockUser {
     return {
-      id: 'mock-user-123',
+      id: '550e8400-e29b-41d4-a716-446655440000', // Valid UUID format
       email: 'candidato@example.com',
       name: 'João Silva',
       role: 'CANDIDATO',
-      tenantId: 'mock-tenant-123',
-      keycloakId: 'mock-keycloak-123',
+      tenantId: '650e8400-e29b-41d4-a716-446655440000', // Valid UUID format
+      keycloakId: '750e8400-e29b-41d4-a716-446655440000', // Valid UUID format
     };
   }
 
@@ -73,13 +73,20 @@ export class MockAuthService {
       ESCRITORIO: 'Ana Costa (Escritório)',
     };
 
+    const roleUUIDs: Record<UserRole, string> = {
+      CANDIDATO: '550e8400-e29b-41d4-a716-446655440000',
+      ESTRATEGISTA: '550e8400-e29b-41d4-a716-446655440001',
+      LIDERANCA: '550e8400-e29b-41d4-a716-446655440002',
+      ESCRITORIO: '550e8400-e29b-41d4-a716-446655440003',
+    };
+
     return {
-      id: `mock-user-${role.toLowerCase()}`,
+      id: roleUUIDs[role],
       email: roleEmails[role],
       name: roleNames[role],
       role,
-      tenantId: 'mock-tenant-123',
-      keycloakId: `mock-keycloak-${role.toLowerCase()}`,
+      tenantId: '650e8400-e29b-41d4-a716-446655440000',
+      keycloakId: `750e8400-e29b-41d4-a716-446655440${Object.keys(roleUUIDs).indexOf(role)}`,
     };
   }
 
@@ -89,7 +96,7 @@ export class MockAuthService {
    * For multi-tenancy testing
    */
   getMockTenantId(): string {
-    return 'mock-tenant-123';
+    return '650e8400-e29b-41d4-a716-446655440000';
   }
 
   /**

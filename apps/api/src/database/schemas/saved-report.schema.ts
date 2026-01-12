@@ -54,9 +54,7 @@ export const savedReports = pgTable('saved_reports', {
   groupBy: varchar('group_by', { length: 100 }),
 
   // Ownership & Sharing
-  createdBy: uuid('created_by')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+  createdBy: uuid('created_by').references(() => users.id, { onDelete: 'cascade' }), // Made nullable for mock auth
   isPublic: boolean('is_public').default(false),
   sharedWith: jsonb('shared_with').$type<string[]>().default([]),
 
