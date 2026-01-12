@@ -26,13 +26,24 @@ export default async function AnalyticsPage() {
 
   // Extract data from responses, handling errors gracefully
   const initialData = {
-    overview: overviewResponse.status === "fulfilled" ? overviewResponse.value.data : null,
+    overview:
+      overviewResponse.status === "fulfilled"
+        ? overviewResponse.value.data
+        : null,
     influence: null, // Not implemented yet
     engagement: null, // Not implemented yet
-    voters: votersResponse.status === "fulfilled" ? votersResponse.value.data : null,
-    events: eventsResponse.status === "fulfilled" ? eventsResponse.value.data : null,
-    canvassing: canvassingResponse.status === "fulfilled" ? canvassingResponse.value.data : null,
-    geographic: geographicResponse.status === "fulfilled" ? geographicResponse.value.data : null,
+    voters:
+      votersResponse.status === "fulfilled" ? votersResponse.value.data : null,
+    events:
+      eventsResponse.status === "fulfilled" ? eventsResponse.value.data : null,
+    canvassing:
+      canvassingResponse.status === "fulfilled"
+        ? canvassingResponse.value.data
+        : null,
+    geographic:
+      geographicResponse.status === "fulfilled"
+        ? geographicResponse.value.data
+        : null,
     campaignMetrics: null, // Not implemented yet
   };
 

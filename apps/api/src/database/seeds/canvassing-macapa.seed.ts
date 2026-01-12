@@ -135,9 +135,7 @@ export const macapaCanvassingSessionsSeed: Partial<NewCanvassingSession>[] = Arr
     const assignedVolunteer = randomElement(volunteers);
     const teamSize = Math.floor(Math.random() * 3) + 1; // 1-3 team members
     const teamMembers =
-      teamSize > 1
-        ? volunteers.filter((v) => v !== assignedVolunteer).slice(0, teamSize - 1)
-        : [];
+      teamSize > 1 ? volunteers.filter((v) => v !== assignedVolunteer).slice(0, teamSize - 1) : [];
 
     const startCoords = generateCoordinatesNearby(neighborhood.lat, neighborhood.lng, 0.3);
     const endCoords = generateCoordinatesNearby(neighborhood.lat, neighborhood.lng, 0.3);
@@ -145,8 +143,12 @@ export const macapaCanvassingSessionsSeed: Partial<NewCanvassingSession>[] = Arr
     // Generate route coordinates (5-10 points along the route)
     const routePoints = Array.from({ length: Math.floor(Math.random() * 6) + 5 }, (_, i) => {
       const progress = i / 10;
-      const lat = parseFloat(startCoords.lat) + (parseFloat(endCoords.lat) - parseFloat(startCoords.lat)) * progress;
-      const lng = parseFloat(startCoords.lng) + (parseFloat(endCoords.lng) - parseFloat(startCoords.lng)) * progress;
+      const lat =
+        parseFloat(startCoords.lat) +
+        (parseFloat(endCoords.lat) - parseFloat(startCoords.lat)) * progress;
+      const lng =
+        parseFloat(startCoords.lng) +
+        (parseFloat(endCoords.lng) - parseFloat(startCoords.lng)) * progress;
       return { lat: lat.toFixed(7), lng: lng.toFixed(7) };
     });
 
@@ -251,15 +253,32 @@ export function generateDoorKnocksForSession(
       contactedAt,
       contactedBy: sessionData.assignedTo || 'Voluntário',
       contactName: result !== 'NAO_ATENDEU' && result !== 'MUDOU' ? `Morador(a) ${i + 1}` : null,
-      contactPhone: result === 'APOIADOR' || result === 'INDECISO' ? `(96) 99${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}` : null,
-      contactWhatsapp: result === 'APOIADOR' ? `(96) 99${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}` : null,
+      contactPhone:
+        result === 'APOIADOR' || result === 'INDECISO'
+          ? `(96) 99${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`
+          : null,
+      contactWhatsapp:
+        result === 'APOIADOR'
+          ? `(96) 99${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`
+          : null,
       contactEmail: null,
       notes: notes[result] || null,
-      issues: result === 'APOIADOR' || result === 'INDECISO' ? JSON.stringify(randomElement([['Saúde', 'Educação'], ['Segurança', 'Emprego'], ['Infraestrutura']])) : null,
+      issues:
+        result === 'APOIADOR' || result === 'INDECISO'
+          ? JSON.stringify(
+              randomElement([['Saúde', 'Educação'], ['Segurança', 'Emprego'], ['Infraestrutura']]),
+            )
+          : null,
       promises: result === 'APOIADOR' ? 'Prometeu comparecer em próximo evento de campanha' : null,
       followUpRequired: result === 'INDECISO',
-      followUpDate: result === 'INDECISO' ? formatDate(new Date(contactedAt.getTime() + 7 * 24 * 60 * 60 * 1000)) : null,
-      materialsDelivered: result !== 'NAO_ATENDEU' && result !== 'MUDOU' && result !== 'RECUSOU_CONTATO' ? JSON.stringify(['Santinho', 'Folder']) : null,
+      followUpDate:
+        result === 'INDECISO'
+          ? formatDate(new Date(contactedAt.getTime() + 7 * 24 * 60 * 60 * 1000))
+          : null,
+      materialsDelivered:
+        result !== 'NAO_ATENDEU' && result !== 'MUDOU' && result !== 'RECUSOU_CONTATO'
+          ? JSON.stringify(['Santinho', 'Folder'])
+          : null,
       createdAt: sessionData.createdAt || new Date(),
       updatedAt: sessionData.updatedAt || new Date(),
       deletedAt: null,

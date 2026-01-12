@@ -4,12 +4,12 @@ import type {
   CommunityRole,
   VolunteerStatus,
   TurnoutLikelihood,
-} from './voters';
+} from "./voters";
 
 /**
  * Analytics Period Types
  */
-export type AnalyticsPeriod = 'week' | 'month' | 'quarter' | 'year' | 'custom';
+export type AnalyticsPeriod = "week" | "month" | "quarter" | "year" | "custom";
 
 export interface DateRange {
   start: Date;
@@ -81,11 +81,11 @@ export interface InfluenceAnalytics {
   totalSocialMediaReach: number;
   communityLeaders: number;
   distribution: {
-    high: number;    // influencerScore >= 70
-    medium: number;  // 40-69
-    low: number;     // < 40
+    high: number; // influencerScore >= 70
+    medium: number; // 40-69
+    low: number; // < 40
   };
-  byCommunityRole: Record<CommunityRole | 'NAO_DEFINIDO', number>;
+  byCommunityRole: Record<CommunityRole | "NAO_DEFINIDO", number>;
   topInfluencers: TopInfluencer[];
   networkGrowthTrend: TimeSeriesPoint[];
   influenceByNeighborhood: Record<string, number>;
@@ -112,11 +112,11 @@ export interface EngagementAnalytics {
   activeVoters7Days: number;
   dormantVoters: number;
   scoreDistribution: {
-    high: number;    // >= 70
-    medium: number;  // 40-69
-    low: number;     // < 40
+    high: number; // >= 70
+    medium: number; // 40-69
+    low: number; // < 40
   };
-  trendDistribution: Record<EngagementTrend | 'NAO_DEFINIDO', number>;
+  trendDistribution: Record<EngagementTrend | "NAO_DEFINIDO", number>;
   topEngaged: TopEngagedVoter[];
   engagementTrend: TimeSeriesPoint[];
   responseTrend: TimeSeriesPoint[];
@@ -266,12 +266,17 @@ export interface TimeSeriesPoint {
 }
 
 export interface TimeSeriesData {
-  metric: 'voter-registrations' | 'events' | 'canvassing' | 'engagement' | 'influence';
+  metric:
+    | "voter-registrations"
+    | "events"
+    | "canvassing"
+    | "engagement"
+    | "influence";
   points: TimeSeriesPoint[];
   summary: {
     total: number;
     average: number;
-    trend: 'up' | 'down' | 'stable';
+    trend: "up" | "down" | "stable";
     changePercent: number;
   };
 }
@@ -342,9 +347,9 @@ export interface CampaignMilestone {
   description: string;
   targetDate: Date;
   completedDate?: Date;
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  status: "pending" | "in_progress" | "completed" | "cancelled";
   progress: number; // 0-100
-  category: 'events' | 'voters' | 'canvassing' | 'fundraising' | 'other';
+  category: "events" | "voters" | "canvassing" | "fundraising" | "other";
 }
 
 export interface CoverageAreaMetrics {
@@ -433,29 +438,36 @@ export interface DrillDownData {
  * Export Options
  */
 export interface ExportOptions {
-  format: 'pdf' | 'csv' | 'excel';
+  format: "pdf" | "csv" | "excel";
   period: AnalyticsPeriod;
   sections: ExportSection[];
   includeCharts?: boolean;
-  chartResolution?: 'low' | 'medium' | 'high';
+  chartResolution?: "low" | "medium" | "high";
   emailTo?: string;
 }
 
 export type ExportSection =
-  | 'summary'
-  | 'influence'
-  | 'engagement'
-  | 'campaign'
-  | 'demographics'
-  | 'geographic'
-  | 'events'
-  | 'canvassing'
-  | 'all';
+  | "summary"
+  | "influence"
+  | "engagement"
+  | "campaign"
+  | "demographics"
+  | "geographic"
+  | "events"
+  | "canvassing"
+  | "all";
 
 /**
  * Dashboard Tab Types
  */
-export type AnalyticsTab = 'overview' | 'voters' | 'events' | 'canvassing' | 'influence' | 'engagement' | 'campaign';
+export type AnalyticsTab =
+  | "overview"
+  | "voters"
+  | "events"
+  | "canvassing"
+  | "influence"
+  | "engagement"
+  | "campaign";
 
 export interface AnalyticsTabConfig {
   id: AnalyticsTab;

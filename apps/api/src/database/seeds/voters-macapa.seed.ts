@@ -247,15 +247,15 @@ function generateCreatedAt(index: number, total: number): Date {
   const now = new Date();
   const thirtyDaysAgo = new Date(now);
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  
+
   // Use exponential distribution to favor recent dates
   // Earlier indices get older dates, later indices get newer dates
   const progress = index / total;
   const exponentialFactor = Math.pow(progress, 0.5); // Square root for gradual growth
-  
+
   const timeRange = now.getTime() - thirtyDaysAgo.getTime();
   const offset = timeRange * exponentialFactor;
-  
+
   return new Date(thirtyDaysAgo.getTime() + offset);
 }
 

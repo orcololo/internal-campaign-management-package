@@ -1,7 +1,22 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
 interface GrowthChartProps {
   data: Array<{ date: string; count: number }>;
@@ -19,16 +34,16 @@ export function GrowthChart({
   data,
   title,
   description,
-  dataKey = 'count',
-  color = '#3b82f6'
+  dataKey = "count",
+  color = "#3b82f6",
 }: GrowthChartProps) {
   // Format data for chart
-  const chartData = data.map(item => ({
+  const chartData = data.map((item) => ({
     ...item,
-    date: new Date(item.date).toLocaleDateString('pt-BR', { 
-      day: '2-digit',
-      month: 'short' 
-    })
+    date: new Date(item.date).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "short",
+    }),
   }));
 
   return (
@@ -42,22 +57,19 @@ export function GrowthChart({
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="date" 
-                style={{ fontSize: '12px' }}
-              />
-              <YAxis style={{ fontSize: '12px' }} />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))'
+              <XAxis dataKey="date" style={{ fontSize: "12px" }} />
+              <YAxis style={{ fontSize: "12px" }} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--card))",
+                  border: "1px solid hsl(var(--border))",
                 }}
               />
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey={dataKey} 
-                stroke={color} 
+              <Line
+                type="monotone"
+                dataKey={dataKey}
+                stroke={color}
                 strokeWidth={2}
                 dot={{ fill: color }}
                 name="Quantidade"

@@ -57,14 +57,16 @@ export function VoterMapView({
     return resolvedTheme === "dark" ? MAP_STYLES.dark : MAP_STYLES.light;
   }, [resolvedTheme]);
 
-  const votersWithLocation = React.useMemo(
-    () => {
-      const filtered = voters.filter((v) => v.latitude && v.longitude);
-      console.log("[VoterMapView] Total voters:", voters.length, "With location:", filtered.length);
-      return filtered;
-    },
-    [voters]
-  );
+  const votersWithLocation = React.useMemo(() => {
+    const filtered = voters.filter((v) => v.latitude && v.longitude);
+    console.log(
+      "[VoterMapView] Total voters:",
+      voters.length,
+      "With location:",
+      filtered.length
+    );
+    return filtered;
+  }, [voters]);
 
   const closePopup = React.useCallback(() => {
     if (closeTimeoutRef.current) {
