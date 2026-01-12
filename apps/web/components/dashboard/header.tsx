@@ -1,186 +1,159 @@
 "use client";
 
+import * as React from "react";
+import { Search, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  BarChart3,
-  Sparkles,
-  Share2,
-  Plus,
-  FilePlus,
-  UserPlus,
-  Github,
-  Mail,
-  Link2,
-  Users,
-} from "lucide-react";
-import Link from "next/link";
+import { CampaignSwitcher } from "@/components/features/campaigns/campaign-switcher";
+import { DashboardBreadcrumbs } from "./breadcrumbs";
+import { UserNav } from "./user-nav";
+import { SearchDialog, useSearchDialog } from "./search-dialog";
+
+// Mock notifications
+const notifications = [
+  {
+    id: "1",
+    title: "Novo eleitor cadastrado",
+    description: "Maria Santos foi adicionada à base",
+    time: "há 5 minutos",
+    read: false,
+  },
+  {
+    id: "2",
+    title: "Evento amanhã",
+    description: "Reunião com lideranças às 14h",
+    time: "há 1 hora",
+    read: false,
+  },
+  {
+    id: "3",
+    title: "Meta atingida",
+    description: "500 eleitores cadastrados!",
+    time: "há 2 horas",
+    read: true,
+  },
+];
 
 export function DashboardHeader() {
+  const { open, setOpen } = useSearchDialog();
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const handleMarkAllAsRead = () => {
+    alert("Marcar todas como lidas - Em desenvolvimento");
+  };
+
   return (
-    <header className="flex items-center justify-between gap-4 px-4 sm:px-6 py-3 border-b bg-card sticky top-0 z-10 w-full">
-      <div className="flex items-center gap-3">
-        <SidebarTrigger className="-ml-2" />
-        <div className="hidden sm:flex items-center gap-2 text-muted-foreground">
-          <BarChart3 className="size-4" />
-          <span className="text-sm font-medium">Dashboard</span>
-        </div>
-      </div>
+    <>
+      <header className="sticky top-0 z-40 border-b bg-background">
+        <div className="flex h-16 items-center gap-4 px-4 sm:px-6">
+          {/* Sidebar Trigger */}
+          <SidebarTrigger className="-ml-2 flex-shrink-0" />
 
-      <div className="flex items-center gap-2">
-        <div className="hidden lg:flex items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex -space-x-2 mr-3 cursor-pointer hover:opacity-80 transition-opacity">
-                <Avatar className="size-6 border-2 border-card">
-                  <AvatarImage src="https://api.dicebear.com/9.x/glass/svg?seed=user1" />
-                  <AvatarFallback>U1</AvatarFallback>
-                </Avatar>
-                <Avatar className="size-6 border-2 border-card">
-                  <AvatarImage src="https://api.dicebear.com/9.x/glass/svg?seed=user2" />
-                  <AvatarFallback>U2</AvatarFallback>
-                </Avatar>
-                <Avatar className="size-6 border-2 border-card">
-                  <AvatarImage src="https://api.dicebear.com/9.x/glass/svg?seed=user3" />
-                  <AvatarFallback>U3</AvatarFallback>
-                </Avatar>
-                <div className="flex size-6 items-center justify-center rounded-full border-2 border-card bg-muted">
-                  <Plus className="size-3" />
-                </div>
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              <div className="px-2 py-1.5">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Team Members
-                </p>
-              </div>
-              <DropdownMenuItem>
-                <Avatar className="size-5 mr-2">
-                  <AvatarImage src="https://api.dicebear.com/9.x/glass/svg?seed=user1" />
-                  <AvatarFallback>U1</AvatarFallback>
-                </Avatar>
-                <span>Sarah M.</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Avatar className="size-5 mr-2">
-                  <AvatarImage src="https://api.dicebear.com/9.x/glass/svg?seed=user2" />
-                  <AvatarFallback>U2</AvatarFallback>
-                </Avatar>
-                <span>James K.</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Avatar className="size-5 mr-2">
-                  <AvatarImage src="https://api.dicebear.com/9.x/glass/svg?seed=user3" />
-                  <AvatarFallback>U3</AvatarFallback>
-                </Avatar>
-                <span>Emily R.</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Mail className="size-4 mr-2" />
-                <span>Invite by email</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link2 className="size-4 mr-2" />
-                <span>Copy invite link</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Users className="size-4 mr-2" />
-                <span>Manage team</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <div className="h-5 w-px bg-border mx-2" />
-        </div>
+          {/* Campaign Switcher */}
+          <div className="hidden lg:block flex-shrink-0">
+            <CampaignSwitcher />
+          </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          {/* Breadcrumbs - Center */}
+          <div className="flex-1 flex items-center justify-center min-w-0 px-4">
+            <DashboardBreadcrumbs />
+          </div>
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Search Button */}
             <Button
               variant="outline"
-              size="sm"
-              className="h-7 gap-1.5 hidden sm:flex"
+              className="relative h-9 w-9 p-0 xl:h-9 xl:w-64 xl:justify-start xl:px-3"
+              onClick={() => setOpen(true)}
             >
-              <Sparkles className="size-3.5" />
-              <span className="text-sm">Ask AI</span>
+              <Search className="size-4 xl:mr-2" />
+              <span className="hidden xl:inline-flex">Buscar...</span>
+              <kbd className="pointer-events-none absolute right-2 top-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 xl:flex">
+                <span className="text-xs">⌘</span>K
+              </kbd>
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Generate report</DropdownMenuItem>
-            <DropdownMenuItem>Analyze leads</DropdownMenuItem>
-            <DropdownMenuItem>Suggest follow-ups</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 gap-1.5 hidden sm:flex"
-            >
-              <Share2 className="size-3.5" />
-              <span className="text-sm">Share</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Copy link</DropdownMenuItem>
-            <DropdownMenuItem>Export as PDF</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Share with team</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            {/* Notifications */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <Bell className="size-5" />
+                  {unreadCount > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 size-5 flex items-center justify-center p-0 text-[10px]"
+                    >
+                      {unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                <DropdownMenuLabel className="flex items-center justify-between">
+                  <span>Notificações</span>
+                  {unreadCount > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
+                      onClick={handleMarkAllAsRead}
+                    >
+                      Marcar todas como lidas
+                    </Button>
+                  )}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup className="max-h-[300px] overflow-y-auto">
+                  {notifications.map((notification) => (
+                    <DropdownMenuItem
+                      key={notification.id}
+                      className="flex-col items-start p-3"
+                    >
+                      <div className="flex items-start gap-2 w-full">
+                        {!notification.read && (
+                          <div className="size-2 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium">
+                            {notification.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {notification.description}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {notification.time}
+                          </p>
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-        <ThemeToggle />
+            {/* Theme Toggle */}
+            <ThemeToggle />
 
-        <Button variant="ghost" size="icon" asChild className="hidden sm:flex">
-          <Link
-            href="https://github.com/ln-dev7/square-ui/tree/master/templates/dashboard-4"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Github className="size-5" />
-          </Link>
-        </Button>
-      </div>
-    </header>
-  );
-}
+            {/* User Menu */}
+            <UserNav />
+          </div>
+        </div>
+      </header>
 
-export function WelcomeSection() {
-  return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
-          Welcome Back LN!
-        </h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Let&apos;s tackle down some work
-        </p>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          className="h-9 gap-1.5 bg-card hover:bg-card/80 border-border/50"
-        >
-          <FilePlus className="size-4" />
-          <span className="hidden sm:inline">Add Project</span>
-        </Button>
-        <Button className="h-9 gap-1.5 bg-neutral-800 hover:bg-neutral-700 text-white border border-border/50">
-          <UserPlus className="size-4" />
-          <span className="hidden sm:inline">New Client</span>
-        </Button>
-      </div>
-    </div>
+      {/* Search Dialog */}
+      <SearchDialog open={open} onOpenChange={setOpen} />
+    </>
   );
 }

@@ -27,15 +27,21 @@ import { cn } from "@/lib/utils";
 import { Voter, SupportLevel } from "@/types/voters";
 
 const SUPPORT_LEVEL_COLORS: Record<SupportLevel, string> = {
-  high: "#22c55e",
-  medium: "#f59e0b",
-  low: "#ef4444",
+  MUITO_FAVORAVEL: "#22c55e",
+  FAVORAVEL: "#84cc16",
+  NEUTRO: "#f59e0b",
+  DESFAVORAVEL: "#f97316",
+  MUITO_DESFAVORAVEL: "#ef4444",
+  NAO_DEFINIDO: "#6b7280",
 };
 
 const SUPPORT_LEVEL_LABELS: Record<SupportLevel, string> = {
-  high: "Alto",
-  medium: "Médio",
-  low: "Baixo",
+  MUITO_FAVORAVEL: "Muito Favorável",
+  FAVORAVEL: "Favorável",
+  NEUTRO: "Neutro",
+  DESFAVORAVEL: "Desfavorável",
+  MUITO_DESFAVORAVEL: "Muito Desfavorável",
+  NAO_DEFINIDO: "Não Definido",
 };
 
 interface VoterMapsPanelProps {
@@ -90,7 +96,13 @@ export function VoterMapsPanel({
         const matchesEmail = voter.email?.toLowerCase().includes(query);
         const matchesPhone = voter.phone?.includes(query);
 
-        if (!matchesName && !matchesCity && !matchesState && !matchesEmail && !matchesPhone) {
+        if (
+          !matchesName &&
+          !matchesCity &&
+          !matchesState &&
+          !matchesEmail &&
+          !matchesPhone
+        ) {
           return false;
         }
       }
@@ -118,7 +130,9 @@ export function VoterMapsPanel({
 
       // Tag filter
       if (selectedTags.length > 0) {
-        const hasMatchingTag = selectedTags.some((tag) => voter.tags.includes(tag));
+        const hasMatchingTag = selectedTags.some((tag) =>
+          voter.tags.includes(tag)
+        );
         if (!hasMatchingTag) {
           return false;
         }
@@ -212,7 +226,8 @@ export function VoterMapsPanel({
             Mapa de Eleitores
           </h2>
           <p className="text-xs text-muted-foreground">
-            {votersWithLocation.length} eleitor{votersWithLocation.length !== 1 ? "es" : ""} com localização
+            {votersWithLocation.length} eleitor
+            {votersWithLocation.length !== 1 ? "es" : ""} com localização
           </p>
         </div>
         <div className="flex items-center gap-1">
@@ -255,7 +270,10 @@ export function VoterMapsPanel({
                 <Filter className="size-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 max-h-[500px] overflow-y-auto">
+            <DropdownMenuContent
+              align="end"
+              className="w-56 max-h-[500px] overflow-y-auto"
+            >
               <DropdownMenuLabel>Nível de Apoio</DropdownMenuLabel>
               <DropdownMenuItem
                 onClick={() => setSupportLevelFilter("all")}
@@ -265,37 +283,73 @@ export function VoterMapsPanel({
                 {supportLevelFilter === "all" && <Check className="size-4" />}
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => setSupportLevelFilter("high")}
+                onClick={() => setSupportLevelFilter("MUITO_FAVORAVEL")}
                 className="gap-2"
               >
                 <div
                   className="size-3 rounded-full"
-                  style={{ backgroundColor: SUPPORT_LEVEL_COLORS.high }}
+                  style={{
+                    backgroundColor: SUPPORT_LEVEL_COLORS.MUITO_FAVORAVEL,
+                  }}
                 />
-                <span className="flex-1">Alto apoio</span>
-                {supportLevelFilter === "high" && <Check className="size-4" />}
+                <span className="flex-1">Muito Favorável</span>
+                {supportLevelFilter === "MUITO_FAVORAVEL" && (
+                  <Check className="size-4" />
+                )}
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => setSupportLevelFilter("medium")}
+                onClick={() => setSupportLevelFilter("FAVORAVEL")}
                 className="gap-2"
               >
                 <div
                   className="size-3 rounded-full"
-                  style={{ backgroundColor: SUPPORT_LEVEL_COLORS.medium }}
+                  style={{ backgroundColor: SUPPORT_LEVEL_COLORS.FAVORAVEL }}
                 />
-                <span className="flex-1">Médio apoio</span>
-                {supportLevelFilter === "medium" && <Check className="size-4" />}
+                <span className="flex-1">Favorável</span>
+                {supportLevelFilter === "FAVORAVEL" && (
+                  <Check className="size-4" />
+                )}
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => setSupportLevelFilter("low")}
+                onClick={() => setSupportLevelFilter("NEUTRO")}
                 className="gap-2"
               >
                 <div
                   className="size-3 rounded-full"
-                  style={{ backgroundColor: SUPPORT_LEVEL_COLORS.low }}
+                  style={{ backgroundColor: SUPPORT_LEVEL_COLORS.NEUTRO }}
                 />
-                <span className="flex-1">Baixo apoio</span>
-                {supportLevelFilter === "low" && <Check className="size-4" />}
+                <span className="flex-1">Neutro</span>
+                {supportLevelFilter === "NEUTRO" && (
+                  <Check className="size-4" />
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setSupportLevelFilter("DESFAVORAVEL")}
+                className="gap-2"
+              >
+                <div
+                  className="size-3 rounded-full"
+                  style={{ backgroundColor: SUPPORT_LEVEL_COLORS.DESFAVORAVEL }}
+                />
+                <span className="flex-1">Desfavorável</span>
+                {supportLevelFilter === "DESFAVORAVEL" && (
+                  <Check className="size-4" />
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setSupportLevelFilter("MUITO_DESFAVORAVEL")}
+                className="gap-2"
+              >
+                <div
+                  className="size-3 rounded-full"
+                  style={{
+                    backgroundColor: SUPPORT_LEVEL_COLORS.MUITO_DESFAVORAVEL,
+                  }}
+                />
+                <span className="flex-1">Muito Desfavorável</span>
+                {supportLevelFilter === "MUITO_DESFAVORAVEL" && (
+                  <Check className="size-4" />
+                )}
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
@@ -313,7 +367,9 @@ export function VoterMapsPanel({
                   className="gap-2"
                 >
                   <span className="flex-1">{state}</span>
-                  {selectedStates.includes(state) && <Check className="size-4" />}
+                  {selectedStates.includes(state) && (
+                    <Check className="size-4" />
+                  )}
                 </DropdownMenuItem>
               ))}
 
@@ -332,7 +388,9 @@ export function VoterMapsPanel({
                   className="gap-2"
                 >
                   <span className="flex-1 truncate">{city}</span>
-                  {selectedCities.includes(city) && <Check className="size-4" />}
+                  {selectedCities.includes(city) && (
+                    <Check className="size-4" />
+                  )}
                 </DropdownMenuItem>
               ))}
 
@@ -426,100 +484,104 @@ export function VoterMapsPanel({
               </Button>
             </div>
             <div className="flex flex-wrap gap-1">
-            {supportLevelFilter !== "all" && (
-              <Badge variant="secondary" className="text-xs">
-                {SUPPORT_LEVEL_LABELS[supportLevelFilter]} apoio
-                <button
-                  onClick={() => setSupportLevelFilter("all")}
-                  className="ml-1 hover:bg-background rounded-full"
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            )}
-            {selectedStates.map((state) => (
-              <Badge key={state} variant="secondary" className="text-xs">
-                {state}
-                <button
-                  onClick={() =>
-                    setSelectedStates((prev) => prev.filter((s) => s !== state))
-                  }
-                  className="ml-1 hover:bg-background rounded-full"
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            ))}
-            {selectedCities.map((city) => (
-              <Badge key={city} variant="secondary" className="text-xs">
-                {city}
-                <button
-                  onClick={() =>
-                    setSelectedCities((prev) => prev.filter((c) => c !== city))
-                  }
-                  className="ml-1 hover:bg-background rounded-full"
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            ))}
-            {selectedTags.map((tag) => (
-              <Badge key={tag} variant="secondary" className="text-xs">
-                {tag}
-                <button
-                  onClick={() =>
-                    setSelectedTags((prev) => prev.filter((t) => t !== tag))
-                  }
-                  className="ml-1 hover:bg-background rounded-full"
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            ))}
-            {hasLocationFilter && (
-              <Badge variant="secondary" className="text-xs">
-                Com localização
-                <button
-                  onClick={() => setHasLocationFilter(false)}
-                  className="ml-1 hover:bg-background rounded-full"
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            )}
-            {hasWhatsAppFilter && (
-              <Badge variant="secondary" className="text-xs">
-                Com WhatsApp
-                <button
-                  onClick={() => setHasWhatsAppFilter(false)}
-                  className="ml-1 hover:bg-background rounded-full"
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            )}
-            {hasEmailFilter && (
-              <Badge variant="secondary" className="text-xs">
-                Com Email
-                <button
-                  onClick={() => setHasEmailFilter(false)}
-                  className="ml-1 hover:bg-background rounded-full"
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            )}
-            {hasPhoneFilter && (
-              <Badge variant="secondary" className="text-xs">
-                Com Telefone
-                <button
-                  onClick={() => setHasPhoneFilter(false)}
-                  className="ml-1 hover:bg-background rounded-full"
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            )}
+              {supportLevelFilter !== "all" && (
+                <Badge variant="secondary" className="text-xs">
+                  {SUPPORT_LEVEL_LABELS[supportLevelFilter]} apoio
+                  <button
+                    onClick={() => setSupportLevelFilter("all")}
+                    className="ml-1 hover:bg-background rounded-full"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </Badge>
+              )}
+              {selectedStates.map((state) => (
+                <Badge key={state} variant="secondary" className="text-xs">
+                  {state}
+                  <button
+                    onClick={() =>
+                      setSelectedStates((prev) =>
+                        prev.filter((s) => s !== state)
+                      )
+                    }
+                    className="ml-1 hover:bg-background rounded-full"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </Badge>
+              ))}
+              {selectedCities.map((city) => (
+                <Badge key={city} variant="secondary" className="text-xs">
+                  {city}
+                  <button
+                    onClick={() =>
+                      setSelectedCities((prev) =>
+                        prev.filter((c) => c !== city)
+                      )
+                    }
+                    className="ml-1 hover:bg-background rounded-full"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </Badge>
+              ))}
+              {selectedTags.map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-xs">
+                  {tag}
+                  <button
+                    onClick={() =>
+                      setSelectedTags((prev) => prev.filter((t) => t !== tag))
+                    }
+                    className="ml-1 hover:bg-background rounded-full"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </Badge>
+              ))}
+              {hasLocationFilter && (
+                <Badge variant="secondary" className="text-xs">
+                  Com localização
+                  <button
+                    onClick={() => setHasLocationFilter(false)}
+                    className="ml-1 hover:bg-background rounded-full"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </Badge>
+              )}
+              {hasWhatsAppFilter && (
+                <Badge variant="secondary" className="text-xs">
+                  Com WhatsApp
+                  <button
+                    onClick={() => setHasWhatsAppFilter(false)}
+                    className="ml-1 hover:bg-background rounded-full"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </Badge>
+              )}
+              {hasEmailFilter && (
+                <Badge variant="secondary" className="text-xs">
+                  Com Email
+                  <button
+                    onClick={() => setHasEmailFilter(false)}
+                    className="ml-1 hover:bg-background rounded-full"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </Badge>
+              )}
+              {hasPhoneFilter && (
+                <Badge variant="secondary" className="text-xs">
+                  Com Telefone
+                  <button
+                    onClick={() => setHasPhoneFilter(false)}
+                    className="ml-1 hover:bg-background rounded-full"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </Badge>
+              )}
             </div>
           </div>
         )}
@@ -581,7 +643,9 @@ export function VoterMapsPanel({
                           <Badge
                             className="text-xs"
                             style={{
-                              backgroundColor: `${SUPPORT_LEVEL_COLORS[voter.supportLevel]}20`,
+                              backgroundColor: `${
+                                SUPPORT_LEVEL_COLORS[voter.supportLevel]
+                              }20`,
                               color: SUPPORT_LEVEL_COLORS[voter.supportLevel],
                             }}
                           >
@@ -596,7 +660,10 @@ export function VoterMapsPanel({
                             <Phone className="size-4 text-muted-foreground" />
                             <span>{voter.phone}</span>
                             {voter.hasWhatsapp && (
-                              <Badge variant="secondary" className="text-[10px] h-5">
+                              <Badge
+                                variant="secondary"
+                                className="text-[10px] h-5"
+                              >
                                 WhatsApp
                               </Badge>
                             )}
@@ -608,9 +675,10 @@ export function VoterMapsPanel({
                             <span className="truncate">{voter.email}</span>
                           </div>
                         )}
-                        {voter.zone && voter.section && (
+                        {voter.electoralZone && voter.electoralSection && (
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            Zona {voter.zone}, Seção {voter.section}
+                            Zona {voter.electoralZone}, Seção{" "}
+                            {voter.electoralSection}
                           </div>
                         )}
                         {voter.address && (
@@ -679,9 +747,12 @@ export function VoterMapsPanel({
                       <div
                         className="size-3 rounded-full shrink-0"
                         style={{
-                          backgroundColor: SUPPORT_LEVEL_COLORS[voter.supportLevel],
+                          backgroundColor:
+                            SUPPORT_LEVEL_COLORS[voter.supportLevel],
                         }}
-                        title={`${SUPPORT_LEVEL_LABELS[voter.supportLevel]} Apoio`}
+                        title={`${
+                          SUPPORT_LEVEL_LABELS[voter.supportLevel]
+                        } Apoio`}
                       />
                     )}
                   </div>
@@ -691,13 +762,15 @@ export function VoterMapsPanel({
                       {voter.phone && (
                         <div className="flex items-center gap-1">
                           <Phone className="size-3" />
-                          {voter.hasWhatsapp && <span className="text-green-600">✓</span>}
+                          {voter.hasWhatsapp && (
+                            <span className="text-green-600">✓</span>
+                          )}
                         </div>
                       )}
                       {voter.email && <Mail className="size-3" />}
-                      {voter.zone && voter.section && (
+                      {voter.electoralZone && voter.electoralSection && (
                         <span>
-                          Z{voter.zone} S{voter.section}
+                          Z{voter.electoralZone} S{voter.electoralSection}
                         </span>
                       )}
                     </div>

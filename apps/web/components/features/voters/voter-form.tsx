@@ -12,15 +12,20 @@ import {
   voterElectoralSchema,
   voterSocialSchema,
   voterPoliticalSchema,
+  voterEngagementSchema,
   type VoterBasicInfo,
   type VoterContact,
   type VoterElectoral,
   type VoterSocial,
   type VoterPolitical,
+  type VoterEngagement,
 } from "@/lib/validators/voters";
 import { votersApi } from "@/lib/api/endpoints/voters";
 import { Voter } from "@/types/voters";
-import { MultiStepForm, FormStep } from "@/components/composed/forms/multi-step-form";
+import {
+  MultiStepForm,
+  FormStep,
+} from "@/components/composed/forms/multi-step-form";
 import {
   Form,
   FormControl,
@@ -47,9 +52,33 @@ interface VoterFormProps {
 }
 
 const brazilianStates = [
-  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
-  "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
-  "RS", "RO", "RR", "SC", "SP", "SE", "TO"
+  "AC",
+  "AL",
+  "AP",
+  "AM",
+  "BA",
+  "CE",
+  "DF",
+  "ES",
+  "GO",
+  "MA",
+  "MT",
+  "MS",
+  "MG",
+  "PA",
+  "PB",
+  "PR",
+  "PE",
+  "PI",
+  "RJ",
+  "RN",
+  "RS",
+  "RO",
+  "RR",
+  "SC",
+  "SP",
+  "SE",
+  "TO",
 ];
 
 const availableTags = [
@@ -199,65 +228,113 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
     },
   });
 
+  // Step 6: Engagement & AI Data Form
+  const engagementForm = useForm<VoterEngagement>({
+    resolver: zodResolver(voterEngagementSchema),
+    defaultValues: {
+      ageGroup: voter?.ageGroup,
+      householdType: voter?.householdType,
+      employmentStatus: voter?.employmentStatus,
+      vehicleOwnership: voter?.vehicleOwnership,
+      internetAccess: voter?.internetAccess,
+      communicationStyle: voter?.communicationStyle,
+      contentPreference: voter?.contentPreference || [],
+      bestContactTime: voter?.bestContactTime,
+      bestContactDay: voter?.bestContactDay || [],
+      topIssues: voter?.topIssues || [],
+      previousCandidateSupport: voter?.previousCandidateSupport,
+      influencerScore: voter?.influencerScore,
+      persuadability: voter?.persuadability,
+      turnoutLikelihood: voter?.turnoutLikelihood,
+      socialMediaFollowers: voter?.socialMediaFollowers,
+      communityRole: voter?.communityRole,
+      referredVoters: voter?.referredVoters,
+      networkSize: voter?.networkSize,
+      influenceRadius: voter?.influenceRadius,
+      contactFrequency: voter?.contactFrequency,
+      responseRate: voter?.responseRate,
+      volunteerStatus: voter?.volunteerStatus,
+      engagementScore: voter?.engagementScore,
+    },
+  });
+
   // Debounce timer ref
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchAddressFromCep = useCallback(async (cep: string) => {
-    // Remove non-numeric characters
-    const cleanCep = cep.replace(/\D/g, "");
+  const fetchAddressFromCep = useCallback(
+    async (cep: string) => {
+      // Remove non-numeric characters
+      const cleanCep = cep.replace(/\D/g, "");
 
-    // Check if CEP has 8 digits
-    if (cleanCep.length !== 8) {
-      return;
-    }
-
-    setIsFetchingCep(true);
-
-    try {
-      const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
-
-      if (!response.ok) {
-        throw new Error("Erro na requisição");
-      }
-
-      const data: ViaCepResponse = await response.json();
-
-      if (data.erro) {
-        toast.error("CEP não encontrado");
-        setIsFetchingCep(false);
+      // Check if CEP has 8 digits
+      if (cleanCep.length !== 8) {
         return;
       }
 
-      // Update form fields with ViaCEP data
-      basicInfoForm.setValue("address", data.logradouro || "", { shouldValidate: true });
-      basicInfoForm.setValue("neighborhood", data.bairro || "", { shouldValidate: true });
-      basicInfoForm.setValue("city", data.localidade || "", { shouldValidate: true });
-      basicInfoForm.setValue("state", data.uf || "", { shouldValidate: true });
+      setIsFetchingCep(true);
 
-      if (data.complemento) {
-        basicInfoForm.setValue("addressComplement", data.complemento, { shouldValidate: true });
+      try {
+        const response = await fetch(
+          `https://viacep.com.br/ws/${cleanCep}/json/`
+        );
+
+        if (!response.ok) {
+          throw new Error("Erro na requisição");
+        }
+
+        const data: ViaCepResponse = await response.json();
+
+        if (data.erro) {
+          toast.error("CEP não encontrado");
+          setIsFetchingCep(false);
+          return;
+        }
+
+        // Update form fields with ViaCEP data
+        basicInfoForm.setValue("address", data.logradouro || "", {
+          shouldValidate: true,
+        });
+        basicInfoForm.setValue("neighborhood", data.bairro || "", {
+          shouldValidate: true,
+        });
+        basicInfoForm.setValue("city", data.localidade || "", {
+          shouldValidate: true,
+        });
+        basicInfoForm.setValue("state", data.uf || "", {
+          shouldValidate: true,
+        });
+
+        if (data.complemento) {
+          basicInfoForm.setValue("addressComplement", data.complemento, {
+            shouldValidate: true,
+          });
+        }
+
+        toast.success("Endereço preenchido automaticamente!");
+      } catch (error) {
+        console.error("Error fetching CEP:", error);
+        toast.error("Erro ao buscar CEP. Tente novamente.");
+      } finally {
+        setIsFetchingCep(false);
+      }
+    },
+    [basicInfoForm]
+  );
+
+  const handleCepChange = useCallback(
+    (value: string) => {
+      // Clear previous timer
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
       }
 
-      toast.success("Endereço preenchido automaticamente!");
-    } catch (error) {
-      console.error("Error fetching CEP:", error);
-      toast.error("Erro ao buscar CEP. Tente novamente.");
-    } finally {
-      setIsFetchingCep(false);
-    }
-  }, [basicInfoForm]);
-
-  const handleCepChange = useCallback((value: string) => {
-    // Clear previous timer
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
-
-    // Set new timer to fetch after 500ms of no typing
-    debounceTimer.current = setTimeout(() => {
-      fetchAddressFromCep(value);
-    }, 500);
-  }, [fetchAddressFromCep]);
+      // Set new timer to fetch after 500ms of no typing
+      debounceTimer.current = setTimeout(() => {
+        fetchAddressFromCep(value);
+      }, 500);
+    },
+    [fetchAddressFromCep]
+  );
 
   // Cleanup on unmount
   useEffect(() => {
@@ -304,6 +381,14 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
           setCurrentStep(4);
         }
         break;
+      case 4:
+        isValid = await politicalForm.trigger();
+        if (isValid) {
+          const values = politicalForm.getValues();
+          setFormData({ ...formData, ...values });
+          setCurrentStep(5);
+        }
+        break;
     }
   };
 
@@ -312,10 +397,10 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
   };
 
   const handleSubmit = async () => {
-    const isValid = await politicalForm.trigger();
+    const isValid = await engagementForm.trigger();
     if (!isValid) return;
 
-    const values = politicalForm.getValues();
+    const values = engagementForm.getValues();
     const finalData = { ...formData, ...values };
 
     setIsSubmitting(true);
@@ -411,7 +496,10 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Gênero *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione" />
@@ -421,7 +509,9 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
                           <SelectItem value="MASCULINO">Masculino</SelectItem>
                           <SelectItem value="FEMININO">Feminino</SelectItem>
                           <SelectItem value="OUTRO">Outro</SelectItem>
-                          <SelectItem value="NAO_INFORMADO">Não Informado</SelectItem>
+                          <SelectItem value="NAO_INFORMADO">
+                            Não Informado
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -443,7 +533,11 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
                     <FormItem>
                       <FormLabel>Email *</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="joao@exemplo.com" {...field} />
+                        <Input
+                          type="email"
+                          placeholder="joao@exemplo.com"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -663,9 +757,7 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      Possui WhatsApp
-                    </FormLabel>
+                    <FormLabel>Possui WhatsApp</FormLabel>
                     <FormDescription>
                       Marque se o eleitor possui WhatsApp
                     </FormDescription>
@@ -680,7 +772,10 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Meio de Contato Preferido</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione" />
@@ -783,21 +878,40 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Escolaridade</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="FUNDAMENTAL_INCOMPLETO">Fundamental Incompleto</SelectItem>
-                        <SelectItem value="FUNDAMENTAL_COMPLETO">Fundamental Completo</SelectItem>
-                        <SelectItem value="MEDIO_INCOMPLETO">Médio Incompleto</SelectItem>
-                        <SelectItem value="MEDIO_COMPLETO">Médio Completo</SelectItem>
-                        <SelectItem value="SUPERIOR_INCOMPLETO">Superior Incompleto</SelectItem>
-                        <SelectItem value="SUPERIOR_COMPLETO">Superior Completo</SelectItem>
-                        <SelectItem value="POS_GRADUACAO">Pós-Graduação</SelectItem>
-                        <SelectItem value="NAO_INFORMADO">Não Informado</SelectItem>
+                        <SelectItem value="FUNDAMENTAL_INCOMPLETO">
+                          Fundamental Incompleto
+                        </SelectItem>
+                        <SelectItem value="FUNDAMENTAL_COMPLETO">
+                          Fundamental Completo
+                        </SelectItem>
+                        <SelectItem value="MEDIO_INCOMPLETO">
+                          Médio Incompleto
+                        </SelectItem>
+                        <SelectItem value="MEDIO_COMPLETO">
+                          Médio Completo
+                        </SelectItem>
+                        <SelectItem value="SUPERIOR_INCOMPLETO">
+                          Superior Incompleto
+                        </SelectItem>
+                        <SelectItem value="SUPERIOR_COMPLETO">
+                          Superior Completo
+                        </SelectItem>
+                        <SelectItem value="POS_GRADUACAO">
+                          Pós-Graduação
+                        </SelectItem>
+                        <SelectItem value="NAO_INFORMADO">
+                          Não Informado
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -827,19 +941,34 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Faixa de Renda</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="ATE_1_SALARIO">Até 1 salário mínimo</SelectItem>
-                        <SelectItem value="DE_1_A_2_SALARIOS">1 a 2 salários mínimos</SelectItem>
-                        <SelectItem value="DE_2_A_5_SALARIOS">2 a 5 salários mínimos</SelectItem>
-                        <SelectItem value="DE_5_A_10_SALARIOS">5 a 10 salários mínimos</SelectItem>
-                        <SelectItem value="ACIMA_10_SALARIOS">Acima de 10 salários mínimos</SelectItem>
-                        <SelectItem value="NAO_INFORMADO">Não Informado</SelectItem>
+                        <SelectItem value="ATE_1_SALARIO">
+                          Até 1 salário mínimo
+                        </SelectItem>
+                        <SelectItem value="DE_1_A_2_SALARIOS">
+                          1 a 2 salários mínimos
+                        </SelectItem>
+                        <SelectItem value="DE_2_A_5_SALARIOS">
+                          2 a 5 salários mínimos
+                        </SelectItem>
+                        <SelectItem value="DE_5_A_10_SALARIOS">
+                          5 a 10 salários mínimos
+                        </SelectItem>
+                        <SelectItem value="ACIMA_10_SALARIOS">
+                          Acima de 10 salários mínimos
+                        </SelectItem>
+                        <SelectItem value="NAO_INFORMADO">
+                          Não Informado
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -853,7 +982,10 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Estado Civil</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione" />
@@ -862,10 +994,16 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
                       <SelectContent>
                         <SelectItem value="SOLTEIRO">Solteiro(a)</SelectItem>
                         <SelectItem value="CASADO">Casado(a)</SelectItem>
-                        <SelectItem value="DIVORCIADO">Divorciado(a)</SelectItem>
+                        <SelectItem value="DIVORCIADO">
+                          Divorciado(a)
+                        </SelectItem>
                         <SelectItem value="VIUVO">Viúvo(a)</SelectItem>
-                        <SelectItem value="UNIAO_ESTAVEL">União Estável</SelectItem>
-                        <SelectItem value="NAO_INFORMADO">Não Informado</SelectItem>
+                        <SelectItem value="UNIAO_ESTAVEL">
+                          União Estável
+                        </SelectItem>
+                        <SelectItem value="NAO_INFORMADO">
+                          Não Informado
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -915,7 +1053,11 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
                       type="number"
                       placeholder="0"
                       {...field}
-                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value ? parseInt(e.target.value) : undefined
+                        )
+                      }
                     />
                   </FormControl>
                   <FormDescription>
@@ -985,18 +1127,25 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nível de Apoio</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o nível" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="MUITO_FAVORAVEL">Muito Favorável</SelectItem>
+                      <SelectItem value="MUITO_FAVORAVEL">
+                        Muito Favorável
+                      </SelectItem>
                       <SelectItem value="FAVORAVEL">Favorável</SelectItem>
                       <SelectItem value="NEUTRO">Neutro</SelectItem>
                       <SelectItem value="DESFAVORAVEL">Desfavorável</SelectItem>
-                      <SelectItem value="MUITO_DESFAVORAVEL">Muito Desfavorável</SelectItem>
+                      <SelectItem value="MUITO_DESFAVORAVEL">
+                        Muito Desfavorável
+                      </SelectItem>
                       <SelectItem value="NAO_DEFINIDO">Não Definido</SelectItem>
                     </SelectContent>
                   </Select>
@@ -1075,9 +1224,14 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
                                   checked={field.value?.includes(tag)}
                                   onCheckedChange={(checked) => {
                                     return checked
-                                      ? field.onChange([...(field.value || []), tag])
+                                      ? field.onChange([
+                                          ...(field.value || []),
+                                          tag,
+                                        ])
                                       : field.onChange(
-                                          field.value?.filter((value) => value !== tag)
+                                          field.value?.filter(
+                                            (value) => value !== tag
+                                          )
                                         );
                                   }}
                                 />
@@ -1117,6 +1271,602 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
                 </FormItem>
               )}
             />
+          </div>
+        </Form>
+      ),
+    },
+    {
+      title: "Engajamento & IA",
+      description: "Dados para análises e insights com IA",
+      content: (
+        <Form {...engagementForm}>
+          <div className="space-y-6">
+            {/* Demographics Extended */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium">Demografia Estendida</h3>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={engagementForm.control}
+                  name="ageGroup"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Faixa Etária</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="18-25">18-25 anos</SelectItem>
+                          <SelectItem value="26-35">26-35 anos</SelectItem>
+                          <SelectItem value="36-50">36-50 anos</SelectItem>
+                          <SelectItem value="51-65">51-65 anos</SelectItem>
+                          <SelectItem value="65+">65+ anos</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={engagementForm.control}
+                  name="householdType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tipo de Domicílio</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="SOLTEIRO">Solteiro</SelectItem>
+                          <SelectItem value="FAMILIA_COM_FILHOS">
+                            Família com Filhos
+                          </SelectItem>
+                          <SelectItem value="FAMILIA_SEM_FILHOS">
+                            Família sem Filhos
+                          </SelectItem>
+                          <SelectItem value="IDOSOS">Idosos</SelectItem>
+                          <SelectItem value="ESTUDANTES">Estudantes</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={engagementForm.control}
+                  name="employmentStatus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Situação Profissional</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="EMPREGADO">Empregado</SelectItem>
+                          <SelectItem value="DESEMPREGADO">
+                            Desempregado
+                          </SelectItem>
+                          <SelectItem value="APOSENTADO">Aposentado</SelectItem>
+                          <SelectItem value="ESTUDANTE">Estudante</SelectItem>
+                          <SelectItem value="AUTONOMO">Autônomo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={engagementForm.control}
+                  name="internetAccess"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Acesso à Internet</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Fibra">Fibra</SelectItem>
+                          <SelectItem value="4G">4G</SelectItem>
+                          <SelectItem value="3G">3G</SelectItem>
+                          <SelectItem value="Limitado">Limitado</SelectItem>
+                          <SelectItem value="Sem acesso">Sem acesso</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={engagementForm.control}
+                name="vehicleOwnership"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Possui Veículo</FormLabel>
+                      <FormDescription>
+                        Importante para acessibilidade e perfil socioeconômico
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Communication Preferences Extended */}
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="text-sm font-medium">
+                Preferências de Comunicação
+              </h3>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={engagementForm.control}
+                  name="communicationStyle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estilo de Comunicação</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="FORMAL">Formal</SelectItem>
+                          <SelectItem value="INFORMAL">Informal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={engagementForm.control}
+                  name="bestContactTime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Melhor Horário de Contato</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Manhã">Manhã</SelectItem>
+                          <SelectItem value="Tarde">Tarde</SelectItem>
+                          <SelectItem value="Noite">Noite</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Political Extended */}
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="text-sm font-medium">
+                Informações Políticas Estendidas
+              </h3>
+
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={engagementForm.control}
+                  name="persuadability"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Persuasibilidade</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="ALTO">Alta</SelectItem>
+                          <SelectItem value="MEDIO">Média</SelectItem>
+                          <SelectItem value="BAIXO">Baixa</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Probabilidade de mudar de voto
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={engagementForm.control}
+                  name="turnoutLikelihood"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Prob. de Comparecimento</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="ALTO">Alta</SelectItem>
+                          <SelectItem value="MEDIO">Média</SelectItem>
+                          <SelectItem value="BAIXO">Baixa</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>Probabilidade de votar</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={engagementForm.control}
+                  name="influencerScore"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Score de Influência</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0-100"
+                          min={0}
+                          max={100}
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        0-100: Capacidade de influenciar
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={engagementForm.control}
+                name="previousCandidateSupport"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Candidato Apoiado Anteriormente</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: Candidato X - 2020" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Social Network & Influence */}
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="text-sm font-medium">Rede Social & Influência</h3>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={engagementForm.control}
+                  name="communityRole"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Papel na Comunidade</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="LIDER">Líder</SelectItem>
+                          <SelectItem value="MEMBRO_ATIVO">
+                            Membro Ativo
+                          </SelectItem>
+                          <SelectItem value="ATIVISTA">Ativista</SelectItem>
+                          <SelectItem value="MEMBRO">Membro</SelectItem>
+                          <SelectItem value="NAO_PARTICIPANTE">
+                            Não Participante
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={engagementForm.control}
+                  name="volunteerStatus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status de Voluntário</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="ATIVO">Ativo</SelectItem>
+                          <SelectItem value="INATIVO">Inativo</SelectItem>
+                          <SelectItem value="INTERESSADO">
+                            Interessado
+                          </SelectItem>
+                          <SelectItem value="NAO_VOLUNTARIO">
+                            Não Voluntário
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={engagementForm.control}
+                  name="socialMediaFollowers"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Seguidores nas Redes</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription>Total estimado</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={engagementForm.control}
+                  name="referredVoters"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Eleitores Referidos</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription>Qtd. trazidos</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={engagementForm.control}
+                  name="networkSize"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tamanho da Rede</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription>Rede pessoal estimada</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={engagementForm.control}
+                name="influenceRadius"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Raio de Influência (km)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        placeholder="0.0"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value
+                              ? parseFloat(e.target.value)
+                              : undefined
+                          )
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Área geográfica de influência
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Engagement Tracking */}
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="text-sm font-medium">
+                Rastreamento de Engajamento
+              </h3>
+
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={engagementForm.control}
+                  name="contactFrequency"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Frequência de Contato</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription>Vezes contatado</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={engagementForm.control}
+                  name="responseRate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Taxa de Resposta (%)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0-100"
+                          min={0}
+                          max={100}
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription>% de respostas</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={engagementForm.control}
+                  name="engagementScore"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Score de Engajamento</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0-100"
+                          min={0}
+                          max={100}
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription>Score calculado (0-100)</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
           </div>
         </Form>
       ),

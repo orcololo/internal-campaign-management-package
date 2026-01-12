@@ -37,9 +37,8 @@ import {
 import { useMapsStore } from "@/store/maps-store";
 
 const campaignNavItems = [
-  { id: "dashboard", title: "Dashboard", icon: Home, href: "/dashboard" },
+  { id: "dashboard", title: "Dashboard", icon: Home, href: "/" },
   { id: "voters", title: "Eleitores", icon: Users, href: "/voters" },
-  { id: "maps", title: "Mapa", icon: MapPin, href: "/maps" },
   { id: "analytics", title: "Análises", icon: BarChart3, href: "/analytics" },
   {
     id: "calendar",
@@ -51,19 +50,16 @@ const campaignNavItems = [
 ];
 
 const mapsNavItems = [
-  { id: "all", title: "All Locations", icon: MapPin, href: "/" },
-  { id: "favorites", title: "Favorites", icon: Heart, href: "/favorites" },
-  { id: "recents", title: "Recents", icon: Clock, href: "/recents" },
+  { id: "maps", title: "Mapa", icon: MapPin, href: "/maps" },
+  { id: "favorites", title: "Favoritos", icon: Heart, href: "/favorites" },
+  { id: "recents", title: "Recentes", icon: Clock, href: "/recents" },
 ];
 
 export function LocationsSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
-  const {
-    locations,
-    getRecentLocations,
-  } = useMapsStore();
+  const { locations, getRecentLocations } = useMapsStore();
 
   const favoriteCount = locations.filter((l) => l.isFavorite).length;
   const recentCount = getRecentLocations().length;
@@ -78,7 +74,7 @@ export function LocationsSidebar({
                 <MapPin className="size-4" />
               </div>
               <div className="flex items-center gap-1 group-data-[collapsible=icon]:hidden">
-                <span className="text-sm font-medium">Square UI - Maps</span>
+                <span className="text-sm font-medium">Ele.ia dashboard</span>
                 <ChevronsUpDown className="size-3 text-muted-foreground" />
               </div>
             </button>
@@ -86,12 +82,12 @@ export function LocationsSidebar({
           <DropdownMenuContent align="start" className="w-56">
             <DropdownMenuItem>
               <Settings className="size-4" />
-              <span>Settings</span>
+              <span>Configurações</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive focus:text-destructive">
               <LogOut className="size-4" />
-              <span>Log out</span>
+              <span>Sair</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -148,7 +144,6 @@ export function LocationsSidebar({
                 let badge: number | undefined;
                 if (item.id === "favorites") badge = favoriteCount;
                 if (item.id === "recents") badge = recentCount;
-                if (item.id === "all") badge = locations.length;
 
                 return (
                   <SidebarMenuItem key={item.id}>

@@ -1,8 +1,20 @@
 import { z } from "zod";
-import { nameSchema, optionalEmailSchema, optionalPhoneSchema, phoneSchema, stateSchema, cpfSchema } from "./common";
+import {
+  nameSchema,
+  optionalEmailSchema,
+  optionalPhoneSchema,
+  phoneSchema,
+  stateSchema,
+  cpfSchema,
+} from "./common";
 
 // Enums matching the database schema
-export const genderEnum = z.enum(["MASCULINO", "FEMININO", "OUTRO", "NAO_INFORMADO"]);
+export const genderEnum = z.enum([
+  "MASCULINO",
+  "FEMININO",
+  "OUTRO",
+  "NAO_INFORMADO",
+]);
 export const educationLevelEnum = z.enum([
   "FUNDAMENTAL_INCOMPLETO",
   "FUNDAMENTAL_COMPLETO",
@@ -38,6 +50,62 @@ export const supportLevelEnum = z.enum([
   "NAO_DEFINIDO",
 ]);
 export const preferredContactEnum = z.enum(["TELEFONE", "WHATSAPP", "EMAIL"]);
+export const engagementTrendEnum = z.enum([
+  "CRESCENTE",
+  "ESTAVEL",
+  "DECRESCENTE",
+  "NAO_DEFINIDO",
+]);
+export const householdTypeEnum = z.enum([
+  "SOLTEIRO",
+  "FAMILIA_COM_FILHOS",
+  "FAMILIA_SEM_FILHOS",
+  "IDOSOS",
+  "ESTUDANTES",
+  "NAO_INFORMADO",
+]);
+export const employmentStatusEnum = z.enum([
+  "EMPREGADO",
+  "DESEMPREGADO",
+  "APOSENTADO",
+  "ESTUDANTE",
+  "AUTONOMO",
+  "NAO_INFORMADO",
+]);
+export const turnoutLikelihoodEnum = z.enum([
+  "ALTO",
+  "MEDIO",
+  "BAIXO",
+  "NAO_DEFINIDO",
+]);
+export const communicationStyleEnum = z.enum([
+  "FORMAL",
+  "INFORMAL",
+  "NAO_DEFINIDO",
+]);
+export const communityRoleEnum = z.enum([
+  "LIDER",
+  "MEMBRO_ATIVO",
+  "ATIVISTA",
+  "MEMBRO",
+  "NAO_PARTICIPANTE",
+  "NAO_DEFINIDO",
+]);
+export const volunteerStatusEnum = z.enum([
+  "ATIVO",
+  "INATIVO",
+  "INTERESSADO",
+  "NAO_VOLUNTARIO",
+]);
+export const persuadabilityEnum = z.enum(["ALTO", "MEDIO", "BAIXO"]);
+
+// Helper to convert empty strings to undefined for optional enums
+const optionalEnum = <T extends [string, ...string[]]>(schema: z.ZodEnum<T>) =>
+  z.preprocess(
+    (val) =>
+      val === "" || val === undefined || val === null ? undefined : val,
+    schema.optional()
+  );
 
 // Full voter schema for create/update
 export const voterSchema = z.object({
@@ -163,6 +231,42 @@ export const voterPoliticalSchema = z.object({
   notes: z.string().optional(),
 });
 
+// Step 7: Engagement & AI Data
+export const voterEngagementSchema = z.object({
+  // Demographics Extended
+  ageGroup: z.string().optional(),
+  householdType: householdTypeEnum.optional(),
+  employmentStatus: employmentStatusEnum.optional(),
+  vehicleOwnership: z.boolean().optional(),
+  internetAccess: z.string().optional(),
+
+  // Communication Preferences Extended
+  communicationStyle: communicationStyleEnum.optional(),
+  contentPreference: z.array(z.string()).optional(),
+  bestContactTime: z.string().optional(),
+  bestContactDay: z.array(z.string()).optional(),
+
+  // Political Extended
+  topIssues: z.array(z.string()).optional(),
+  previousCandidateSupport: z.string().optional(),
+  influencerScore: z.number().min(0).max(100).optional(),
+  persuadability: persuadabilityEnum.optional(),
+  turnoutLikelihood: turnoutLikelihoodEnum.optional(),
+
+  // Social Network & Influence
+  socialMediaFollowers: z.number().optional(),
+  communityRole: communityRoleEnum.optional(),
+  referredVoters: z.number().optional(),
+  networkSize: z.number().optional(),
+  influenceRadius: z.number().optional(),
+
+  // Engagement Tracking
+  contactFrequency: z.number().optional(),
+  responseRate: z.number().min(0).max(100).optional(),
+  volunteerStatus: volunteerStatusEnum.optional(),
+  engagementScore: z.number().min(0).max(100).optional(),
+});
+
 export type VoterFormData = z.infer<typeof voterSchema>;
 export type VoterBasicInfo = z.infer<typeof voterBasicInfoSchema>;
 export type VoterContact = z.infer<typeof voterContactSchema>;
@@ -170,3 +274,4 @@ export type VoterAddress = z.infer<typeof voterAddressSchema>;
 export type VoterElectoral = z.infer<typeof voterElectoralSchema>;
 export type VoterSocial = z.infer<typeof voterSocialSchema>;
 export type VoterPolitical = z.infer<typeof voterPoliticalSchema>;
+export type VoterEngagement = z.infer<typeof voterEngagementSchema>;

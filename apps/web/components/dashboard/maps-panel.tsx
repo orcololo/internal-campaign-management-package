@@ -47,28 +47,28 @@ interface MapsPanelProps {
 
 const panelConfig = {
   all: {
-    title: "All Locations",
+    title: "Todas as Localizações",
     emptyIcon: MapPin,
-    emptyTitle: "No locations found",
+    emptyTitle: "Nenhuma localização encontrada",
     emptyDescription: null,
     getSubtitle: (count: number) =>
-      `${count} location${count !== 1 ? "s" : ""}`,
+      `${count} localização${count !== 1 ? "ões" : ""}`,
   },
   favorites: {
-    title: "Favorites",
+    title: "Favoritos",
     emptyIcon: Heart,
-    emptyTitle: "No favorites yet",
+    emptyTitle: "Nenhum favorito ainda",
     emptyDescription:
-      "Click the heart icon on a location to add it to favorites",
+      "Clique no ícone de coração em uma localização para adicioná-la aos favoritos",
     getSubtitle: (count: number) =>
-      `${count} favorite${count !== 1 ? "s" : ""}`,
+      `${count} favorito${count !== 1 ? "s" : ""}`,
   },
   recents: {
-    title: "Recent Locations",
+    title: "Localizações Recentes",
     emptyIcon: Clock,
-    emptyTitle: "No recent locations",
+    emptyTitle: "Nenhuma localização recente",
     emptyDescription: null,
-    getSubtitle: (count: number) => `Last ${count} added locations`,
+    getSubtitle: (count: number) => `Últimas ${count} localizações adicionadas`,
   },
 };
 
@@ -344,7 +344,7 @@ export function MapsPanel({ mode = "all" }: MapsPanelProps) {
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
-              placeholder="Search locations..."
+              placeholder="Buscar localizações..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={cn("pl-8 h-9", searchQuery && "pr-8")}
@@ -372,7 +372,7 @@ export function MapsPanel({ mode = "all" }: MapsPanelProps) {
                 className="gap-2"
               >
                 <Navigation className="size-4" />
-                <span className="flex-1">Nearest</span>
+                <span className="flex-1">Mais próximas</span>
                 {sortBy === "nearest" && <Check className="size-4" />}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -380,7 +380,7 @@ export function MapsPanel({ mode = "all" }: MapsPanelProps) {
                 className="gap-2"
               >
                 <Star className="size-4" />
-                <span className="flex-1">Best rated</span>
+                <span className="flex-1">Melhor avaliadas</span>
                 {sortBy === "rating" && <Check className="size-4" />}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -388,7 +388,7 @@ export function MapsPanel({ mode = "all" }: MapsPanelProps) {
                 className="gap-2"
               >
                 <TrendingUp className="size-4" />
-                <span className="flex-1">Most visited</span>
+                <span className="flex-1">Mais visitadas</span>
                 {sortBy === "visits" && <Check className="size-4" />}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -396,7 +396,7 @@ export function MapsPanel({ mode = "all" }: MapsPanelProps) {
                 className="gap-2"
               >
                 <CalendarArrowDown className="size-4" />
-                <span className="flex-1">Newest first</span>
+                <span className="flex-1">Mais recentes</span>
                 {sortBy === "date-newest" && <Check className="size-4" />}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -404,7 +404,7 @@ export function MapsPanel({ mode = "all" }: MapsPanelProps) {
                 className="gap-2"
               >
                 <CalendarArrowUp className="size-4" />
-                <span className="flex-1">Oldest first</span>
+                <span className="flex-1">Mais antigas</span>
                 {sortBy === "date-oldest" && <Check className="size-4" />}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -412,7 +412,7 @@ export function MapsPanel({ mode = "all" }: MapsPanelProps) {
                 className="gap-2"
               >
                 <ArrowDownAZ className="size-4" />
-                <span className="flex-1">A to Z</span>
+                <span className="flex-1">A a Z</span>
                 {sortBy === "alpha-az" && <Check className="size-4" />}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -420,7 +420,7 @@ export function MapsPanel({ mode = "all" }: MapsPanelProps) {
                 className="gap-2"
               >
                 <ArrowUpAZ className="size-4" />
-                <span className="flex-1">Z to A</span>
+                <span className="flex-1">Z a A</span>
                 {sortBy === "alpha-za" && <Check className="size-4" />}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -522,7 +522,7 @@ export function MapsPanel({ mode = "all" }: MapsPanelProps) {
                         <div className="flex items-center gap-1.5">
                           <Eye className="size-4 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">
-                            {location.visitCount} visits
+                            {location.visitCount} visitas
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5">
@@ -563,7 +563,9 @@ export function MapsPanel({ mode = "all" }: MapsPanelProps) {
                               location.isFavorite && "fill-red-500 text-red-500"
                             )}
                           />
-                          {location.isFavorite ? "Unfavorite" : "Favorite"}
+                          {location.isFavorite
+                            ? "Remover favorito"
+                            : "Favoritar"}
                         </Button>
                         <Button
                           size="sm"
@@ -582,10 +584,10 @@ export function MapsPanel({ mode = "all" }: MapsPanelProps) {
                             <Route className="size-4 mr-2" />
                           )}
                           {isRequestingLocation
-                            ? "Getting location..."
+                            ? "Obtendo localização..."
                             : isRouteActive
-                            ? "Clear route"
-                            : "Get directions"}
+                            ? "Limpar rota"
+                            : "Obter direções"}
                         </Button>
                       </div>
                     </div>
@@ -626,7 +628,7 @@ export function MapsPanel({ mode = "all" }: MapsPanelProps) {
                             variant="secondary"
                             className="text-[10px] h-5 bg-green-500/20 text-green-600"
                           >
-                            Route active
+                            Rota ativa
                           </Badge>
                         )}
                       </div>
@@ -663,7 +665,8 @@ export function MapsPanel({ mode = "all" }: MapsPanelProps) {
                       <div className="flex items-center gap-1">
                         <Eye className="size-3 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">
-                          {location.visitCount} {mode !== "recents" && "visits"}
+                          {location.visitCount}{" "}
+                          {mode !== "recents" && "visitas"}
                         </span>
                       </div>
                     </div>

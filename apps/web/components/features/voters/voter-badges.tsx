@@ -6,13 +6,16 @@ interface SupportLevelBadgeProps {
 }
 
 export function SupportLevelBadge({ level }: SupportLevelBadgeProps) {
-  const config: Record<SupportLevel, {
-    icon: typeof TrendingUp;
-    label: string;
-    bgClass: string;
-    textClass: string;
-    borderClass: string;
-  }> = {
+  const config: Record<
+    SupportLevel,
+    {
+      icon: typeof TrendingUp;
+      label: string;
+      bgClass: string;
+      textClass: string;
+      borderClass: string;
+    }
+  > = {
     MUITO_FAVORAVEL: {
       icon: TrendingUp,
       label: "Muito Favorável",
@@ -70,7 +73,7 @@ export function SupportLevelBadge({ level }: SupportLevelBadgeProps) {
 }
 
 interface WhatsAppBadgeProps {
-  hasWhatsapp: boolean;
+  hasWhatsapp?: boolean;
 }
 
 export function WhatsAppBadge({ hasWhatsapp }: WhatsAppBadgeProps) {

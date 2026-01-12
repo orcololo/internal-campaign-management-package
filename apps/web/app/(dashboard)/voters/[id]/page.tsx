@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { VoterDetail } from "@/components/features/voters/voter-detail";
-import { votersApi } from "@/lib/api/endpoints/voters";
-import { DashboardHeader } from "@/components/dashboard/header";
+import { voters } from "@/mock-data/voters";
 
 interface VoterPageProps {
   params: Promise<{
@@ -10,13 +9,9 @@ interface VoterPageProps {
 }
 
 async function getVoter(id: string) {
-  try {
-    const response = await votersApi.get(id);
-    return response.data;
-  } catch (error) {
-    console.error("Failed to fetch voter:", error);
-    return null;
-  }
+  // Find voter from mock data
+  const voter = voters.find((v) => v.id === id);
+  return voter || null;
 }
 
 export default async function VoterPage({ params }: VoterPageProps) {
@@ -28,11 +23,8 @@ export default async function VoterPage({ params }: VoterPageProps) {
   }
 
   return (
-    <>
-      <DashboardHeader />
-      <div className="p-4 md:p-6">
-        <VoterDetail voter={voter} />
-      </div>
-    </>
+    <div className="p-4 md:p-6">
+      <VoterDetail voter={voter} />
+    </div>
   );
 }

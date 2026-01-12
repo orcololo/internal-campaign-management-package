@@ -30,6 +30,39 @@ export type SupportLevel =
   | "MUITO_DESFAVORAVEL"
   | "NAO_DEFINIDO";
 export type PreferredContact = "TELEFONE" | "WHATSAPP" | "EMAIL";
+export type EngagementTrend =
+  | "CRESCENTE"
+  | "ESTAVEL"
+  | "DECRESCENTE"
+  | "NAO_DEFINIDO";
+export type HouseholdType =
+  | "SOLTEIRO"
+  | "FAMILIA_COM_FILHOS"
+  | "FAMILIA_SEM_FILHOS"
+  | "IDOSOS"
+  | "ESTUDANTES"
+  | "NAO_INFORMADO";
+export type EmploymentStatus =
+  | "EMPREGADO"
+  | "DESEMPREGADO"
+  | "APOSENTADO"
+  | "ESTUDANTE"
+  | "AUTONOMO"
+  | "NAO_INFORMADO";
+export type TurnoutLikelihood = "ALTO" | "MEDIO" | "BAIXO" | "NAO_DEFINIDO";
+export type CommunicationStyle = "FORMAL" | "INFORMAL" | "NAO_DEFINIDO";
+export type CommunityRole =
+  | "LIDER"
+  | "MEMBRO_ATIVO"
+  | "ATIVISTA"
+  | "MEMBRO"
+  | "NAO_PARTICIPANTE"
+  | "NAO_DEFINIDO";
+export type VolunteerStatus =
+  | "ATIVO"
+  | "INATIVO"
+  | "INTERESSADO"
+  | "NAO_VOLUNTARIO";
 
 export interface Voter {
   id: string;
@@ -85,8 +118,47 @@ export interface Voter {
   supportLevel?: SupportLevel;
   politicalParty?: string;
   votingHistory?: string;
+  topIssues?: string[]; // Array of issues they care about
+  issuePositions?: Record<string, string>; // Their stance on issues
+  previousCandidateSupport?: string;
+  influencerScore?: number; // 0-100
+  persuadability?: "ALTO" | "MEDIO" | "BAIXO";
+  turnoutLikelihood?: TurnoutLikelihood;
   tags: string[];
   notes?: string;
+
+  // Engagement & Behavioral
+  registrationDate?: string;
+  lastEngagementDate?: string;
+  engagementTrend?: EngagementTrend;
+  seasonalActivity?: Record<string, number>; // month/season patterns
+  lastContactDate?: string;
+  contactFrequency?: number; // times contacted
+  responseRate?: number; // percentage 0-100
+  eventAttendance?: string[]; // Array of event IDs or names
+  volunteerStatus?: VolunteerStatus;
+  donationHistory?: Array<{ date: string; amount: number }>;
+  engagementScore?: number; // 0-100
+
+  // Demographics Extended
+  ageGroup?: string; // "18-25", "26-35", "36-50", "51-65", "65+"
+  householdType?: HouseholdType;
+  employmentStatus?: EmploymentStatus;
+  vehicleOwnership?: boolean;
+  internetAccess?: string; // "Fibra", "4G", "3G", "Limitado", "Sem acesso"
+
+  // Communication Preferences Extended
+  communicationStyle?: CommunicationStyle;
+  contentPreference?: string[]; // ["video", "texto", "imagens"]
+  bestContactTime?: string; // "Manhã", "Tarde", "Noite"
+  bestContactDay?: string[]; // Days of week
+
+  // Social Network & Influence
+  socialMediaFollowers?: number;
+  communityRole?: CommunityRole;
+  referredVoters?: number;
+  networkSize?: number;
+  influenceRadius?: number; // km
 
   // Audit fields
   createdAt: string;
@@ -103,7 +175,12 @@ export interface VoterFilters {
   tags?: string[];
 }
 
-export type VoterSortField = "name" | "email" | "city" | "supportLevel" | "createdAt";
+export type VoterSortField =
+  | "name"
+  | "email"
+  | "city"
+  | "supportLevel"
+  | "createdAt";
 export type SortOrder = "asc" | "desc";
 
 export interface VoterSortOptions {

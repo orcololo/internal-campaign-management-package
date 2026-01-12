@@ -12,15 +12,21 @@ const MAP_STYLES = {
 };
 
 const SUPPORT_LEVEL_COLORS: Record<SupportLevel, string> = {
-  high: "#22c55e", // green
-  medium: "#f59e0b", // amber
-  low: "#ef4444", // red
+  MUITO_FAVORAVEL: "#22c55e",
+  FAVORAVEL: "#84cc16",
+  NEUTRO: "#f59e0b",
+  DESFAVORAVEL: "#f97316",
+  MUITO_DESFAVORAVEL: "#ef4444",
+  NAO_DEFINIDO: "#6b7280",
 };
 
 const SUPPORT_LEVEL_LABELS: Record<SupportLevel, string> = {
-  high: "Alto Apoio",
-  medium: "Médio Apoio",
-  low: "Baixo Apoio",
+  MUITO_FAVORAVEL: "Muito Favorável",
+  FAVORAVEL: "Favorável",
+  NEUTRO: "Neutro",
+  DESFAVORAVEL: "Desfavorável",
+  MUITO_DESFAVORAVEL: "Muito Desfavorável",
+  NAO_DEFINIDO: "Não Definido",
 };
 
 interface VoterMapViewProps {
@@ -35,8 +41,8 @@ export function VoterMapView({
   voters,
   selectedVoterId,
   onVoterSelect,
-  center = { lat: -15.7939, lng: -47.8828 }, // Brasília as default
-  zoom = 4,
+  center = { lat: 0.0349, lng: -51.0694 }, // Macapá, Amapá
+  zoom = 12,
 }: VoterMapViewProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const mapRef = React.useRef<maplibregl.Map | null>(null);
@@ -178,7 +184,11 @@ export function VoterMapView({
               }
             </div>
 
-            ${supportLevelBadge ? `<div class="mb-2">${supportLevelBadge}</div>` : ""}
+            ${
+              supportLevelBadge
+                ? `<div class="mb-2">${supportLevelBadge}</div>`
+                : ""
+            }
 
             ${
               voter.phone || voter.email
@@ -190,7 +200,11 @@ export function VoterMapView({
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                 </svg>
                 <span>${voter.phone}</span>
-                ${voter.hasWhatsapp ? '<span class="text-green-600">✓ WhatsApp</span>' : ""}
+                ${
+                  voter.hasWhatsapp
+                    ? '<span class="text-green-600">✓ WhatsApp</span>'
+                    : ""
+                }
               </div>`
                   : ""
               }
@@ -210,14 +224,18 @@ export function VoterMapView({
             }
 
             ${
-              voter.zone && voter.section
+              voter.electoralZone && voter.electoralSection
                 ? `<div class="text-sm text-muted-foreground mb-2">
-              Zona ${voter.zone}, Seção ${voter.section}
+              Zona ${voter.electoralZone}, Seção ${voter.electoralSection}
             </div>`
                 : ""
             }
 
-            ${tagsHtml ? `<div class="flex flex-wrap gap-1 mt-2">${tagsHtml}</div>` : ""}
+            ${
+              tagsHtml
+                ? `<div class="flex flex-wrap gap-1 mt-2">${tagsHtml}</div>`
+                : ""
+            }
           </div>
         `;
 

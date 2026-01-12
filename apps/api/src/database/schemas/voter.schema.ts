@@ -1,4 +1,15 @@
-import { pgTable, uuid, varchar, timestamp, text, numeric, date, integer, pgEnum } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  timestamp,
+  text,
+  numeric,
+  date,
+  integer,
+  pgEnum,
+  real,
+} from 'drizzle-orm/pg-core';
 
 /**
  * Enums for voter segmentation
@@ -37,6 +48,53 @@ export const supportLevelEnum = pgEnum('support_level', [
   'DESFAVORAVEL',
   'MUITO_DESFAVORAVEL',
   'NAO_DEFINIDO',
+]);
+export const engagementTrendEnum = pgEnum('engagement_trend', [
+  'CRESCENTE',
+  'ESTAVEL',
+  'DECRESCENTE',
+  'NAO_DEFINIDO',
+]);
+export const householdTypeEnum = pgEnum('household_type', [
+  'SOLTEIRO',
+  'FAMILIA_COM_FILHOS',
+  'FAMILIA_SEM_FILHOS',
+  'IDOSOS',
+  'ESTUDANTES',
+  'NAO_INFORMADO',
+]);
+export const employmentStatusEnum = pgEnum('employment_status', [
+  'EMPREGADO',
+  'DESEMPREGADO',
+  'APOSENTADO',
+  'ESTUDANTE',
+  'AUTONOMO',
+  'NAO_INFORMADO',
+]);
+export const turnoutLikelihoodEnum = pgEnum('turnout_likelihood', [
+  'ALTO',
+  'MEDIO',
+  'BAIXO',
+  'NAO_DEFINIDO',
+]);
+export const communicationStyleEnum = pgEnum('communication_style', [
+  'FORMAL',
+  'INFORMAL',
+  'NAO_DEFINIDO',
+]);
+export const communityRoleEnum = pgEnum('community_role', [
+  'LIDER',
+  'MEMBRO_ATIVO',
+  'ATIVISTA',
+  'MEMBRO',
+  'NAO_PARTICIPANTE',
+  'NAO_DEFINIDO',
+]);
+export const volunteerStatusEnum = pgEnum('volunteer_status', [
+  'ATIVO',
+  'INATIVO',
+  'INTERESSADO',
+  'NAO_VOLUNTARIO',
 ]);
 
 /**
@@ -91,6 +149,45 @@ export const voters = pgTable('voters', {
   supportLevel: supportLevelEnum('support_level').default('NAO_DEFINIDO'),
   politicalParty: varchar('political_party', { length: 100 }),
   votingHistory: text('voting_history'),
+  topIssues: text('top_issues'), // JSON array
+  issuePositions: text('issue_positions'), // JSON object
+  previousCandidateSupport: text('previous_candidate_support'),
+  influencerScore: integer('influencer_score'), // 0-100
+  persuadability: varchar('persuadability', { length: 20 }), // ALTO/MEDIO/BAIXO
+  turnoutLikelihood: turnoutLikelihoodEnum('turnout_likelihood').default('NAO_DEFINIDO'),
+
+  // Engagement & Behavioral
+  registrationDate: timestamp('registration_date'),
+  lastEngagementDate: timestamp('last_engagement_date'),
+  engagementTrend: engagementTrendEnum('engagement_trend').default('NAO_DEFINIDO'),
+  seasonalActivity: text('seasonal_activity'), // JSON
+  lastContactDate: timestamp('last_contact_date'),
+  contactFrequency: integer('contact_frequency'), // times contacted
+  responseRate: integer('response_rate'), // percentage 0-100
+  eventAttendance: text('event_attendance'), // JSON array
+  volunteerStatus: volunteerStatusEnum('volunteer_status').default('NAO_VOLUNTARIO'),
+  donationHistory: text('donation_history'), // JSON array
+  engagementScore: integer('engagement_score'), // 0-100
+
+  // Demographics Extended
+  ageGroup: varchar('age_group', { length: 20 }), // 18-25, 26-35, 36-50, 51-65, 65+
+  householdType: householdTypeEnum('household_type').default('NAO_INFORMADO'),
+  employmentStatus: employmentStatusEnum('employment_status').default('NAO_INFORMADO'),
+  vehicleOwnership: varchar('vehicle_ownership', { length: 3 }).default('NAO'), // SIM/NAO
+  internetAccess: varchar('internet_access', { length: 100 }), // Fibra/4G/3G/Limitado/Sem acesso
+
+  // Communication Preferences Extended
+  communicationStyle: communicationStyleEnum('communication_style').default('NAO_DEFINIDO'),
+  contentPreference: text('content_preference'), // JSON array: video, texto, imagens
+  bestContactTime: varchar('best_contact_time', { length: 50 }), // Manhã/Tarde/Noite
+  bestContactDay: text('best_contact_day'), // JSON array: days of week
+
+  // Social Network & Influence
+  socialMediaFollowers: integer('social_media_followers'),
+  communityRole: communityRoleEnum('community_role').default('NAO_DEFINIDO'),
+  referredVoters: integer('referred_voters').default(0),
+  networkSize: integer('network_size'), // estimated personal network
+  influenceRadius: real('influence_radius'), // km
 
   // Additional Information
   familyMembers: integer('family_members'),
@@ -107,8 +204,15 @@ export const voters = pgTable('voters', {
 
 export type Voter = typeof voters.$inferSelect;
 export type NewVoter = typeof voters.$inferInsert;
-export type Gender = typeof genderEnum.enumValues[number];
-export type EducationLevel = typeof educationLevelEnum.enumValues[number];
-export type IncomeLevel = typeof incomeLevelEnum.enumValues[number];
-export type MaritalStatus = typeof maritalStatusEnum.enumValues[number];
-export type SupportLevel = typeof supportLevelEnum.enumValues[number];
+export type Gender = (typeof genderEnum.enumValues)[number];
+export type EducationLevel = (typeof educationLevelEnum.enumValues)[number];
+export type IncomeLevel = (typeof incomeLevelEnum.enumValues)[number];
+export type MaritalStatus = (typeof maritalStatusEnum.enumValues)[number];
+export type SupportLevel = (typeof supportLevelEnum.enumValues)[number];
+export type EngagementTrend = (typeof engagementTrendEnum.enumValues)[number];
+export type HouseholdType = (typeof householdTypeEnum.enumValues)[number];
+export type EmploymentStatus = (typeof employmentStatusEnum.enumValues)[number];
+export type TurnoutLikelihood = (typeof turnoutLikelihoodEnum.enumValues)[number];
+export type CommunicationStyle = (typeof communicationStyleEnum.enumValues)[number];
+export type CommunityRole = (typeof communityRoleEnum.enumValues)[number];
+export type VolunteerStatus = (typeof volunteerStatusEnum.enumValues)[number];
