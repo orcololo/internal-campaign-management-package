@@ -12,7 +12,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { Response as ExpressResponse } from 'express';
+import { Response } from 'express';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue, Job } from 'bull';
 import { ReportsService } from './reports.service';
@@ -217,7 +217,7 @@ export class ReportsController {
     @Param('id') id: string,
     @CurrentUser('id') userId: string,
     @Body() dto: ExportReportDto,
-    @Res() res: ExpressResponse,
+    @Res() res: Response,
   ) {
     // Get report summary to check size
     const summary = await this.reportsService.getReportSummary(id, userId);
@@ -312,7 +312,7 @@ export class ReportsController {
     status: 404,
     description: 'Job not found',
   })
-  async getExportStatus(@Param('jobId') jobId: string, @Res() res: ExpressResponse) {
+  async getExportStatus(@Param('jobId') jobId: string, @Res() res: Response) {
     const job = await this.exportQueue.getJob(jobId);
 
     if (!job) {
@@ -364,7 +364,7 @@ export class ReportsController {
     status: 404,
     description: 'Job not found or not completed',
   })
-  async downloadExport(@Param('jobId') jobId: string, @Res() res: ExpressResponse) {
+  async downloadExport(@Param('jobId') jobId: string, @Res() res: Response) {
     const job = await this.exportQueue.getJob(jobId);
 
     if (!job) {
