@@ -1,7 +1,12 @@
 import { Page } from "puppeteer";
 import { BrowserManager } from "@/utils/browser";
 import { testConfig } from "@/config/test.config";
-import { takeScreenshot, waitForSelector, delay, getValidationErrors } from "@/utils/helpers";
+import {
+  takeScreenshot,
+  waitForSelector,
+  delay,
+  getValidationErrors,
+} from "@/utils/helpers";
 
 describe("Voter Registration - E2E", () => {
   let page: Page;
@@ -9,12 +14,12 @@ describe("Voter Registration - E2E", () => {
 
   beforeAll(async () => {
     page = await BrowserManager.newPage();
-    
+
     // Check if services are available
     try {
-      const response = await page.goto(testConfig.baseUrl, { 
-        timeout: 3000, 
-        waitUntil: "domcontentloaded" 
+      const response = await page.goto(testConfig.baseUrl, {
+        timeout: 3000,
+        waitUntil: "domcontentloaded",
       });
       servicesAvailable = response?.ok() ?? false;
     } catch (error) {
@@ -60,17 +65,23 @@ describe("Voter Registration - E2E", () => {
     await page.type('input[name="email"]', `test${timestamp}@example.com`);
     await page.type('input[name="phone"]', "(11) 99999-9999");
     await page.type('input[name="zipCode"]', "01310-100");
-    
+
     await delay(2000); // Wait for CEP auto-fill
-    
+
     await page.type('input[name="addressNumber"]', "100");
     await takeScreenshot(page, "02-form-filled");
 
     // Try to submit
     const buttons = await page.$$("button");
     for (const button of buttons) {
-      const text = await button.evaluate(el => el.textContent?.toLowerCase() || "");
-      if (text.includes("salvar") || text.includes("criar") || text.includes("submit")) {
+      const text = await button.evaluate(
+        (el) => el.textContent?.toLowerCase() || ""
+      );
+      if (
+        text.includes("salvar") ||
+        text.includes("criar") ||
+        text.includes("submit")
+      ) {
         await button.click();
         break;
       }
@@ -81,8 +92,9 @@ describe("Voter Registration - E2E", () => {
 
     // Check for success (URL change or toast)
     const url = page.url();
-    const hasRedirected = url.includes("/voters") && !url.includes("/voters/new");
-    
+    const hasRedirected =
+      url.includes("/voters") && !url.includes("/voters/new");
+
     expect(hasRedirected || servicesAvailable).toBeTruthy();
   }, 60000);
 
@@ -105,8 +117,14 @@ describe("Voter Registration - E2E", () => {
     // Try to submit empty form
     const buttons = await page.$$("button");
     for (const button of buttons) {
-      const text = await button.evaluate(el => el.textContent?.toLowerCase() || "");
-      if (text.includes("próximo") || text.includes("continuar") || text.includes("next")) {
+      const text = await button.evaluate(
+        (el) => el.textContent?.toLowerCase() || ""
+      );
+      if (
+        text.includes("próximo") ||
+        text.includes("continuar") ||
+        text.includes("next")
+      ) {
         await button.click();
         break;
       }
@@ -114,9 +132,9 @@ describe("Voter Registration - E2E", () => {
 
     await delay(1000);
     const errors = await getValidationErrors(page);
-    
+
     await takeScreenshot(page, "validation-errors");
-    
+
     // If validation is working, should have errors
     console.log(`Found ${errors.length} validation error(s)`);
     expect(errors.length).toBeGreaterThanOrEqual(0); // Just check it doesn't crash

@@ -9,12 +9,12 @@ describe("Example E2E Tests", () => {
 
   beforeAll(async () => {
     page = await BrowserManager.newPage();
-    
+
     // Check if frontend is available
     try {
-      const response = await page.goto(testConfig.baseUrl, { 
-        timeout: 3000, 
-        waitUntil: "domcontentloaded" 
+      const response = await page.goto(testConfig.baseUrl, {
+        timeout: 3000,
+        waitUntil: "domcontentloaded",
       });
       servicesAvailable = response?.ok() ?? false;
     } catch (error) {

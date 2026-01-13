@@ -9,11 +9,9 @@ let app: any;
 
 async function createApp() {
   if (!app) {
-    const nestApp = await NestFactory.create(
-      AppModule,
-      new ExpressAdapter(server),
-      { logger: ['error', 'warn', 'log'] }
-    );
+    const nestApp = await NestFactory.create(AppModule, new ExpressAdapter(server), {
+      logger: ['error', 'warn', 'log'],
+    });
 
     // Enable CORS
     nestApp.enableCors({

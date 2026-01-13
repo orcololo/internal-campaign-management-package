@@ -4,11 +4,14 @@ module.exports = {
   roots: ["<rootDir>/src"],
   testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
   transform: {
-    "^.+\\.ts$": ["ts-jest", {
-      tsconfig: {
-        esModuleInterop: true,
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        tsconfig: {
+          esModuleInterop: true,
+        },
       },
-    }],
+    ],
   },
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",

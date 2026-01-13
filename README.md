@@ -19,15 +19,18 @@
 ## 🎯 Start Here
 
 ### Absolute Beginner?
+
 1. Read: **`00-START-HERE.md`** (5 min)
 2. Choose your path (AI-assisted or manual)
 
 ### Want to Use AI Tools? (10x Faster)
+
 1. Read: **`AI-TOOLS-SETUP.md`** (10 min)
 2. Copy `.claude/` and `.github/` to your project
 3. Start building!
 
 ### Want to Learn Architecture?
+
 1. Read: **`docs/README.md`** (10 min)
 2. Read: **`docs/01-architecture.md`** (30 min)
 3. Read: **`docs/09-database-drizzle.md`** (30 min)
@@ -82,39 +85,48 @@ campaign-platform-package/
 ## 🤖 AI Tools Included
 
 ### 1. Claude (claude.ai)
+
 **Best for:** Complete features, complex logic, architecture decisions
 
 **Copy to your project:**
+
 ```bash
 cp -r .claude /path/to/your/project/
 ```
 
 **Usage:**
+
 ```
 "Read .claude/INSTRUCTIONS.md and build the voters module"
 ```
 
 ### 2. GitHub Copilot (IDE)
+
 **Best for:** Inline code suggestions as you type
 
 **Copy to your project:**
+
 ```bash
 cp -r .github /path/to/your/project/
 ```
 
 **Setup:**
+
 - Install GitHub Copilot extension in VS Code
 - Automatically reads `.github/copilot-instructions.md`
 
 ### 3. GitHub Copilot CLI
+
 **Best for:** Terminal commands and explanations
 
 **Install:**
+
 ```bash
 gh extension install github/gh-copilot
 ```
 
 **Usage:**
+
 ```bash
 gh copilot suggest "create NestJS module"
 gh copilot explain "what does this code do?"
@@ -153,6 +165,7 @@ Then: docs/01-architecture.md
 ## 📊 What You Get
 
 ### Tech Stack Covered
+
 - ✅ **Backend:** NestJS 10 + Drizzle ORM + PostgreSQL 16
 - ✅ **Frontend:** Next.js 14 + React 18 + TailwindCSS
 - ✅ **Auth:** Keycloak (OAuth2/OIDC + JWT)
@@ -161,6 +174,7 @@ Then: docs/01-architecture.md
 - ✅ **Deploy:** Docker + CI/CD
 
 ### Features Included
+
 - ✅ Multi-tenant architecture (schema-per-tenant)
 - ✅ RBAC with 4 roles (CANDIDATO, ESTRATEGISTA, LIDERANCA, ESCRITORIO)
 - ✅ Type-safe end-to-end (TypeScript strict)
@@ -175,6 +189,7 @@ Then: docs/01-architecture.md
 ## 💡 Use Cases
 
 ### Build Complete Features Fast
+
 ```
 You: "Implement donations module with CPF validation"
 Claude: [Creates complete module in 5 minutes]
@@ -185,6 +200,7 @@ Claude: [Creates complete module in 5 minutes]
 ```
 
 ### Get Code Suggestions
+
 ```
 [Type in VS Code]
 // Calculate distance between two voters
@@ -195,6 +211,7 @@ export function calculateDistance(
 ```
 
 ### Get Terminal Help
+
 ```bash
 gh copilot suggest "run database migrations and start dev servers"
 
@@ -211,17 +228,19 @@ gh copilot suggest "run database migrations and start dev servers"
 Both backend and frontend are **Vercel-ready** for production deployment.
 
 **Quick Deploy:**
+
 ```bash
 # Backend API
 cd apps/api
 vercel --prod
 
 # Frontend Web
-cd apps/web  
+cd apps/web
 vercel --prod
 ```
 
 **Complete Guide:** See [VERCEL-DEPLOYMENT.md](VERCEL-DEPLOYMENT.md) for:
+
 - Step-by-step deployment instructions
 - Environment variables configuration
 - Database setup
@@ -229,12 +248,14 @@ vercel --prod
 - Monitoring and troubleshooting
 
 **Configuration Files:**
+
 - `apps/api/vercel.json` - Backend serverless config
 - `apps/api/src/serverless.ts` - Serverless adapter
 - `apps/web/vercel.json` - Frontend config
 - `.env.production.example` - Production env template
 
 **Key Features:**
+
 - ✅ Serverless functions optimized
 - ✅ Automatic HTTPS
 - ✅ Global CDN
@@ -251,6 +272,7 @@ See [docs/08-deployment.md](docs/08-deployment.md) for Docker and self-hosted op
 ## 🎓 Learning Paths
 
 ### Path 1: AI-First (20 minutes → Coding)
+
 ```
 1. 00-START-HERE.md          (5 min)
 2. AI-TOOLS-SETUP.md         (10 min)
@@ -259,6 +281,7 @@ See [docs/08-deployment.md](docs/08-deployment.md) for Docker and self-hosted op
 ```
 
 ### Path 2: Understanding First (2-3 hours → Coding)
+
 ```
 1. docs/README.md            (10 min)
 2. docs/01-architecture.md   (30 min)
@@ -272,33 +295,39 @@ See [docs/08-deployment.md](docs/08-deployment.md) for Docker and self-hosted op
 
 ## 📈 Speed Comparison
 
-| Task | With AI Tools | Manual |
-|------|---------------|--------|
-| Voters module (complete) | 5 min | 4 hours |
-| Database schema | 2 min | 30 min |
-| Frontend form | 3 min | 1 hour |
-| API endpoint | 2 min | 30 min |
-| **Time to MVP** | **1-2 weeks** | **2-3 months** |
+| Task                     | With AI Tools | Manual         |
+| ------------------------ | ------------- | -------------- |
+| Voters module (complete) | 5 min         | 4 hours        |
+| Database schema          | 2 min         | 30 min         |
+| Frontend form            | 3 min         | 1 hour         |
+| API endpoint             | 2 min         | 30 min         |
+| **Time to MVP**          | **1-2 weeks** | **2-3 months** |
 
 ---
 
 ## 🔥 Why This Package is Special
 
 ### 1. Production-Ready
+
 Not just tutorials - actual patterns used in production systems:
+
 - Multi-tenant isolation
 - Enterprise authentication
 - Type-safe throughout
 - RBAC with proper scoping
 
 ### 2. AI-Optimized
+
 Three AI tools configured and ready:
+
 - Complete patterns for each tool
 - Working examples
 - Step-by-step guides
 
 ### 3. Complete Stack
+
 Everything from database to deployment:
+
 - Backend patterns (NestJS + Drizzle)
 - Frontend patterns (Next.js 14)
 - Authentication (Keycloak)
@@ -307,7 +336,9 @@ Everything from database to deployment:
 - Deployment (Docker)
 
 ### 4. Copy-Paste Code
+
 Not just concepts - actual code:
+
 - Complete modules
 - Full schemas
 - Working components
@@ -331,20 +362,24 @@ Not just concepts - actual code:
 ## 🆘 Support
 
 ### Questions About Files?
+
 - Read: `PACKAGE-CONTENTS.md`
 
 ### Need Setup Help?
+
 - AI Tools: `AI-TOOLS-SETUP.md`
 - Claude: `CLAUDE-CODE-SETUP.md`
 - Copilot: `.github/README.md`
 
 ### Technical Questions?
+
 - Architecture: `docs/01-architecture.md`
 - Database: `docs/09-database-drizzle.md`
 - Backend: `docs/02-backend.md`
 - Frontend: `docs/03-frontend.md`
 
 ### Want Examples?
+
 - Complete feature: `.claude/examples/complete-feature.md`
 - Maps integration: `.claude/examples/adding-maps-to-voters.md`
 
@@ -353,18 +388,21 @@ Not just concepts - actual code:
 ## 🎯 Recommended Workflow
 
 ### Day 1
+
 1. Read `00-START-HERE.md`
 2. Read `AI-TOOLS-SETUP.md`
 3. Setup AI tools
 4. Build voters module with Claude
 
 ### Week 1
+
 1. Build 3-4 core modules
 2. Add Google Maps integration
 3. Setup authentication
 4. Deploy locally with Docker
 
 ### Month 1
+
 1. Complete MVP
 2. Add n8n automations
 3. Polish UI/UX
@@ -375,6 +413,7 @@ Not just concepts - actual code:
 ## 📦 Installation
 
 ### Copy to Your Project
+
 ```bash
 # Navigate to this package
 cd campaign-platform-package
@@ -388,6 +427,7 @@ cp -r .github /path/to/your/project/
 ```
 
 ### Or Start Fresh
+
 ```bash
 # Create new project
 mkdir my-campaign-platform
@@ -415,7 +455,7 @@ Everything you need for a production-ready electoral campaign platform:
 ✅ All patterns defined  
 ✅ Working examples included  
 ✅ Maps integration ready  
-✅ Deploy scripts prepared  
+✅ Deploy scripts prepared
 
 **Time to build:** 1-2 weeks instead of 2-3 months
 

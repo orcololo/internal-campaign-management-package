@@ -107,21 +107,21 @@ export async function selectOption(
   }
 
   const tagName = await element.evaluate((el) => el.tagName.toLowerCase());
-  
+
   if (tagName === "select") {
     await page.select(selector, value);
   } else {
     // For custom select components (like shadcn/ui)
     await page.click(selector);
     await delay(300);
-    
+
     // Try to find and click the option
     const optionSelectors = [
       `[role="option"][data-value="${value}"]`,
       `[role="option"]:has-text("${value}")`,
       `li:has-text("${value}")`,
     ];
-    
+
     for (const optionSelector of optionSelectors) {
       const option = await page.$(optionSelector);
       if (option) {
@@ -129,7 +129,7 @@ export async function selectOption(
         return;
       }
     }
-    
+
     // Fallback: use keyboard navigation
     await page.keyboard.press("ArrowDown");
     await page.keyboard.press("Enter");
@@ -147,7 +147,7 @@ export async function checkCheckbox(
   }
 
   const isChecked = await checkbox.evaluate((el: any) => el.checked);
-  
+
   if (shouldCheck && !isChecked) {
     await checkbox.click();
   } else if (!shouldCheck && isChecked) {
@@ -165,10 +165,11 @@ export async function waitForNavigation(
     const startTime = Date.now();
     while (Date.now() - startTime < timeout) {
       const url = page.url();
-      const matches = typeof urlPattern === "string" 
-        ? url.includes(urlPattern)
-        : urlPattern.test(url);
-      
+      const matches =
+        typeof urlPattern === "string"
+          ? url.includes(urlPattern)
+          : urlPattern.test(url);
+
       if (matches) return;
       await delay(100);
     }
@@ -182,13 +183,13 @@ export async function getValidationErrors(page: Page): Promise<string[]> {
   const errorSelectors = [
     '[class*="error"]',
     '[role="alert"]',
-    '.text-red-500',
+    ".text-red-500",
     '[class*="text-destructive"]',
     '[data-testid="error-message"]',
   ];
 
   const errors: string[] = [];
-  
+
   for (const selector of errorSelectors) {
     const elements = await page.$$(selector);
     for (const element of elements) {
