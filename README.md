@@ -204,6 +204,50 @@ gh copilot suggest "run database migrations and start dev servers"
 
 ---
 
+## 🌐 Deployment
+
+### Vercel Deployment (Recommended)
+
+Both backend and frontend are **Vercel-ready** for production deployment.
+
+**Quick Deploy:**
+```bash
+# Backend API
+cd apps/api
+vercel --prod
+
+# Frontend Web
+cd apps/web  
+vercel --prod
+```
+
+**Complete Guide:** See [VERCEL-DEPLOYMENT.md](VERCEL-DEPLOYMENT.md) for:
+- Step-by-step deployment instructions
+- Environment variables configuration
+- Database setup
+- CI/CD pipeline
+- Monitoring and troubleshooting
+
+**Configuration Files:**
+- `apps/api/vercel.json` - Backend serverless config
+- `apps/api/src/serverless.ts` - Serverless adapter
+- `apps/web/vercel.json` - Frontend config
+- `.env.production.example` - Production env template
+
+**Key Features:**
+- ✅ Serverless functions optimized
+- ✅ Automatic HTTPS
+- ✅ Global CDN
+- ✅ Zero-config deployment
+- ✅ Preview deployments
+- ✅ Built-in monitoring
+
+### Docker Deployment
+
+See [docs/08-deployment.md](docs/08-deployment.md) for Docker and self-hosted options.
+
+---
+
 ## 🎓 Learning Paths
 
 ### Path 1: AI-First (20 minutes → Coding)

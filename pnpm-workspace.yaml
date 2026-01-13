@@ -4,6 +4,7 @@ packages:
 
 onlyBuiltDependencies:
   - '@nestjs/core'
+  - core-js
   - es5-ext
   - esbuild
   - msgpackr-extract
