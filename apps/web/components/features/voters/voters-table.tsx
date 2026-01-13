@@ -361,8 +361,8 @@ export function VotersTable({ data: propData }: VotersTableProps) {
       toggleSelectedId(id);
     } else {
       setSelectedIds(
-        selectedIds.includes(id) 
-          ? selectedIds.filter((i) => i !== id) 
+        selectedIds.includes(id)
+          ? selectedIds.filter((i) => i !== id)
           : [...selectedIds, id]
       );
     }

@@ -77,8 +77,9 @@ interface WhatsAppBadgeProps {
 }
 
 export function WhatsAppBadge({ hasWhatsapp }: WhatsAppBadgeProps) {
-  const hasWA = typeof hasWhatsapp === 'string' ? hasWhatsapp === 'SIM' : hasWhatsapp;
-  
+  const hasWA =
+    typeof hasWhatsapp === "string" ? hasWhatsapp === "SIM" : hasWhatsapp;
+
   if (!hasWA) return null;
 
   return (

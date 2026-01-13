@@ -129,7 +129,7 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
 
     // Step 2: Additional contact
     whatsapp: voter?.whatsapp || "",
-    hasWhatsapp: voter?.hasWhatsapp === 'SIM',
+    hasWhatsapp: voter?.hasWhatsapp === "SIM",
     preferredContact: voter?.preferredContact || undefined,
 
     // Step 3: Electoral
@@ -154,7 +154,10 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
     supportLevel: voter?.supportLevel || undefined,
     politicalParty: voter?.politicalParty || "",
     votingHistory: voter?.votingHistory || "",
-    tags: typeof voter?.tags === 'string' ? JSON.parse(voter.tags || '[]') : voter?.tags || [],
+    tags:
+      typeof voter?.tags === "string"
+        ? JSON.parse(voter.tags || "[]")
+        : voter?.tags || [],
     notes: voter?.notes || "",
   });
 
@@ -184,8 +187,15 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
     resolver: zodResolver(voterContactSchema),
     defaultValues: {
       whatsapp: formData.whatsapp,
-      hasWhatsapp: typeof formData.hasWhatsapp === 'boolean' ? formData.hasWhatsapp : formData.hasWhatsapp === 'SIM',
-      preferredContact: formData.preferredContact as "TELEFONE" | "WHATSAPP" | "EMAIL" | undefined,
+      hasWhatsapp:
+        typeof formData.hasWhatsapp === "boolean"
+          ? formData.hasWhatsapp
+          : formData.hasWhatsapp === "SIM",
+      preferredContact: formData.preferredContact as
+        | "TELEFONE"
+        | "WHATSAPP"
+        | "EMAIL"
+        | undefined,
     },
   });
 
@@ -236,21 +246,31 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
       ageGroup: voter?.ageGroup,
       householdType: voter?.householdType as any,
       employmentStatus: voter?.employmentStatus as any,
-      vehicleOwnership: typeof voter?.vehicleOwnership === 'boolean' 
-        ? voter.vehicleOwnership 
-        : voter?.vehicleOwnership === 'SIM',
+      vehicleOwnership:
+        typeof voter?.vehicleOwnership === "boolean"
+          ? voter.vehicleOwnership
+          : voter?.vehicleOwnership === "SIM",
       internetAccess: voter?.internetAccess,
       communicationStyle: voter?.communicationStyle as any,
-      contentPreference: typeof voter?.contentPreference === 'string' 
-        ? JSON.parse(voter.contentPreference || '[]') 
-        : Array.isArray(voter?.contentPreference) ? voter.contentPreference : [],
+      contentPreference:
+        typeof voter?.contentPreference === "string"
+          ? JSON.parse(voter.contentPreference || "[]")
+          : Array.isArray(voter?.contentPreference)
+          ? voter.contentPreference
+          : [],
       bestContactTime: voter?.bestContactTime,
-      bestContactDay: typeof voter?.bestContactDay === 'string'
-        ? JSON.parse(voter.bestContactDay || '[]')
-        : Array.isArray(voter?.bestContactDay) ? voter.bestContactDay : [],
-      topIssues: typeof voter?.topIssues === 'string'
-        ? JSON.parse(voter.topIssues || '[]')
-        : Array.isArray(voter?.topIssues) ? voter.topIssues : [],
+      bestContactDay:
+        typeof voter?.bestContactDay === "string"
+          ? JSON.parse(voter.bestContactDay || "[]")
+          : Array.isArray(voter?.bestContactDay)
+          ? voter.bestContactDay
+          : [],
+      topIssues:
+        typeof voter?.topIssues === "string"
+          ? JSON.parse(voter.topIssues || "[]")
+          : Array.isArray(voter?.topIssues)
+          ? voter.topIssues
+          : [],
       previousCandidateSupport: voter?.previousCandidateSupport,
       influencerScore: voter?.influencerScore,
       persuadability: voter?.persuadability as any,
@@ -414,15 +434,15 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
 
     // Convert form data to backend format
     const backendData: any = { ...finalData };
-    
+
     // Convert boolean fields to SIM/NAO strings for backend
-    if (typeof finalData.hasWhatsapp === 'boolean') {
-      backendData.hasWhatsapp = finalData.hasWhatsapp ? 'SIM' : 'NAO';
+    if (typeof finalData.hasWhatsapp === "boolean") {
+      backendData.hasWhatsapp = finalData.hasWhatsapp ? "SIM" : "NAO";
     }
-    if (typeof finalData.vehicleOwnership === 'boolean') {
-      backendData.vehicleOwnership = finalData.vehicleOwnership ? 'SIM' : 'NAO';
+    if (typeof finalData.vehicleOwnership === "boolean") {
+      backendData.vehicleOwnership = finalData.vehicleOwnership ? "SIM" : "NAO";
     }
-    
+
     // Convert array fields to JSON strings for backend
     if (Array.isArray(finalData.tags)) {
       backendData.tags = JSON.stringify(finalData.tags);
@@ -431,7 +451,9 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
       backendData.topIssues = JSON.stringify(finalData.topIssues);
     }
     if (Array.isArray(finalData.contentPreference)) {
-      backendData.contentPreference = JSON.stringify(finalData.contentPreference);
+      backendData.contentPreference = JSON.stringify(
+        finalData.contentPreference
+      );
     }
     if (Array.isArray(finalData.bestContactDay)) {
       backendData.bestContactDay = JSON.stringify(finalData.bestContactDay);

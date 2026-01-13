@@ -126,7 +126,7 @@ export function VoterDetail({ voter }: VoterDetailProps) {
     resolver: zodResolver(nonObligatoryFieldsSchema),
     defaultValues: {
       whatsapp: voter.whatsapp || "",
-      hasWhatsapp: (voter.hasWhatsapp === 'SIM') as any,
+      hasWhatsapp: (voter.hasWhatsapp === "SIM") as any,
       preferredContact: voter.preferredContact as any,
       electoralTitle: voter.electoralTitle || "",
       electoralZone: voter.electoralZone || "",
@@ -145,7 +145,9 @@ export function VoterDetail({ voter }: VoterDetailProps) {
       supportLevel: voter.supportLevel,
       politicalParty: voter.politicalParty || "",
       votingHistory: voter.votingHistory || "",
-      tags: (typeof voter.tags === 'string' ? JSON.parse(voter.tags || '[]') : voter.tags || []) as any,
+      tags: (typeof voter.tags === "string"
+        ? JSON.parse(voter.tags || "[]")
+        : voter.tags || []) as any,
       notes: voter.notes || "",
     },
   });
@@ -162,7 +164,7 @@ export function VoterDetail({ voter }: VoterDetailProps) {
     try {
       const updateData = {
         ...data,
-        hasWhatsapp: data.hasWhatsapp ? 'SIM' : 'NAO',
+        hasWhatsapp: data.hasWhatsapp ? "SIM" : "NAO",
       } as any;
       await votersApi.update(voter.id, updateData);
       toast.success("Informações atualizadas com sucesso!");
@@ -473,7 +475,9 @@ export function VoterDetail({ voter }: VoterDetailProps) {
                       <div className="flex items-center gap-2">
                         <p className="text-sm">{voter.whatsapp || "-"}</p>
                         {voter.hasWhatsapp && (
-                          <WhatsAppBadge hasWhatsapp={voter.hasWhatsapp === 'SIM'} />
+                          <WhatsAppBadge
+                            hasWhatsapp={voter.hasWhatsapp === "SIM"}
+                          />
                         )}
                       </div>
                     </div>

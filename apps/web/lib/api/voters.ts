@@ -106,7 +106,7 @@ export const votersApi = {
         total: backendData.meta?.total || 0,
         totalPages: backendData.meta?.totalPages || 1,
       };
-      
+
       const transformedData: PaginatedResponse<Voter> = {
         data: transformVoters(backendData.data || []),
         meta,

@@ -79,7 +79,9 @@ export function GeofenceSaveDialog({
   const onSubmit = async (data: GeofenceFormData) => {
     setIsSubmitting(true);
     try {
-      await onSave(data as { name: string; description?: string; color: string });
+      await onSave(
+        data as { name: string; description?: string; color: string }
+      );
       reset();
       onOpenChange(false);
     } finally {

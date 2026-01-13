@@ -171,7 +171,10 @@ export function VoterMapView({
             </span>`
           : "";
 
-        const tags = typeof voter.tags === 'string' ? JSON.parse(voter.tags || '[]') : voter.tags || [];
+        const tags =
+          typeof voter.tags === "string"
+            ? JSON.parse(voter.tags || "[]")
+            : voter.tags || [];
         const tagsHtml = tags
           .slice(0, 3)
           .map(
@@ -246,8 +249,14 @@ export function VoterMapView({
           </div>
         `;
 
-        const lng = typeof voter.longitude === 'string' ? parseFloat(voter.longitude) : voter.longitude!;
-        const lat = typeof voter.latitude === 'string' ? parseFloat(voter.latitude) : voter.latitude!;
+        const lng =
+          typeof voter.longitude === "string"
+            ? parseFloat(voter.longitude)
+            : voter.longitude!;
+        const lat =
+          typeof voter.latitude === "string"
+            ? parseFloat(voter.latitude)
+            : voter.latitude!;
 
         const popup = new maplibregl.Popup({
           offset: [0, -32],
@@ -286,8 +295,14 @@ export function VoterMapView({
         closePopup();
       });
 
-      const lng = typeof voter.longitude === 'string' ? parseFloat(voter.longitude) : voter.longitude!;
-      const lat = typeof voter.latitude === 'string' ? parseFloat(voter.latitude) : voter.latitude!;
+      const lng =
+        typeof voter.longitude === "string"
+          ? parseFloat(voter.longitude)
+          : voter.longitude!;
+      const lat =
+        typeof voter.latitude === "string"
+          ? parseFloat(voter.latitude)
+          : voter.latitude!;
 
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat([lng, lat])
@@ -303,9 +318,15 @@ export function VoterMapView({
 
     const voter = votersWithLocation.find((v) => v.id === selectedVoterId);
     if (voter && voter.latitude && voter.longitude) {
-      const lng = typeof voter.longitude === 'string' ? parseFloat(voter.longitude) : voter.longitude;
-      const lat = typeof voter.latitude === 'string' ? parseFloat(voter.latitude) : voter.latitude;
-      
+      const lng =
+        typeof voter.longitude === "string"
+          ? parseFloat(voter.longitude)
+          : voter.longitude;
+      const lat =
+        typeof voter.latitude === "string"
+          ? parseFloat(voter.latitude)
+          : voter.latitude;
+
       isAnimatingRef.current = true;
       mapRef.current.flyTo({
         center: [lng, lat],
