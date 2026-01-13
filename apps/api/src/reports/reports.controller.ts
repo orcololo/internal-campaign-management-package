@@ -12,7 +12,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue, Job } from 'bull';
 import { ReportsService } from './reports.service';
