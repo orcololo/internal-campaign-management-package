@@ -20,7 +20,7 @@ import {
 } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
 import { FilterDto, SortDto, FilterOperator, SortDirection } from './dto/create-report.dto';
-import { voters } from '@/database/schemas/voter.schema';
+import { voters } from '../database/schemas/voter.schema';
 
 /**
  * QueryBuilder Service

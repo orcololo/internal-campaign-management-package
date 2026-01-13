@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import type { ReportFilter, ReportSort } from '@/database/schemas/saved-report.schema';
+import type { ReportFilter, ReportSort } from '../../database/schemas/saved-report.schema';
 
 // Enums from schema
 export enum FilterOperator {

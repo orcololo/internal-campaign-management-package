@@ -9,7 +9,7 @@ import { PdfGeneratorService } from './export/pdf-generator.service';
 import { CsvGeneratorService } from './export/csv-generator.service';
 import { ExcelGeneratorService } from './export/excel-generator.service';
 import { ExportReportProcessor } from './processors/export-report.processor';
-import { DatabaseModule } from '@/database/database.module';
+import { DatabaseModule } from '../database/database.module';
 
 @Module({
   imports: [

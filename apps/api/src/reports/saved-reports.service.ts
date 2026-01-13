@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { eq, and, isNull, sql } from 'drizzle-orm';
-import { DatabaseService } from '@/database/database.service';
-import { savedReports } from '@/database/schemas/saved-report.schema';
-import type { SavedReport, NewSavedReport } from '@/database/schemas/saved-report.schema';
+import { DatabaseService } from '../database/database.service';
+import { savedReports } from '../database/schemas/saved-report.schema';
+import type { SavedReport, NewSavedReport } from '../database/schemas/saved-report.schema';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { FilterReportDto } from './dto/filter-report.dto';

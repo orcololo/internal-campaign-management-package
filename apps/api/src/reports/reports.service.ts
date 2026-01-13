@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { isNull, sql } from 'drizzle-orm';
-import { DatabaseService } from '@/database/database.service';
-import { voters } from '@/database/schemas/voter.schema';
+import { DatabaseService } from '../database/database.service';
+import { voters } from '../database/schemas/voter.schema';
 import { QueryBuilderService } from './query-builder.service';
 import { SavedReportsService } from './saved-reports.service';
 import { PreviewReportDto } from './dto/preview-report.dto';
-import type { SavedReport } from '@/database/schemas/saved-report.schema';
+import type { SavedReport } from '../database/schemas/saved-report.schema';
 
 /**
  * Reports Service

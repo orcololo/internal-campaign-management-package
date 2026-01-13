@@ -25,8 +25,8 @@ import { UpdateReportDto } from './dto/update-report.dto';
 import { FilterReportDto } from './dto/filter-report.dto';
 import { PreviewReportDto } from './dto/preview-report.dto';
 import { ExportReportDto, ExportFormat } from './dto/export-report.dto';
-import { MockAuthGuard } from '@/common/guards/mock-auth.guard';
-import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { MockAuthGuard } from '../common/guards/mock-auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { ExportJobData, ExportJobResult } from './processors/export-report.processor';
 
 @ApiTags('Reports')
