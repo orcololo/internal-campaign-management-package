@@ -20,17 +20,31 @@ const postgres = require('postgres');
 async function runSeed() {
   console.log('🌱 Starting seed process...\n');
 
-  // Create database connection using postgres with individual credentials
-  const host = process.env.DB_HOST || 'localhost';
-  const port = process.env.DB_PORT || '5432';
-  const user = process.env.DB_USER || 'postgres';
-  const password = process.env.DB_PASSWORD || 'postgres';
-  const database = process.env.DB_NAME || 'campaign_platform';
+  // Create database connection using POSTGRES_URL (Supabase) or fallback to individual credentials
+  const connectionUrl = process.env.POSTGRES_URL;
 
-  const connectionString = `postgres://${user}:${password}@${host}:${port}/${database}`;
-  console.log(`🔌 Connecting to: ${database} at ${host}:${port}\n`);
+  let connectionString: string;
 
-  const client = postgres(connectionString);
+  if (connectionUrl) {
+    connectionString = connectionUrl;
+    console.log('🔌 Connecting using POSTGRES_URL (Supabase connection pooling)\n');
+  } else {
+    // Fallback to individual parameters
+    const host = process.env.POSTGRES_HOST || 'localhost';
+    const port = process.env.DB_PORT || '5432';
+    const user = process.env.DB_USER || 'postgres';
+    const password = process.env.POSTGRES_PASSWORD || 'postgres';
+    const database = process.env.POSTGRES_DATABASE || 'postgres';
+
+    connectionString = `postgres://${user}:${password}@${host}:${port}/${database}?sslmode=require`;
+    console.log(`🔌 Connecting to: ${database} at ${host}:${port}\n`);
+  }
+
+  const client = postgres(connectionString, {
+    ssl: {
+      rejectUnauthorized: false, // Required for Supabase
+    },
+  });
   const db = drizzle(client);
 
   try {

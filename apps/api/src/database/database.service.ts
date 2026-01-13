@@ -19,6 +19,9 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       max: 10,
       idle_timeout: 20,
       connect_timeout: 10,
+      ssl: {
+        rejectUnauthorized: false, // Required for Supabase
+      },
     });
 
     this.db = drizzle(this.client);
@@ -32,13 +35,23 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   }
 
   private getConnectionString(): string {
-    const host = this.configService.get('DB_HOST', 'localhost');
+    // First, try to use the full connection URL (recommended for Supabase)
+    const connectionUrl = this.configService.get('POSTGRES_URL');
+
+    if (connectionUrl) {
+      console.log('📡 Using POSTGRES_URL connection string');
+      return connectionUrl;
+    }
+
+    // Fallback to individual connection parameters
+    const host = this.configService.get('POSTGRES_HOST', 'localhost');
     const port = this.configService.get('DB_PORT', '5432');
     const user = this.configService.get('DB_USER', 'postgres');
-    const password = this.configService.get('DB_PASSWORD', 'postgres');
-    const database = this.configService.get('DB_NAME', 'campaign_platform');
+    const password = this.configService.get('POSTGRES_PASSWORD', 'postgres');
+    const database = this.configService.get('POSTGRES_DATABASE', 'postgres');
 
-    return `postgres://${user}:${password}@${host}:${port}/${database}`;
+    console.log('📡 Using individual connection parameters');
+    return `postgres://${user}:${password}@${host}:${port}/${database}?sslmode=require`;
   }
 
   getDb(): PostgresJsDatabase {
