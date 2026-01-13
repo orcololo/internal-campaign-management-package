@@ -7,8 +7,8 @@ import { votersApi } from "@/lib/api/voters";
 
 async function getVoter(id: string) {
   try {
-    const voter = await votersApi.getById(id);
-    return voter;
+    const response = await votersApi.getById(id);
+    return response.data;
   } catch {
     return null;
   }

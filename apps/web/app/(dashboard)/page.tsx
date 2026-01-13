@@ -126,7 +126,7 @@ export default function DashboardPage() {
   }));
 
   const voterGrowthData = overview.trends.voterGrowth.slice(-30).map((point) => ({
-    date: new Date(point.date).toLocaleDateString("pt-BR", { day: "2d", month: "2d" }),
+    date: new Date(point.date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
     count: point.count,
   }));
 
@@ -553,6 +553,10 @@ export default function DashboardPage() {
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -8,11 +8,17 @@ export interface PaginationMeta {
 export interface ApiResponse<T> {
   data: T;
   meta?: PaginationMeta;
+  status?: number;
+  message?: string;
 }
 
 export interface PaginatedResponse<T> {
   data: T[];
   meta: PaginationMeta;
+  page: number;
+  perPage: number;
+  total: number;
+  totalPages: number;
 }
 
 export interface ApiError {

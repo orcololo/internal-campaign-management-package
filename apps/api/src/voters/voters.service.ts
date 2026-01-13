@@ -31,11 +31,7 @@ export class VotersService {
       await this.autoGeocodeFromCep(createVoterDto);
     }
 
-    const values: Record<string, any> = {
-      ...createVoterDto,
-      latitude: createVoterDto.latitude?.toString(),
-      longitude: createVoterDto.longitude?.toString(),
-    };
+    const values = this.prepareVoterForSave(createVoterDto);
 
     const [voter] = await db
       .insert(voters)
@@ -188,10 +184,8 @@ export class VotersService {
       await this.autoGeocodeFromCep(updateVoterDto);
     }
 
-    const values: Record<string, any> = {
-      ...updateVoterDto,
-      latitude: updateVoterDto.latitude?.toString(),
-      longitude: updateVoterDto.longitude?.toString(),
+    const values = {
+      ...this.prepareVoterForSave(updateVoterDto),
       updatedAt: new Date(),
     };
 
@@ -602,10 +596,8 @@ export class VotersService {
           continue;
         }
 
-        const values: Record<string, any> = {
-          ...update.data,
-          latitude: update.data.latitude?.toString(),
-          longitude: update.data.longitude?.toString(),
+        const values = {
+          ...this.prepareVoterForSave(update.data),
           updatedAt: new Date(),
         };
 
@@ -794,7 +786,7 @@ export class VotersService {
           politicalParty: row.politicalParty?.trim() || undefined,
           votingHistory: row.votingHistory?.trim() || undefined,
           familyMembers: row.familyMembers ? parseInt(row.familyMembers) : undefined,
-          hasWhatsapp: row.hasWhatsapp?.toUpperCase() === 'SIM' ? 'SIM' : 'NAO',
+          hasWhatsapp: row.hasWhatsapp?.toUpperCase() === 'SIM',
           preferredContact: row.preferredContact?.toUpperCase() || undefined,
           notes: row.notes?.trim() || undefined,
           tags: row.tags?.trim() || undefined,
@@ -1225,6 +1217,48 @@ export class VotersService {
     // Fallback: use UUID if all attempts failed
     const uuid = crypto.randomUUID().substring(0, 12).toUpperCase();
     return `USER-${uuid}`;
+  }
+
+  /**
+   * Prepare voter data for saving to database
+   * Handles stringification of JSON fields and boolean conversions
+   */
+  private prepareVoterForSave(
+    dto: Partial<CreateVoterDto> | Partial<UpdateVoterDto>,
+  ): Record<string, any> {
+    const values: any = { ...dto };
+
+    // Convert numeric coordinates to strings (schema expectation)
+    if (values.latitude !== undefined) values.latitude = values.latitude?.toString() ?? null;
+    if (values.longitude !== undefined) values.longitude = values.longitude?.toString() ?? null;
+
+    // Convert booleans to SIM/NAO
+    if (typeof values.hasWhatsapp === 'boolean') {
+      values.hasWhatsapp = values.hasWhatsapp ? 'SIM' : 'NAO';
+    }
+    if (typeof values.vehicleOwnership === 'boolean') {
+      values.vehicleOwnership = values.vehicleOwnership ? 'SIM' : 'NAO';
+    }
+
+    // Stringify JSON fields if they are objects/arrays
+    const jsonFields = [
+      'tags',
+      'topIssues',
+      'issuePositions',
+      'seasonalActivity',
+      'eventAttendance',
+      'donationHistory',
+      'contentPreference',
+      'bestContactDay',
+    ];
+
+    for (const field of jsonFields) {
+      if (values[field] && typeof values[field] !== 'string') {
+        values[field] = JSON.stringify(values[field]);
+      }
+    }
+
+    return values;
   }
 }
 

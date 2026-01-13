@@ -106,6 +106,7 @@ export const voters = pgTable('voters', {
 
   // Basic Information
   name: varchar('name', { length: 255 }).notNull(),
+  motherName: varchar('mother_name', { length: 255 }),
   cpf: varchar('cpf', { length: 14 }).unique(),
   dateOfBirth: date('date_of_birth'),
   gender: genderEnum('gender').default('NAO_INFORMADO'),

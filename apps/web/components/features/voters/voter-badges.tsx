@@ -73,11 +73,13 @@ export function SupportLevelBadge({ level }: SupportLevelBadgeProps) {
 }
 
 interface WhatsAppBadgeProps {
-  hasWhatsapp?: boolean;
+  hasWhatsapp?: boolean | string | null;
 }
 
 export function WhatsAppBadge({ hasWhatsapp }: WhatsAppBadgeProps) {
-  if (!hasWhatsapp) return null;
+  const hasWA = typeof hasWhatsapp === 'string' ? hasWhatsapp === 'SIM' : hasWhatsapp;
+  
+  if (!hasWA) return null;
 
   return (
     <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-green-500/10 border border-green-500/40">

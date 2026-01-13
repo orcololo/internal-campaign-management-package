@@ -514,7 +514,7 @@ function generateVoter(index: number): Voter {
     ), // 2-5 issues
     issuePositions:
       Math.random() > 0.4
-        ? {
+        ? JSON.stringify({
             Saúde: getRandomItem([
               "A favor de mais investimento",
               "Prioridade máxima",
@@ -525,7 +525,7 @@ function generateVoter(index: number): Voter {
               "Mais escolas",
               "Qualidade de ensino",
             ]),
-          }
+          })
         : undefined,
     previousCandidateSupport:
       Math.random() > 0.5

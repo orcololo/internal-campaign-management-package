@@ -104,7 +104,7 @@ const mapFrontendToBackend = (input: CreateEventInput | UpdateEventInput) => {
     title: input.title,
     description: input.description,
     type: mapCategoryToType(input.category),
-    status: mapFrontendStatus(input.status),
+    status: mapFrontendStatus((input as any).status || 'CONFIRMADO'),
     visibility: "PUBLICO",
     startDate: startDateTime.toISOString().split("T")[0],
     startTime: startDateTime.toTimeString().slice(0, 5),
@@ -119,7 +119,7 @@ const mapFrontendToBackend = (input: CreateEventInput | UpdateEventInput) => {
     longitude: input.location?.coordinates?.lng.toString(),
     notes: input.notes,
     tags: JSON.stringify(input.tags || []),
-    color: input.color,
+    color: (input as any).color || '#3B82F6',
   };
 };
 

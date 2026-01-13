@@ -223,6 +223,10 @@ export class AnalyticsService {
         supportLevel: v.supportLevel,
         city: v.city,
         neighborhood: v.neighborhood,
+        voterId: v.id,
+        voterName: v.name,
+        influencerScore: v.influencerScore,
+        engagementScore: v.engagementScore,
       })),
       summary: {
         total: votersWithCoordinates.length,

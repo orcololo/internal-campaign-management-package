@@ -360,8 +360,10 @@ export function VotersTable({ data: propData }: VotersTableProps) {
     if (usingStore) {
       toggleSelectedId(id);
     } else {
-      setSelectedIds((prev) =>
-        prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      setSelectedIds(
+        selectedIds.includes(id) 
+          ? selectedIds.filter((i) => i !== id) 
+          : [...selectedIds, id]
       );
     }
   };

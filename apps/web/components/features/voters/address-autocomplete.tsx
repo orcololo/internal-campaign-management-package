@@ -69,9 +69,9 @@ export function AddressAutocomplete({
       libraries: ["places"],
     });
 
-    loader
-      .load()
-      .then(() => {
+    (async () => {
+      try {
+        await (loader as any).load();
         if (!inputRef.current) return;
 
         // Initialize autocomplete with Brazilian bias
@@ -108,12 +108,12 @@ export function AddressAutocomplete({
         });
 
         setIsLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error loading Google Maps:", error);
         setIsLoadError(true);
         setIsLoading(false);
-      });
+      }
+    })();
 
     return () => {
       if (autocompleteRef.current) {

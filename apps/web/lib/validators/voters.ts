@@ -105,7 +105,7 @@ const optionalEnum = <T extends [string, ...string[]]>(schema: z.ZodEnum<T>) =>
     (val) =>
       val === "" || val === undefined || val === null ? undefined : val,
     schema.optional()
-  );
+  ) as unknown as z.ZodOptional<z.ZodEnum<T>>;
 
 // Full voter schema for create/update
 export const voterSchema = z.object({

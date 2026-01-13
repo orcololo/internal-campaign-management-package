@@ -129,7 +129,7 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
 
     // Step 2: Additional contact
     whatsapp: voter?.whatsapp || "",
-    hasWhatsapp: voter?.hasWhatsapp || false,
+    hasWhatsapp: voter?.hasWhatsapp === 'SIM',
     preferredContact: voter?.preferredContact || undefined,
 
     // Step 3: Electoral
@@ -154,7 +154,7 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
     supportLevel: voter?.supportLevel || undefined,
     politicalParty: voter?.politicalParty || "",
     votingHistory: voter?.votingHistory || "",
-    tags: voter?.tags || [],
+    tags: typeof voter?.tags === 'string' ? JSON.parse(voter.tags || '[]') : voter?.tags || [],
     notes: voter?.notes || "",
   });
 
@@ -184,8 +184,8 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
     resolver: zodResolver(voterContactSchema),
     defaultValues: {
       whatsapp: formData.whatsapp,
-      hasWhatsapp: formData.hasWhatsapp,
-      preferredContact: formData.preferredContact,
+      hasWhatsapp: typeof formData.hasWhatsapp === 'boolean' ? formData.hasWhatsapp : formData.hasWhatsapp === 'SIM',
+      preferredContact: formData.preferredContact as "TELEFONE" | "WHATSAPP" | "EMAIL" | undefined,
     },
   });
 
@@ -224,7 +224,7 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
       supportLevel: formData.supportLevel,
       politicalParty: formData.politicalParty,
       votingHistory: formData.votingHistory,
-      tags: formData.tags || [],
+      tags: Array.isArray(formData.tags) ? formData.tags : [],
       notes: formData.notes,
     },
   });
@@ -234,27 +234,35 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
     resolver: zodResolver(voterEngagementSchema),
     defaultValues: {
       ageGroup: voter?.ageGroup,
-      householdType: voter?.householdType,
-      employmentStatus: voter?.employmentStatus,
-      vehicleOwnership: voter?.vehicleOwnership,
+      householdType: voter?.householdType as any,
+      employmentStatus: voter?.employmentStatus as any,
+      vehicleOwnership: typeof voter?.vehicleOwnership === 'boolean' 
+        ? voter.vehicleOwnership 
+        : voter?.vehicleOwnership === 'SIM',
       internetAccess: voter?.internetAccess,
-      communicationStyle: voter?.communicationStyle,
-      contentPreference: voter?.contentPreference || [],
+      communicationStyle: voter?.communicationStyle as any,
+      contentPreference: typeof voter?.contentPreference === 'string' 
+        ? JSON.parse(voter.contentPreference || '[]') 
+        : Array.isArray(voter?.contentPreference) ? voter.contentPreference : [],
       bestContactTime: voter?.bestContactTime,
-      bestContactDay: voter?.bestContactDay || [],
-      topIssues: voter?.topIssues || [],
+      bestContactDay: typeof voter?.bestContactDay === 'string'
+        ? JSON.parse(voter.bestContactDay || '[]')
+        : Array.isArray(voter?.bestContactDay) ? voter.bestContactDay : [],
+      topIssues: typeof voter?.topIssues === 'string'
+        ? JSON.parse(voter.topIssues || '[]')
+        : Array.isArray(voter?.topIssues) ? voter.topIssues : [],
       previousCandidateSupport: voter?.previousCandidateSupport,
       influencerScore: voter?.influencerScore,
-      persuadability: voter?.persuadability,
-      turnoutLikelihood: voter?.turnoutLikelihood,
+      persuadability: voter?.persuadability as any,
+      turnoutLikelihood: voter?.turnoutLikelihood as any,
       socialMediaFollowers: voter?.socialMediaFollowers,
-      communityRole: voter?.communityRole,
+      communityRole: voter?.communityRole as any,
       referredVoters: voter?.referredVoters,
       networkSize: voter?.networkSize,
       influenceRadius: voter?.influenceRadius,
       contactFrequency: voter?.contactFrequency,
       responseRate: voter?.responseRate,
-      volunteerStatus: voter?.volunteerStatus,
+      volunteerStatus: voter?.volunteerStatus as any,
       engagementScore: voter?.engagementScore,
     },
   });
@@ -404,12 +412,37 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
     const values = engagementForm.getValues();
     const finalData = { ...formData, ...values };
 
+    // Convert form data to backend format
+    const backendData: any = { ...finalData };
+    
+    // Convert boolean fields to SIM/NAO strings for backend
+    if (typeof finalData.hasWhatsapp === 'boolean') {
+      backendData.hasWhatsapp = finalData.hasWhatsapp ? 'SIM' : 'NAO';
+    }
+    if (typeof finalData.vehicleOwnership === 'boolean') {
+      backendData.vehicleOwnership = finalData.vehicleOwnership ? 'SIM' : 'NAO';
+    }
+    
+    // Convert array fields to JSON strings for backend
+    if (Array.isArray(finalData.tags)) {
+      backendData.tags = JSON.stringify(finalData.tags);
+    }
+    if (Array.isArray(finalData.topIssues)) {
+      backendData.topIssues = JSON.stringify(finalData.topIssues);
+    }
+    if (Array.isArray(finalData.contentPreference)) {
+      backendData.contentPreference = JSON.stringify(finalData.contentPreference);
+    }
+    if (Array.isArray(finalData.bestContactDay)) {
+      backendData.bestContactDay = JSON.stringify(finalData.bestContactDay);
+    }
+
     setIsSubmitting(true);
     try {
       if (mode === "edit" && voter) {
         const updated = await updateVoter(
           voter.id,
-          finalData as Partial<Voter>
+          backendData as Partial<Voter>
         );
         if (updated) {
           toast.success("Eleitor atualizado com sucesso!");
@@ -418,7 +451,7 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
           toast.error("Erro ao atualizar eleitor. Tente novamente.");
         }
       } else {
-        const created = await createVoter(finalData as Partial<Voter>);
+        const created = await createVoter(backendData as Partial<Voter>);
         if (created) {
           toast.success("Eleitor criado com sucesso!");
           router.push("/voters");

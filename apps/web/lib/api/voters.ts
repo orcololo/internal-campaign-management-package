@@ -97,15 +97,23 @@ export const votersApi = {
     });
 
     // Backend returns {data: [], meta: {total, page, limit, totalPages}}
-    // Transform to frontend format {data: [], total, page, perPage, totalPages}
+    // Transform to frontend format {data: [], total, page, perPage, totalPages, meta}
     if (response.data) {
       const backendData = response.data;
-      const transformedData: PaginatedResponse<Voter> = {
-        data: transformVoters(backendData.data || []),
-        total: backendData.meta?.total || 0,
+      const meta = {
         page: backendData.meta?.page || 1,
         perPage: backendData.meta?.limit || 20,
+        total: backendData.meta?.total || 0,
         totalPages: backendData.meta?.totalPages || 1,
+      };
+      
+      const transformedData: PaginatedResponse<Voter> = {
+        data: transformVoters(backendData.data || []),
+        meta,
+        total: meta.total,
+        page: meta.page,
+        perPage: meta.perPage,
+        totalPages: meta.totalPages,
       };
 
       return {

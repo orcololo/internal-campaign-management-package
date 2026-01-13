@@ -12,7 +12,11 @@ import {
   IsEnum,
   IsInt,
   Min,
+  IsArray,
+  IsObject,
+  IsBoolean,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateVoterDto {
   // Basic Information
@@ -22,6 +26,12 @@ export class CreateVoterDto {
   @MinLength(3)
   @MaxLength(255)
   name: string;
+
+  @ApiPropertyOptional({ description: 'Mother\'s name', example: 'Maria da Silva' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  motherName?: string;
 
   @ApiPropertyOptional({ description: 'CPF (Brazilian ID)', example: '123.456.789-00' })
   @IsOptional()
@@ -276,6 +286,42 @@ export class CreateVoterDto {
   @IsString()
   votingHistory?: string;
 
+  @ApiPropertyOptional({ description: 'Top issues', example: '["Education", "Health"]' })
+  @IsOptional()
+  @IsArray()
+  topIssues?: string[];
+
+  @ApiPropertyOptional({ description: 'Issue positions', example: '{"education": "support"}' })
+  @IsOptional()
+  @IsObject()
+  issuePositions?: Record<string, any>;
+
+  @ApiPropertyOptional({ description: 'Previous candidate support', example: 'Candidate X' })
+  @IsOptional()
+  @IsString()
+  previousCandidateSupport?: string;
+
+  @ApiPropertyOptional({ description: 'Influencer score (0-100)', example: 80 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  influencerScore?: number;
+
+  @ApiPropertyOptional({ description: 'Persuadability', example: 'ALTO' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  persuadability?: string;
+
+  @ApiPropertyOptional({
+    description: 'Turnout likelihood',
+    enum: ['ALTO', 'MEDIO', 'BAIXO', 'NAO_DEFINIDO'],
+    example: 'ALTO',
+  })
+  @IsOptional()
+  @IsEnum(['ALTO', 'MEDIO', 'BAIXO', 'NAO_DEFINIDO'])
+  turnoutLikelihood?: string;
+
   // Additional Information
   @ApiPropertyOptional({ description: 'Number of family members', example: 4 })
   @IsOptional()
@@ -283,10 +329,15 @@ export class CreateVoterDto {
   @Min(0)
   familyMembers?: number;
 
-  @ApiPropertyOptional({ description: 'Has WhatsApp?', enum: ['SIM', 'NAO'], example: 'SIM' })
+  @ApiPropertyOptional({ description: 'Has WhatsApp?', example: true })
   @IsOptional()
-  @IsEnum(['SIM', 'NAO'])
-  hasWhatsapp?: string;
+  @Transform(({ value }) => {
+    if (value === 'SIM') return true;
+    if (value === 'NAO') return false;
+    return value;
+  })
+  @IsBoolean()
+  hasWhatsapp?: boolean;
 
   @ApiPropertyOptional({
     description: 'Preferred contact method',
@@ -303,10 +354,215 @@ export class CreateVoterDto {
   notes?: string;
 
   @ApiPropertyOptional({
-    description: 'Tags for categorization (JSON array)',
+    description: 'Tags for categorization',
     example: '["lideranca_local", "apoiador"]',
   })
   @IsOptional()
+  @IsArray()
+  tags?: string[];
+
+  // Engagement & Behavioral
+  @ApiPropertyOptional({ description: 'Engagement trend', example: 'CRESCENTE' })
+  @IsOptional()
+  @IsEnum(['CRESCENTE', 'ESTAVEL', 'DECRESCENTE', 'NAO_DEFINIDO'])
+  engagementTrend?: string;
+
+  @ApiPropertyOptional({ description: 'Seasonal activity (JSON)', example: '{"summer": 10}' })
+  @IsOptional()
+  @IsObject()
+  seasonalActivity?: Record<string, any>;
+
+  @ApiPropertyOptional({ description: 'Last contact date', example: '2023-01-01' })
+  @IsOptional()
+  @IsDateString()
+  lastContactDate?: string;
+
+  @ApiPropertyOptional({ description: 'Contact frequency', example: 5 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  contactFrequency?: number;
+
+  @ApiPropertyOptional({ description: 'Response rate', example: 80 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  responseRate?: number;
+
+  @ApiPropertyOptional({ description: 'Event attendance (JSON array)', example: '["event1"]' })
+  @IsOptional()
+  @IsArray()
+  eventAttendance?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Volunteer status',
+    enum: ['ATIVO', 'INATIVO', 'INTERESSADO', 'NAO_VOLUNTARIO'],
+    example: 'INTERESSADO',
+  })
+  @IsOptional()
+  @IsEnum(['ATIVO', 'INATIVO', 'INTERESSADO', 'NAO_VOLUNTARIO'])
+  volunteerStatus?: string;
+
+  @ApiPropertyOptional({ description: 'Donation history (JSON array)', example: '[{"amount": 100}]' })
+  @IsOptional()
+  @IsArray()
+  donationHistory?: Record<string, any>[];
+
+  @ApiPropertyOptional({ description: 'Engagement score (0-100)', example: 80 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  engagementScore?: number;
+
+  // Demographics Extended
+  @ApiPropertyOptional({ description: 'Age group', example: '18-25' })
+  @IsOptional()
   @IsString()
-  tags?: string;
+  @MaxLength(20)
+  ageGroup?: string;
+
+  @ApiPropertyOptional({
+    description: 'Household type',
+    enum: [
+      'SOLTEIRO',
+      'FAMILIA_COM_FILHOS',
+      'FAMILIA_SEM_FILHOS',
+      'IDOSOS',
+      'ESTUDANTES',
+      'NAO_INFORMADO',
+    ],
+    example: 'SOLTEIRO',
+  })
+  @IsOptional()
+  @IsEnum([
+    'SOLTEIRO',
+    'FAMILIA_COM_FILHOS',
+    'FAMILIA_SEM_FILHOS',
+    'IDOSOS',
+    'ESTUDANTES',
+    'NAO_INFORMADO',
+  ])
+  householdType?: string;
+
+  @ApiPropertyOptional({
+    description: 'Employment status',
+    enum: [
+      'EMPREGADO',
+      'DESEMPREGADO',
+      'APOSENTADO',
+      'ESTUDANTE',
+      'AUTONOMO',
+      'NAO_INFORMADO',
+    ],
+    example: 'EMPREGADO',
+  })
+  @IsOptional()
+  @IsEnum([
+    'EMPREGADO',
+    'DESEMPREGADO',
+    'APOSENTADO',
+    'ESTUDANTE',
+    'AUTONOMO',
+    'NAO_INFORMADO',
+  ])
+  employmentStatus?: string;
+
+  @ApiPropertyOptional({ description: 'Vehicle ownership', example: true })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'SIM') return true;
+    if (value === 'NAO') return false;
+    return value;
+  })
+  @IsBoolean()
+  vehicleOwnership?: boolean;
+
+  @ApiPropertyOptional({ description: 'Internet access', example: 'Fibra' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  internetAccess?: string;
+
+  // Communication Preferences Extended
+  @ApiPropertyOptional({
+    description: 'Communication style',
+    enum: ['FORMAL', 'INFORMAL', 'NAO_DEFINIDO'],
+    example: 'FORMAL',
+  })
+  @IsOptional()
+  @IsEnum(['FORMAL', 'INFORMAL', 'NAO_DEFINIDO'])
+  communicationStyle?: string;
+
+  @ApiPropertyOptional({ description: 'Content preference', example: '["Video"]' })
+  @IsOptional()
+  @IsArray()
+  contentPreference?: string[];
+
+  @ApiPropertyOptional({ description: 'Best contact time', example: 'Manhã' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  bestContactTime?: string;
+
+  @ApiPropertyOptional({ description: 'Best contact day', example: '["Monday"]' })
+  @IsOptional()
+  @IsArray()
+  bestContactDay?: string[];
+
+  // Social Network & Influence
+  @ApiPropertyOptional({ description: 'Social media followers', example: 1000 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  socialMediaFollowers?: number;
+
+  @ApiPropertyOptional({
+    description: 'Community role',
+    enum: [
+      'LIDER',
+      'MEMBRO_ATIVO',
+      'ATIVISTA',
+      'MEMBRO',
+      'NAO_PARTICIPANTE',
+      'NAO_DEFINIDO',
+    ],
+    example: 'LIDER',
+  })
+  @IsOptional()
+  @IsEnum([
+    'LIDER',
+    'MEMBRO_ATIVO',
+    'ATIVISTA',
+    'MEMBRO',
+    'NAO_PARTICIPANTE',
+    'NAO_DEFINIDO',
+  ])
+  communityRole?: string;
+
+  @ApiPropertyOptional({ description: 'Network size', example: 50 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  networkSize?: number;
+
+  @ApiPropertyOptional({ description: 'Influence radius', example: 5 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  influenceRadius?: number;
+
+  @ApiPropertyOptional({ description: 'Referral code', example: 'JOAO-SILVA-123' })
+  @IsOptional()
+  @IsString()
+  referralCode?: string;
+
+  @ApiPropertyOptional({ description: 'Referred by (Voter ID)', example: 'uuid' })
+  @IsOptional()
+  @IsString()
+  referredBy?: string;
+
+  @ApiPropertyOptional({ description: 'Referral date', example: '2023-01-01' })
+  @IsOptional()
+  @IsDateString()
+  referralDate?: string;
 }

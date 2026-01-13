@@ -76,6 +76,7 @@ export interface Voter {
 
   // Basic Information
   name: string;
+  motherName?: string | null;
   cpf?: string | null;
   dateOfBirth?: string | null;
   gender?: Gender | null;
@@ -117,20 +118,20 @@ export interface Voter {
   twitter?: string | null;
 
   // Contact Preferences
-  hasWhatsapp?: string | null; // 'SIM' | 'NAO' from backend
+  hasWhatsapp?: string | boolean | null; // 'SIM' | 'NAO' from backend, boolean in forms
   preferredContact?: string | null; // 'TELEFONE' | 'WHATSAPP' | 'EMAIL'
 
   // Political Information
   supportLevel?: SupportLevel | null;
   politicalParty?: string | null;
   votingHistory?: string | null;
-  topIssues?: string | null; // JSON string from backend
+  topIssues?: string | string[] | null; // JSON string from backend, array in forms
   issuePositions?: string | null; // JSON string from backend
   previousCandidateSupport?: string | null;
   influencerScore?: number | null; // 0-100
   persuadability?: string | null; // 'ALTO' | 'MEDIO' | 'BAIXO'
   turnoutLikelihood?: TurnoutLikelihood | null;
-  tags?: string | null; // JSON string from backend
+  tags?: string | string[] | null; // JSON string from backend, array in forms
   notes?: string | null;
 
   // Engagement & Behavioral
@@ -150,14 +151,14 @@ export interface Voter {
   ageGroup?: string | null; // "18-25", "26-35", "36-50", "51-65", "65+"
   householdType?: HouseholdType | null;
   employmentStatus?: EmploymentStatus | null;
-  vehicleOwnership?: string | null; // 'SIM' | 'NAO' from backend
+  vehicleOwnership?: string | boolean | null; // 'SIM' | 'NAO' from backend, boolean in forms
   internetAccess?: string | null; // "Fibra", "4G", "3G", "Limitado", "Sem acesso"
 
   // Communication Preferences Extended
   communicationStyle?: CommunicationStyle | null;
-  contentPreference?: string | null; // JSON string from backend
+  contentPreference?: string | string[] | null; // JSON string from backend, array in forms
   bestContactTime?: string | null; // "Manhã", "Tarde", "Noite"
-  bestContactDay?: string | null; // JSON string from backend
+  bestContactDay?: string | string[] | null; // JSON string from backend, array in forms
 
   // Social Network & Influence
   socialMediaFollowers?: number | null;
