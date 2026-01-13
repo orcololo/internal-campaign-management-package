@@ -60,6 +60,7 @@
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
+    "@vercel/node": "^5.5.17",
     "drizzle-kit": "^0.20.7",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",

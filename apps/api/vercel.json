@@ -1,21 +1,14 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "src/serverless.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["dist/**"]
-      }
+  "functions": {
+    "api/serverless.js": {
+      "runtime": "nodejs20.x"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "src/serverless.ts"
+      "source": "/(.*)",
+      "destination": "/api/serverless"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
