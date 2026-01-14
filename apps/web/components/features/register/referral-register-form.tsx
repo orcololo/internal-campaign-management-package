@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { votersApi } from "@/lib/api/voters";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Check, Loader2, User, Phone, Mail, MapPin } from "lucide-react";
@@ -57,31 +58,23 @@ export function ReferralRegisterForm({ referralCode }: ReferralRegisterFormProps
         setIsSubmitting(true);
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-            const response = await fetch(`${apiUrl}/voters/register-referral`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    referralCode,
-                    name: data.name,
-                    phone: data.phone,
-                    whatsapp: data.whatsapp || data.phone,
-                    email: data.email,
-                    zipCode: data.zipCode,
-                    addressNumber: data.addressNumber,
-                    city: data.city,
-                    state: data.state,
-                }),
+            const response = await votersApi.registerViaReferral({
+                referralCode,
+                name: data.name,
+                phone: data.phone,
+                whatsapp: data.whatsapp || data.phone,
+                email: data.email,
+                zipCode: data.zipCode,
+                addressNumber: data.addressNumber,
+                city: data.city,
+                state: data.state,
             });
 
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message || "Erro ao cadastrar");
+            const result = response.data;
+            if (!result) {
+                throw new Error("Erro ao cadastrar - Sem dados retornados");
             }
 
-            const result = await response.json();
             setReferrerName(result.referrerName || "um apoiador");
             setIsSuccess(true);
             toast.success("Cadastro realizado com sucesso!");

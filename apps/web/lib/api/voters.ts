@@ -1,4 +1,5 @@
 import { realApiClient } from "./real-client";
+import { apiClient } from "./client";
 import {
   transformVoter,
   transformVoters,
@@ -228,9 +229,8 @@ export const votersApi = {
     }
 
     const queryString = params.toString();
-    const endpoint = `/voters/export/csv${
-      queryString ? `?${queryString}` : ""
-    }`;
+    const endpoint = `/voters/export/csv${queryString ? `?${queryString}` : ""
+      }`;
 
     await realApiClient.downloadFile(endpoint, "voters-export.csv");
   },
@@ -248,9 +248,8 @@ export const votersApi = {
   async batchGeocode(
     limit?: number
   ): Promise<ApiResponse<{ geocoded: number; failed: number }>> {
-    const endpoint = `/voters/location/batch-geocode${
-      limit ? `?limit=${limit}` : ""
-    }`;
+    const endpoint = `/voters/location/batch-geocode${limit ? `?limit=${limit}` : ""
+      }`;
     return realApiClient.post(endpoint);
   },
 
@@ -323,9 +322,8 @@ export const votersApi = {
     if (limit) params.append("limit", String(limit));
 
     const queryString = params.toString();
-    const endpoint = `/voters/${id}/referrals${
-      queryString ? `?${queryString}` : ""
-    }`;
+    const endpoint = `/voters/${id}/referrals${queryString ? `?${queryString}` : ""
+      }`;
 
     const response = await realApiClient.get<PaginatedResponse<Voter>>(
       endpoint
@@ -363,14 +361,20 @@ export const votersApi = {
     email?: string;
     phone?: string;
     [key: string]: any;
-  }): Promise<ApiResponse<Voter>> {
-    const response = await realApiClient.post<Voter>(
+  }): Promise<ApiResponse<Voter & { referrerName?: string }>> {
+    const response = await apiClient.post<Voter & { referrerName?: string }>(
       "/voters/register-referral",
       data
     );
 
     if (response.data) {
-      response.data = transformVoter(response.data);
+      // transformVoter returns Voter type, but at runtime it preserves extra props
+      // We cast to any to allow the merge, then cast back to our intersection type
+      const transformed = transformVoter(response.data);
+      response.data = {
+        ...transformed,
+        referrerName: (response.data as any).referrerName,
+      };
     }
 
     return response;

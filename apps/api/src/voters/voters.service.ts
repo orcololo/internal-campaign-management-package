@@ -16,7 +16,7 @@ export class VotersService {
     private readonly databaseService: DatabaseService,
     private readonly mapsService: MapsService,
     private readonly viaCepService: ViaCepService,
-  ) {}
+  ) { }
 
   async create(createVoterDto: CreateVoterDto) {
     const db = this.databaseService.getDb();
@@ -1172,7 +1172,10 @@ export class VotersService {
       })
       .where(eq(voters.id, referrer.id));
 
-    return this.formatVoter(newVoter);
+    return {
+      ...this.formatVoter(newVoter),
+      referrerName: referrer.name,
+    };
   }
 
   /**
