@@ -1,5 +1,13 @@
 {
   "version": 2,
+  "buildCommand": "cd ../.. && pnpm install && cd apps/api && pnpm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/serverless.ts": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
