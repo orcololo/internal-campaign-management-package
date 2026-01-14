@@ -125,26 +125,26 @@ export interface Voter {
   supportLevel?: SupportLevel | null;
   politicalParty?: string | null;
   votingHistory?: string | null;
-  topIssues?: string | string[] | null; // JSON string from backend, array in forms
-  issuePositions?: string | null; // JSON string from backend
+  topIssues?: any; // JSON string from backend, array in forms
+  issuePositions?: any; // JSON string from backend
   previousCandidateSupport?: string | null;
   influencerScore?: number | null; // 0-100
   persuadability?: string | null; // 'ALTO' | 'MEDIO' | 'BAIXO'
   turnoutLikelihood?: TurnoutLikelihood | null;
-  tags?: string | string[] | null; // JSON string from backend, array in forms
+  tags?: any; // JSON string from backend, array in forms
   notes?: string | null;
 
   // Engagement & Behavioral
   registrationDate?: string | null;
   lastEngagementDate?: string | null;
   engagementTrend?: EngagementTrend | null;
-  seasonalActivity?: string | null; // JSON string from backend
+  seasonalActivity?: any; // JSON string from backend
   lastContactDate?: string | null;
   contactFrequency?: number | null; // times contacted
   responseRate?: number | null; // percentage 0-100
-  eventAttendance?: string | null; // JSON string from backend
+  eventAttendance?: any; // JSON string from backend
   volunteerStatus?: VolunteerStatus | null;
-  donationHistory?: string | null; // JSON string from backend
+  donationHistory?: any; // JSON string from backend
   engagementScore?: number | null; // 0-100
 
   // Demographics Extended
@@ -156,9 +156,9 @@ export interface Voter {
 
   // Communication Preferences Extended
   communicationStyle?: CommunicationStyle | null;
-  contentPreference?: string | string[] | null; // JSON string from backend, array in forms
+  contentPreference?: any; // JSON string from backend, array in forms
   bestContactTime?: string | null; // "Manhã", "Tarde", "Noite"
-  bestContactDay?: string | string[] | null; // JSON string from backend, array in forms
+  bestContactDay?: any; // JSON string from backend, array in forms
 
   // Social Network & Influence
   socialMediaFollowers?: number | null;

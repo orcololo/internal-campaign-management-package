@@ -22,7 +22,9 @@ class PolygonPoint {
   lng: number;
 }
 
-export class CreateGeofenceDto {
+import { CreateGeofenceRequest } from '@repo/types';
+
+export class CreateGeofenceDto implements CreateGeofenceRequest {
   @ApiProperty({ description: 'Geofence name', example: 'Zona Central' })
   @IsString()
   @IsNotEmpty()
@@ -36,43 +38,27 @@ export class CreateGeofenceDto {
 
   @ApiProperty({
     description: 'Geofence type',
-    enum: ['CIRCLE', 'POLYGON'],
-    example: 'CIRCLE',
+    enum: ['circle', 'polygon'],
+    example: 'circle',
   })
-  @IsEnum(['CIRCLE', 'POLYGON'])
-  type: string;
+  @IsEnum(['circle', 'polygon'])
+  type: 'circle' | 'polygon';
 
-  // Circle properties
-  @ApiPropertyOptional({ description: 'Center latitude (for CIRCLE)', example: -23.5505 })
-  @ValidateIf((o) => o.type === 'CIRCLE')
-  @IsNumber()
-  centerLatitude?: number;
-
-  @ApiPropertyOptional({ description: 'Center longitude (for CIRCLE)', example: -46.6333 })
-  @ValidateIf((o) => o.type === 'CIRCLE')
-  @IsNumber()
-  centerLongitude?: number;
-
-  @ApiPropertyOptional({ description: 'Radius in kilometers (for CIRCLE)', example: 2.5 })
-  @ValidateIf((o) => o.type === 'CIRCLE')
-  @IsNumber()
-  radiusKm?: number;
-
-  // Polygon properties
-  @ApiPropertyOptional({
-    description: 'Polygon points (for POLYGON)',
-    type: [PolygonPoint],
-    example: [
-      { lat: -23.5505, lng: -46.6333 },
-      { lat: -23.5515, lng: -46.6343 },
-      { lat: -23.5525, lng: -46.6323 },
-    ],
+  // Coordinates
+  @ApiProperty({
+    description: 'Coordinates (Point for CIRCLE, Polygon rings for POLYGON)',
+    example: [-23.5505, -46.6333],
   })
-  @ValidateIf((o) => o.type === 'POLYGON')
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PolygonPoint)
-  polygon?: PolygonPoint[];
+  @IsNotEmpty()
+  coordinates: number[][][] | [number, number];
+
+  @ApiPropertyOptional({ description: 'Radius in meters (for CIRCLE)', example: 2500 })
+  @ValidateIf((o) => o.type === 'circle')
+  @IsNumber()
+  radius?: number;
+
+  // Legacy fields removed or mapped
+
 
   // Location info
   @ApiPropertyOptional({ description: 'City', example: 'São Paulo' })

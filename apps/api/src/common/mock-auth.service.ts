@@ -1,18 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import type { UserRole } from '../database/schemas/user.schema';
+import type { UserRole, User } from '@repo/types';
 
 /**
  * Mock User Interface
  *
  * Simulates a logged-in user for development without Keycloak
  */
-export interface MockUser {
-  id: string;
-  email: string;
-  name: string;
-  role: UserRole;
+export interface MockUser extends User {
   tenantId: string;
-  keycloakId: string;
 }
 
 /**
@@ -50,6 +45,8 @@ export class MockAuthService {
       role: 'CANDIDATO',
       tenantId: '650e8400-e29b-41d4-a716-446655440000', // Valid UUID format
       keycloakId: '750e8400-e29b-41d4-a716-446655440000', // Valid UUID format
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
   }
 
@@ -87,6 +84,8 @@ export class MockAuthService {
       role,
       tenantId: '650e8400-e29b-41d4-a716-446655440000',
       keycloakId: `750e8400-e29b-41d4-a716-446655440${Object.keys(roleUUIDs).indexOf(role)}`,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
   }
 

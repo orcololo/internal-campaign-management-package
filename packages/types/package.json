@@ -1,0 +1,26 @@
+{
+    "name": "@repo/types",
+    "version": "0.0.0",
+    "private": true,
+    "license": "MIT",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "typesVersions": {
+        "*": {
+            "*": [
+                "src/*"
+            ]
+        }
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc -w",
+        "lint": "eslint src/"
+    },
+    "devDependencies": {
+        "@repo/typescript-config": "workspace:*",
+        "typescript": "^5.0.0",
+        "eslint": "^9.0.0"
+    }
+}

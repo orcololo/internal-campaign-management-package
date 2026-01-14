@@ -66,7 +66,8 @@ export function ReportsPageClient() {
   }
 
   const sortedReports = [...savedReports].sort(
-    (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
+    (a, b) =>
+      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   );
 
   const mostUsedCount =
@@ -81,7 +82,7 @@ export function ReportsPageClient() {
 
   const reportsUsedToday = savedReports.filter(
     (r) =>
-      r.lastUsedAt && r.lastUsedAt.toDateString() === new Date().toDateString()
+      r.lastUsedAt && new Date(r.lastUsedAt).toDateString() === new Date().toDateString()
   ).length;
 
   return (
@@ -221,7 +222,7 @@ export function ReportsPageClient() {
                     {report.lastUsedAt && (
                       <span>
                         Último uso:{" "}
-                        {format(report.lastUsedAt, "dd/MM/yy", {
+                        {format(new Date(report.lastUsedAt), "dd/MM/yy", {
                           locale: ptBR,
                         })}
                       </span>
@@ -229,7 +230,7 @@ export function ReportsPageClient() {
                   </div>
                   <div className="text-xs">
                     Criado em{" "}
-                    {format(report.createdAt, "dd/MM/yyyy", { locale: ptBR })}
+                    {format(new Date(report.createdAt), "dd/MM/yyyy", { locale: ptBR })}
                   </div>
                 </div>
 

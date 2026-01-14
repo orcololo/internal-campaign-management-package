@@ -14,7 +14,7 @@ class ApiClient {
   private mockAdapter: MockAdapter;
 
   constructor(config?: ApiClientConfig) {
-    const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
     // Always create mock adapter for registration
     this.mockAdapter = new MockAdapter(config?.timeout || 300);

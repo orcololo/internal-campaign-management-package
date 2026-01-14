@@ -1,74 +1,26 @@
 import type { Voter } from "./voters";
 
-export type FilterOperator =
-  | "equals"
-  | "notEquals"
-  | "contains"
-  | "notContains"
-  | "startsWith"
-  | "endsWith"
-  | "greaterThan"
-  | "lessThan"
-  | "greaterThanOrEqual"
-  | "lessThanOrEqual"
-  | "between"
-  | "in"
-  | "notIn"
-  | "isEmpty"
-  | "isNotEmpty";
+import {
+  ReportFilter,
+  ReportSort,
+  ReportConfig,
+  SavedReport,
+  ReportExportHistory,
+  FilterOperator,
+  LogicalOperator,
+  ReportFormat
+} from "@repo/types";
 
-export type LogicalOperator = "AND" | "OR";
-
-export interface ReportFilter {
-  id: string;
-  field: keyof Voter;
-  operator: FilterOperator;
-  value: any;
-  logicalOperator?: LogicalOperator;
-}
-
-export interface ReportSort {
-  field: keyof Voter;
-  direction: "asc" | "desc";
-}
-
-export type ReportFormat = "pdf" | "csv" | "excel";
-
-export interface ReportConfig {
-  name: string;
-  description?: string;
-  filters: ReportFilter[];
-  sorting: ReportSort[];
-  columns: Array<keyof Voter>;
-  format: ReportFormat;
-  includeCharts: boolean;
-  groupBy?: keyof Voter;
-}
-
-export interface SavedReport {
-  id: string;
-  name: string;
-  description?: string;
-  filters: ReportFilter[];
-  sorting: ReportSort[];
-  columns: Array<keyof Voter>;
-  createdAt: Date;
-  updatedAt: Date;
-  createdBy?: string;
-  isPublic: boolean;
-  usageCount: number;
-  lastUsedAt?: Date;
-}
-
-export interface ReportExportHistory {
-  id: string;
-  savedReportId?: string;
-  format: ReportFormat;
-  recordCount: number;
-  fileSize: number;
-  exportedAt: Date;
-  exportedBy: string;
-}
+export type {
+  FilterOperator,
+  LogicalOperator,
+  ReportFilter,
+  ReportSort,
+  ReportFormat,
+  ReportConfig,
+  SavedReport,
+  ReportExportHistory
+};
 
 // Field metadata for dynamic UI generation
 export interface FieldMetadata {
@@ -76,17 +28,17 @@ export interface FieldMetadata {
   label: string;
   type: "string" | "number" | "date" | "enum" | "boolean";
   category:
-    | "basic"
-    | "contact"
-    | "address"
-    | "electoral"
-    | "social"
-    | "political"
-    | "engagement"
-    | "demographics"
-    | "communication"
-    | "social_network"
-    | "additional";
+  | "basic"
+  | "contact"
+  | "address"
+  | "electoral"
+  | "social"
+  | "political"
+  | "engagement"
+  | "demographics"
+  | "communication"
+  | "social_network"
+  | "additional";
   enumValues?: string[];
   operators: FilterOperator[];
 }
@@ -568,6 +520,10 @@ export function getFieldMetadata(
   field: keyof Voter
 ): FieldMetadata | undefined {
   return VOTER_FIELDS_METADATA.find((f) => f.key === field);
+}
+
+export function getFieldLabel(field: keyof Voter): string {
+  return getFieldMetadata(field)?.label || String(field);
 }
 
 // Helper to get fields by category

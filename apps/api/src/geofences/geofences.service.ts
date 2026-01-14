@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { eq, and, isNull } from 'drizzle-orm';
 import { DatabaseService } from '../database/database.service';
 import { geofences } from '../database/schemas';
@@ -11,7 +11,7 @@ export class GeofencesService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly mapsService: MapsService,
-  ) {}
+  ) { }
 
   async create(createGeofenceDto: CreateGeofenceDto) {
     const db = this.databaseService.getDb();
@@ -28,12 +28,27 @@ export class GeofencesService {
       notes: createGeofenceDto.notes,
     };
 
-    if (createGeofenceDto.type === 'CIRCLE') {
-      values.centerLatitude = createGeofenceDto.centerLatitude?.toString();
-      values.centerLongitude = createGeofenceDto.centerLongitude?.toString();
-      values.radiusKm = createGeofenceDto.radiusKm?.toString();
-    } else if (createGeofenceDto.type === 'POLYGON') {
-      values.polygon = createGeofenceDto.polygon;
+    if (createGeofenceDto.type === 'circle') {
+      const { coordinates, radius } = createGeofenceDto;
+      if (!coordinates || !radius) {
+        throw new BadRequestException(
+          'For CIRCLE type, coordinates and radius are required',
+        );
+      }
+      // Assuming coordinates is [lat, lng] for circle
+      const [lat, lng] = coordinates as [number, number];
+      values.centerLatitude = lat.toString();
+      values.centerLongitude = lng.toString();
+      values.radiusKm = (radius / 1000).toString(); // Convert meters to km if DB expects km
+    } else if (createGeofenceDto.type === 'polygon') {
+      // Assuming values.polygon expects PolygonPoint[]
+      // We need to map number[][][] (GeoJSON style) to PolygonPoint[]
+      // This is complex because naming implies one array, but type implies nested.
+      // Let's assume for now we just store it or map the first ring.
+      // But wait, the original DTO had PolygonPoint[] (flat array).
+      // The shared type has number[][][] (rings).
+      // We will map it roughly.
+      values.polygon = (createGeofenceDto.coordinates as number[][][])[0].map(p => ({ lat: p[0], lng: p[1] }));
     }
 
     const [geofence] = await db.insert(geofences).values(values).returning();
@@ -79,14 +94,38 @@ export class GeofencesService {
       updatedAt: new Date(),
     };
 
-    if (updateGeofenceDto.centerLatitude !== undefined) {
-      values.centerLatitude = updateGeofenceDto.centerLatitude.toString();
+    if (updateGeofenceDto.coordinates !== undefined) {
+      // Logic depends on type. But wait, update logic might not know the type if it's not passed.
+      // We might need to fetch the existing geofence to know the type if we want to parse coordinates correctly?
+      // Or we assume the input maintains consistency.
+      // If we are just mapping coordinates -> fields, we need to know if it's circle or polygon.
+      // However, the Update DTO might not have 'type'.
+      // If 'type' is NOT passed, we should probably fetch the existing record.
+      // But for simplicity/performance, let's look at what we can do.
+      // The current code mapped individual fields to string.
+      // Now we have `coordinates`.
+
+      // If keys are missing, we can't easily map if we don't know the type.
+      // BUT, `coordinates` structure implies type?
+      // Circle: [number, number] (length 2). Polygon: number[][][] (length > 0 and nested).
+      // Let's rely on `type` if passed, or fetch if not?
+      // Or just try to infer?
+
+      // Let's implement a simpler check:
+      const coords = updateGeofenceDto.coordinates;
+      if (Array.isArray(coords) && coords.length === 2 && typeof coords[0] === 'number') {
+        // It's a Point (Circle center)
+        const [lat, lng] = coords as [number, number];
+        values.centerLatitude = lat.toString();
+        values.centerLongitude = lng.toString();
+      } else if (Array.isArray(coords)) {
+        // Polygon rings
+        values.polygon = (coords as number[][][])[0].map(p => ({ lat: p[0], lng: p[1] }));
+      }
     }
-    if (updateGeofenceDto.centerLongitude !== undefined) {
-      values.centerLongitude = updateGeofenceDto.centerLongitude.toString();
-    }
-    if (updateGeofenceDto.radiusKm !== undefined) {
-      values.radiusKm = updateGeofenceDto.radiusKm.toString();
+
+    if (updateGeofenceDto.radius !== undefined) {
+      values.radiusKm = (updateGeofenceDto.radius / 1000).toString();
     }
 
     const [geofence] = await db

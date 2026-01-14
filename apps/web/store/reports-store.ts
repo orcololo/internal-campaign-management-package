@@ -276,7 +276,7 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
 
   getRecentReports: (limit = 5) => {
     return [...get().savedReports]
-      .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
       .slice(0, limit);
   },
 }));

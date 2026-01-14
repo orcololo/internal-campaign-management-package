@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { getFieldLabel } from "@/types/reports";
 import { ArrowUp, ArrowDown, GripVertical, X, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -178,10 +179,10 @@ export function SortConfigurator({ sorting, onChange }: SortConfiguratorProps) {
       {sorting.length > 1 && (
         <div className="text-xs text-muted-foreground bg-muted p-3 rounded-lg">
           <strong>Ordem de prioridade:</strong> Os dados serão ordenados
-          primeiro por <strong>{getFieldLabel(sorting[0].field)}</strong>
+          primeiro por <strong>{getFieldLabel(sorting[0].field as keyof Voter)}</strong>
           {sorting.length > 1 && (
             <>
-              , depois por <strong>{getFieldLabel(sorting[1].field)}</strong>
+              , depois por <strong>{getFieldLabel(sorting[1].field as keyof Voter)}</strong>
               {sorting.length > 2 && `, e assim por diante`}
             </>
           )}

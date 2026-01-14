@@ -1,19 +1,10 @@
 // Geofence types for the campaign platform
 
-export interface Geofence {
-  id: string;
-  name: string;
-  description?: string;
-  type: "polygon" | "circle";
-  coordinates: number[][][] | [number, number]; // Polygon: array of rings | Circle: center point
-  radius?: number; // Only for circles (in meters)
-  color: string;
-  fillOpacity: number;
-  strokeOpacity: number;
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Geofence as SharedGeofence, GeofenceFilters as SharedFilter, GeofenceStats as SharedStats } from "@repo/types";
+
+export interface Geofence extends SharedGeofence { }
+export interface GeofenceFilters extends SharedFilter { }
+export interface GeofenceStats extends SharedStats { }
 
 export interface GeofenceFilters {
   active?: boolean;

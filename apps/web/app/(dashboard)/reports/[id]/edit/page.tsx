@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ReportsBuilder } from "@/components/features/reports/reports-builder";
 import { savedReports } from "@/mock-data/reports";
+import type { Voter } from "@/types/voters";
 
 export default async function EditReportPage(props: {
   params: Promise<{ id: string }>;
@@ -16,7 +17,7 @@ export default async function EditReportPage(props: {
     <ReportsBuilder
       initialFilters={report.filters}
       initialSorting={report.sorting}
-      initialColumns={report.columns}
+      initialColumns={report.columns as (keyof Voter)[]}
       initialName={report.name}
       initialDescription={report.description}
     />

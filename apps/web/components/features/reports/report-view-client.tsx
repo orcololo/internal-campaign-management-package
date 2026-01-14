@@ -31,7 +31,7 @@ export function ReportViewClient({ report, voters }: ReportViewClientProps) {
       <CardContent className="pt-6">
         <ReportPreview
           data={voters}
-          columns={report.columns}
+          columns={report.columns as (keyof Voter)[]}
           filters={report.filters}
           sorting={report.sorting}
           onExport={handleExport}

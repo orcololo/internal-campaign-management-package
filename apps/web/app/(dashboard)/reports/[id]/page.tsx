@@ -24,6 +24,7 @@ import { votersApi } from "@/lib/api/voters";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { getOperatorLabel, getFieldMetadata } from "@/types/reports";
+import type { Voter } from "@/types/voters";
 
 async function getVoters() {
   try {
@@ -100,8 +101,8 @@ export default async function ViewReportPage(props: {
             <p className="text-xs text-muted-foreground">
               {report.lastUsedAt
                 ? `Último uso: ${format(report.lastUsedAt, "dd/MM/yy", {
-                    locale: ptBR,
-                  })}`
+                  locale: ptBR,
+                })}`
                 : "Nunca usado"}
             </p>
           </CardContent>
@@ -135,7 +136,7 @@ export default async function ViewReportPage(props: {
             </CardHeader>
             <CardContent className="space-y-2">
               {report.filters.map((filter, index) => {
-                const fieldMeta = getFieldMetadata(filter.field);
+                const fieldMeta = getFieldMetadata(filter.field as keyof Voter);
                 return (
                   <div
                     key={filter.id}
@@ -179,7 +180,7 @@ export default async function ViewReportPage(props: {
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {report.columns.map((column) => {
-                const fieldMeta = getFieldMetadata(column);
+                const fieldMeta = getFieldMetadata(column as keyof Voter);
                 return (
                   <Badge key={column as string} variant="secondary">
                     {fieldMeta?.label || column}
@@ -201,7 +202,7 @@ export default async function ViewReportPage(props: {
             </CardHeader>
             <CardContent className="space-y-2">
               {report.sorting.map((sort, index) => {
-                const fieldMeta = getFieldMetadata(sort.field);
+                const fieldMeta = getFieldMetadata(sort.field as keyof Voter);
                 return (
                   <div key={index} className="flex items-center gap-2 text-sm">
                     <Badge variant="outline">{index + 1}</Badge>
