@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import { AppModule } from '../dist/app.module';
+import { AppModule } from '../src/app.module';
 import express from 'express';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 

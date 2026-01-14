@@ -1,17 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "cd ../.. && pnpm install && cd apps/api && pnpm run build",
-  "outputDirectory": "dist",
-  "functions": {
-    "api/serverless.ts": {
-      "memory": 1024,
-      "maxDuration": 30
-    }
-  },
-  "rewrites": [
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/api/serverless"
+      "src": "api/serverless.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/serverless"
     }
   ]
 }

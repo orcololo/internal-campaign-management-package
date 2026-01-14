@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/typescript-config/nestjs.json",
+  "extends": "../../packages/config-typescript/nestjs.json",
   "compilerOptions": {
     "module": "commonjs",
     "declaration": true,
