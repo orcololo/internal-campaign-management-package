@@ -5,7 +5,7 @@ import { ApiResponse } from "@/types/api";
 
 // Use mock data by default for development
 // Set NEXT_PUBLIC_USE_MOCK=false in .env to use real API
-const useMock = process.env.NEXT_PUBLIC_USE_MOCK !== "false";
+const useMock = process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
 type Adapter = MockAdapter | HttpAdapter;
 

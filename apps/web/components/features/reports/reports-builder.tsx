@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { ReportFilter, ReportSort } from "@/types/reports";
 import type { Voter } from "@/types/voters";
@@ -30,36 +30,88 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Plus, Save, FileText } from "lucide-react";
+import { Plus, Save, FileText, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { reportsApi, type ReportPreviewResponse } from "@/lib/api/endpoints/reports";
 
 interface ReportsBuilderProps {
+  reportId?: string;
   initialFilters?: ReportFilter[];
   initialSorting?: ReportSort[];
   initialColumns?: Array<keyof Voter>;
   initialName?: string;
   initialDescription?: string;
-  data?: Voter[];
 }
 
 export function ReportsBuilder({
+  reportId,
   initialFilters = [],
   initialSorting = [],
   initialColumns = ["name", "phone", "email", "city", "supportLevel"],
   initialName = "",
   initialDescription = "",
-  data = [],
 }: ReportsBuilderProps) {
   const router = useRouter();
-  const { createReport, isLoading } = useReportsStore();
+  const { createReport, updateReport, fetchReportById, isLoading: isStoreLoading } = useReportsStore();
   const [filters, setFilters] = useState<ReportFilter[]>(initialFilters);
   const [sorting, setSorting] = useState<ReportSort[]>(initialSorting);
   const [columns, setColumns] = useState<Array<keyof Voter>>(initialColumns);
   const [reportName, setReportName] = useState(initialName);
-  const [reportDescription, setReportDescription] =
-    useState(initialDescription);
+  const [reportDescription, setReportDescription] = useState(initialDescription);
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  
+  // Preview state
+  const [activeTab, setActiveTab] = useState("filters");
+  const [previewData, setPreviewData] = useState<Voter[]>([]);
+  const [previewMeta, setPreviewMeta] = useState<ReportPreviewResponse['meta'] | undefined>(undefined);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+
+  // Load existing report data if reportId is provided
+  useEffect(() => {
+    if (reportId) {
+      const loadReport = async () => {
+        const report = await fetchReportById(reportId);
+        if (report) {
+          setFilters(report.filters);
+          setSorting(report.sorting);
+          setColumns(report.columns as Array<keyof Voter>);
+          setReportName(report.name);
+          setReportDescription(report.description || "");
+        }
+      };
+      loadReport();
+    }
+  }, [reportId, fetchReportById]);
+
+  const fetchPreview = useCallback(async (page = 1) => {
+    setIsPreviewLoading(true);
+    try {
+      const response = await reportsApi.executeReport({
+        filters,
+        sorting,
+        columns: columns.map(String),
+        page,
+        perPage: 20, // Default per page for preview
+      });
+      
+      if (response.data) {
+        setPreviewData(response.data.data);
+        setPreviewMeta(response.data.meta);
+      }
+    } catch (error) {
+      toast.error("Erro ao carregar preview do relatório");
+    } finally {
+      setIsPreviewLoading(false);
+    }
+  }, [filters, sorting, columns]);
+
+  // Fetch preview when switching to preview tab
+  useEffect(() => {
+    if (activeTab === "preview") {
+      fetchPreview();
+    }
+  }, [activeTab, fetchPreview]);
 
   const addFilter = () => {
     const newFilter: ReportFilter = {
@@ -88,14 +140,26 @@ export function ReportsBuilder({
       return;
     }
 
-    const result = await createReport({
-      name: reportName,
-      description: reportDescription,
-      filters,
-      sorting,
-      columns: columns.map((c) => String(c)),
-      isPublic: false,
-    });
+    let result;
+    if (reportId) {
+       result = await updateReport(reportId, {
+        name: reportName,
+        description: reportDescription,
+        filters,
+        sorting,
+        columns: columns.map((c) => String(c)),
+        isPublic: false,
+      });
+    } else {
+      result = await createReport({
+        name: reportName,
+        description: reportDescription,
+        filters,
+        sorting,
+        columns: columns.map((c) => String(c)),
+        isPublic: false,
+      });
+    }
 
     if (result) {
       setIsSaveDialogOpen(false);
@@ -104,13 +168,32 @@ export function ReportsBuilder({
   };
 
   const handleExport = async (format: "pdf" | "csv" | "excel") => {
-    setIsExporting(true);
+    // If report is not saved, we can't export easily via ID.
+    // Ideally, we should suggest saving first, or use executeReport with export flag if backend supports it.
+    // Current backend reportsApi.exportReport requires ID.
+    if (!reportId) {
+      toast.error("Salve o relatório antes de exportar.");
+      setIsSaveDialogOpen(true);
+      return;
+    }
 
+    setIsExporting(true);
     try {
-      // TODO: Implement export using exportReport from store
-      // This would require first saving the report or using executeReport
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      toast.success(`Relatório exportado em ${format.toUpperCase()}!`);
+      const response = await reportsApi.exportReport(reportId, format);
+      if (response.data.downloadUrl) {
+         const blob = await reportsApi.downloadExport(response.data.downloadUrl);
+         const url = window.URL.createObjectURL(blob);
+         const link = document.createElement("a");
+         link.href = url;
+         link.download = `report-${reportId}.${format}`;
+         document.body.appendChild(link);
+         link.click();
+         document.body.removeChild(link);
+         window.URL.revokeObjectURL(url);
+         toast.success("Relatório exportado com sucesso!");
+      } else {
+        toast.info("Exportação iniciada. Você será notificado quando estiver pronta.");
+      }
     } catch (error) {
       toast.error("Erro ao exportar relatório");
     } finally {
@@ -172,12 +255,12 @@ export function ReportsBuilder({
                 <Button
                   variant="outline"
                   onClick={() => setIsSaveDialogOpen(false)}
-                  disabled={isLoading}
+                  disabled={isStoreLoading}
                 >
                   Cancelar
                 </Button>
-                <Button onClick={handleSaveReport} disabled={isLoading}>
-                  {isLoading ? "Salvando..." : "Salvar"}
+                <Button onClick={handleSaveReport} disabled={isStoreLoading}>
+                  {isStoreLoading ? "Salvando..." : "Salvar"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -186,7 +269,7 @@ export function ReportsBuilder({
       </div>
 
       {/* Builder Tabs */}
-      <Tabs defaultValue="filters" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="filters">
             Filtros {filters.length > 0 && `(${filters.length})`}
@@ -283,7 +366,8 @@ export function ReportsBuilder({
           <Card>
             <CardContent className="pt-6">
               <ReportPreview
-                data={data}
+                data={previewData}
+                meta={previewMeta}
                 columns={
                   columns.length > 0
                     ? columns
@@ -293,6 +377,8 @@ export function ReportsBuilder({
                 sorting={sorting}
                 onExport={handleExport}
                 isExporting={isExporting}
+                isLoading={isPreviewLoading}
+                onPageChange={fetchPreview}
               />
             </CardContent>
           </Card>

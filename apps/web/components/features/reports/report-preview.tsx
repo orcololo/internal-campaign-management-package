@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useMemo } from "react";
 import type { Voter } from "@/types/voters";
 import type { ReportFilter, ReportSort } from "@/types/reports";
 import { getFieldMetadata } from "@/types/reports";
@@ -13,139 +12,45 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, FileDown, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 interface ReportPreviewProps {
   data: Voter[];
+  meta?: {
+    page: number;
+    perPage: number;
+    total: number;
+    totalPages: number;
+  };
   columns: Array<keyof Voter>;
   filters: ReportFilter[];
   sorting: ReportSort[];
   onExport?: (format: "pdf" | "csv" | "excel") => void;
+  onPageChange?: (page: number) => void;
   isExporting?: boolean;
+  isLoading?: boolean;
 }
 
 export function ReportPreview({
   data,
+  meta,
   columns,
   filters,
   sorting,
   onExport,
+  onPageChange,
   isExporting = false,
+  isLoading = false,
 }: ReportPreviewProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 50;
-
-  // Apply filters
-  const filteredData = useMemo(() => {
-    if (filters.length === 0) return data;
-
-    return data.filter((voter) => {
-      return filters.every((filter, index) => {
-        const value = voter[filter.field];
-        const filterValue = filter.value;
-
-        // Handle logical operators (AND/OR)
-        if (index > 0 && filters[index - 1].logicalOperator === "OR") {
-          // OR logic: if previous filter passed, this one can be skipped
-          return true;
-        }
-
-        // Apply operator logic
-        switch (filter.operator) {
-          case "equals":
-            return value === filterValue;
-          case "notEquals":
-            return value !== filterValue;
-          case "contains":
-            return String(value || "")
-              .toLowerCase()
-              .includes(String(filterValue).toLowerCase());
-          case "notContains":
-            return !String(value || "")
-              .toLowerCase()
-              .includes(String(filterValue).toLowerCase());
-          case "startsWith":
-            return String(value || "")
-              .toLowerCase()
-              .startsWith(String(filterValue).toLowerCase());
-          case "endsWith":
-            return String(value || "")
-              .toLowerCase()
-              .endsWith(String(filterValue).toLowerCase());
-          case "greaterThan":
-            return Number(value) > Number(filterValue);
-          case "lessThan":
-            return Number(value) < Number(filterValue);
-          case "greaterThanOrEqual":
-            return Number(value) >= Number(filterValue);
-          case "lessThanOrEqual":
-            return Number(value) <= Number(filterValue);
-          case "between":
-            if (Array.isArray(filterValue) && filterValue.length === 2) {
-              const numValue = Number(value);
-              return (
-                numValue >= Number(filterValue[0]) &&
-                numValue <= Number(filterValue[1])
-              );
-            }
-            return false;
-          case "in":
-            return Array.isArray(filterValue) && filterValue.includes(value);
-          case "notIn":
-            return Array.isArray(filterValue) && !filterValue.includes(value);
-          case "isEmpty":
-            return !value || value === "";
-          case "isNotEmpty":
-            return !!value && value !== "";
-          default:
-            return true;
-        }
-      });
-    });
-  }, [data, filters]);
-
-  // Apply sorting
-  const sortedData = useMemo(() => {
-    if (sorting.length === 0) return filteredData;
-
-    return [...filteredData].sort((a, b) => {
-      for (const sort of sorting) {
-        const aValue = a[sort.field];
-        const bValue = b[sort.field];
-
-        // Handle null/undefined values
-        if (aValue === undefined || aValue === null) return 1;
-        if (bValue === undefined || bValue === null) return -1;
-
-        let comparison = 0;
-        if (aValue < bValue) comparison = -1;
-        if (aValue > bValue) comparison = 1;
-
-        if (comparison !== 0) {
-          return sort.direction === "asc" ? comparison : -comparison;
-        }
-      }
-      return 0;
-    });
-  }, [filteredData, sorting]);
-
-  // Pagination
-  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
-  const paginatedData = sortedData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
   const formatCellValue = (value: any, field: keyof Voter) => {
     if (value === null || value === undefined || value === "") return "-";
 
     const metadata = getFieldMetadata(field);
 
-    if (metadata?.type === "date" && value instanceof Date) {
-      return format(value, "dd/MM/yyyy", { locale: ptBR });
+    if (metadata?.type === "date" && (value instanceof Date || typeof value === 'string')) {
+      return format(new Date(value), "dd/MM/yyyy", { locale: ptBR });
     }
 
     if (typeof value === "boolean") {
@@ -174,16 +79,15 @@ export function ReportPreview({
         <div>
           <h3 className="text-lg font-semibold">Preview do Relatório</h3>
           <p className="text-sm text-muted-foreground">
-            {sortedData.length} registro{sortedData.length !== 1 ? "s" : ""}{" "}
-            encontrado
-            {sortedData.length !== 1 ? "s" : ""}
+            {meta?.total || 0} registro{meta?.total !== 1 ? "s" : ""}{" "}
+            encontrado{meta?.total !== 1 ? "s" : ""}
           </p>
         </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
             onClick={() => onExport?.("csv")}
-            disabled={isExporting || sortedData.length === 0}
+            disabled={isExporting || (meta?.total || 0) === 0}
           >
             {isExporting ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -195,7 +99,7 @@ export function ReportPreview({
           <Button
             variant="outline"
             onClick={() => onExport?.("excel")}
-            disabled={isExporting || sortedData.length === 0}
+            disabled={isExporting || (meta?.total || 0) === 0}
           >
             {isExporting ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -206,7 +110,7 @@ export function ReportPreview({
           </Button>
           <Button
             onClick={() => onExport?.("pdf")}
-            disabled={isExporting || sortedData.length === 0}
+            disabled={isExporting || (meta?.total || 0) === 0}
           >
             {isExporting ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -219,7 +123,12 @@ export function ReportPreview({
       </div>
 
       {/* Table */}
-      <div className="border rounded-lg">
+      <div className="border rounded-lg relative min-h-[200px]">
+        {isLoading && (
+          <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
         <Table>
           <TableHeader>
             <TableRow>
@@ -231,7 +140,7 @@ export function ReportPreview({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedData.length === 0 ? (
+            {data.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
@@ -241,7 +150,7 @@ export function ReportPreview({
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedData.map((voter) => (
+              data.map((voter) => (
                 <TableRow key={voter.id}>
                   {columns.map((column) => (
                     <TableCell key={column as string}>
@@ -256,17 +165,17 @@ export function ReportPreview({
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {meta && meta.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Página {currentPage} de {totalPages}
+            Página {meta.page} de {meta.totalPages}
           </p>
           <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
+              onClick={() => onPageChange?.(Math.max(1, meta.page - 1))}
+              disabled={meta.page === 1 || isLoading}
             >
               <ChevronLeft className="h-4 w-4" />
               Anterior
@@ -274,8 +183,8 @@ export function ReportPreview({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
+              onClick={() => onPageChange?.(Math.min(meta.totalPages, meta.page + 1))}
+              disabled={meta.page === meta.totalPages || isLoading}
             >
               Próxima
               <ChevronRight className="h-4 w-4" />
