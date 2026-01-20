@@ -1,57 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { Search, Bell } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { CampaignSwitcher } from "@/components/features/campaigns/campaign-switcher";
 import { DashboardBreadcrumbs } from "./breadcrumbs";
 import { UserNav } from "./user-nav";
 import { SearchDialog, useSearchDialog } from "./search-dialog";
-
-// Mock notifications
-const notifications = [
-  {
-    id: "1",
-    title: "Novo eleitor cadastrado",
-    description: "Maria Santos foi adicionada à base",
-    time: "há 5 minutos",
-    read: false,
-  },
-  {
-    id: "2",
-    title: "Evento amanhã",
-    description: "Reunião com lideranças às 14h",
-    time: "há 1 hora",
-    read: false,
-  },
-  {
-    id: "3",
-    title: "Meta atingida",
-    description: "500 eleitores cadastrados!",
-    time: "há 2 horas",
-    read: true,
-  },
-];
+import { NotificationsBell } from "@/components/features/notifications/notifications-bell";
 
 export function DashboardHeader() {
   const { open, setOpen } = useSearchDialog();
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
-  const handleMarkAllAsRead = () => {
-    alert("Marcar todas como lidas - Em desenvolvimento");
-  };
 
   return (
     <>
@@ -86,62 +47,7 @@ export function DashboardHeader() {
             </Button>
 
             {/* Notifications */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="size-5" />
-                  {unreadCount > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="absolute -top-1 -right-1 size-5 flex items-center justify-center p-0 text-[10px]"
-                    >
-                      {unreadCount}
-                    </Badge>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel className="flex items-center justify-between">
-                  <span>Notificações</span>
-                  {unreadCount > 0 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
-                      onClick={handleMarkAllAsRead}
-                    >
-                      Marcar todas como lidas
-                    </Button>
-                  )}
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup className="max-h-[300px] overflow-y-auto">
-                  {notifications.map((notification) => (
-                    <DropdownMenuItem
-                      key={notification.id}
-                      className="flex-col items-start p-3"
-                    >
-                      <div className="flex items-start gap-2 w-full">
-                        {!notification.read && (
-                          <div className="size-2 rounded-full bg-primary mt-1.5 flex-shrink-0" />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium">
-                            {notification.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {notification.description}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {notification.time}
-                          </p>
-                        </div>
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <NotificationsBell />
 
             {/* Theme Toggle */}
             <ThemeToggle />

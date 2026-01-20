@@ -10,6 +10,9 @@ import { GeofencesModule } from './geofences/geofences.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { ReportsModule } from './reports/reports.module';
+import { AuditModule } from './audit/audit.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { MessagingModule } from './messaging/messaging.module';
 
 @Module({
   imports: [
@@ -25,8 +28,11 @@ import { ReportsModule } from './reports/reports.module';
     CalendarModule,
     AnalyticsModule,
     ReportsModule,
+    AuditModule,
+    NotificationsModule,
+    MessagingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

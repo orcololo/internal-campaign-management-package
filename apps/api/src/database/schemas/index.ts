@@ -18,3 +18,10 @@ export * from './analytics.schema';
 // Reports schemas
 export * from './saved-report.schema';
 export * from './report-export.schema';
+
+// Audit & Notifications schemas
+export * from './audit.schema';
+export * from './notification.schema';
+
+// Messaging schemas
+export * from './messaging.schema';

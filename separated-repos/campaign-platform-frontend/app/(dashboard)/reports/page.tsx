@@ -1,0 +1,5 @@
+import { ReportsPageClient } from "@/components/features/reports/reports-page-client";
+
+export default function ReportsPage() {
+  return <ReportsPageClient />;
+}
