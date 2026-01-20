@@ -14,9 +14,26 @@ async function bootstrap() {
       logger: ['error', 'warn', 'log'],
     });
 
-    // Enable CORS
+    // Enable CORS - support multiple origins
+    const allowedOrigins = process.env.FRONTEND_URL
+      ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+      : ['*'];
+
     nestApp.enableCors({
-      origin: process.env.FRONTEND_URL || '*',
+      origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+
+        // Allow all if wildcard is set
+        if (allowedOrigins.includes('*')) return callback(null, true);
+
+        // Check if origin is in allowed list
+        if (allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+
+        callback(new Error('Not allowed by CORS'));
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
