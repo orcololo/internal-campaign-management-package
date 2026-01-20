@@ -64,6 +64,7 @@
     "@types/node": "^22.0.0",
     "@types/supertest": "^6.0.2",
     "@vercel/node": "^5.5.19",
+    "drizzle-kit": "^0.20.0",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
