@@ -48,7 +48,7 @@ export class GeofencesService {
       // But wait, the original DTO had PolygonPoint[] (flat array).
       // The shared type has number[][][] (rings).
       // We will map it roughly.
-      values.polygon = (createGeofenceDto.coordinates as number[][][])[0].map(p => ({ lat: p[0], lng: p[1] }));
+      values.polygon = (createGeofenceDto.coordinates as number[][][])[0].map(p => ({ lat: p[1], lng: p[0] }));
     }
 
     const [geofence] = await db.insert(geofences).values(values).returning();
@@ -120,7 +120,7 @@ export class GeofencesService {
         values.centerLongitude = lng.toString();
       } else if (Array.isArray(coords)) {
         // Polygon rings
-        values.polygon = (coords as number[][][])[0].map(p => ({ lat: p[0], lng: p[1] }));
+        values.polygon = (coords as number[][][])[0].map(p => ({ lat: p[1], lng: p[0] }));
       }
     }
 
@@ -147,6 +147,29 @@ export class GeofencesService {
     await db.update(geofences).set({ deletedAt: new Date() }).where(eq(geofences.id, id));
 
     return { message: 'Geofence deleted successfully' };
+  }
+
+  async toggleActive(id: string) {
+    const db = this.databaseService.getDb();
+
+    const [geofence] = await db
+      .select()
+      .from(geofences)
+      .where(eq(geofences.id, id));
+
+    if (!geofence) {
+      throw new NotFoundException(`Geofence with ID ${id} not found`);
+    }
+
+    const newDeletedAt = geofence.deletedAt ? null : new Date();
+
+    const [updated] = await db
+      .update(geofences)
+      .set({ deletedAt: newDeletedAt, updatedAt: new Date() })
+      .where(eq(geofences.id, id))
+      .returning();
+
+    return this.formatGeofence(updated);
   }
 
   /**

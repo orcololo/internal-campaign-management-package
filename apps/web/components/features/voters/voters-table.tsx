@@ -54,7 +54,10 @@ import { SupportLevelBadge, WhatsAppBadge } from "./voter-badges";
 import { useRouter } from "next/navigation";
 import { useVotersStore } from "@/store/voters-store";
 import { VoterFilters } from "@/lib/api/voters";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Users } from "lucide-react";
 
 interface VotersTableProps {
   data?: Voter[]; // Make optional for backward compatibility
@@ -119,6 +122,11 @@ export function VotersTable({ data: propData }: VotersTableProps) {
   const [localCurrentPage, setLocalCurrentPage] = useState(1);
   const [localItemsPerPage, setLocalItemsPerPage] = useState(10);
 
+  // Delete confirmation state
+  const [voterToDelete, setVoterToDelete] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+
   // Determine if we're using store or local state
   const usingStore = !propData;
   const currentPage = usingStore ? storePage || 1 : localCurrentPage;
@@ -181,7 +189,7 @@ export function VotersTable({ data: propData }: VotersTableProps) {
   // Show error toast
   useEffect(() => {
     if (error) {
-      toast.error(error);
+      showToast.error(error);
       clearError();
     }
   }, [error, clearError]);
@@ -408,31 +416,41 @@ export function VotersTable({ data: propData }: VotersTableProps) {
   };
 
   // Handle delete voter
-  const handleDeleteVoter = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this voter?")) return;
+  const handleDeleteVoter = (id: string) => {
+    setVoterToDelete(id);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDeleteVoter = async () => {
+    if (!voterToDelete) return;
 
     if (usingStore) {
-      const success = await deleteVoter(id);
+      const success = await deleteVoter(voterToDelete);
       if (success) {
-        toast.success("Voter deleted successfully");
+        showToast.success("Voter deleted successfully");
       }
     } else {
-      toast.error("Delete not available in offline mode");
+      showToast.error("Delete not available in offline mode");
     }
+    setShowDeleteDialog(false);
+    setVoterToDelete(null);
   };
 
   // Handle bulk delete
-  const handleBulkDelete = async () => {
-    if (!confirm(`Delete ${selectedIds.length} voters?`)) return;
+  const handleBulkDelete = () => {
+    setShowBulkDeleteDialog(true);
+  };
 
+  const confirmBulkDelete = async () => {
     if (usingStore) {
       const success = await bulkDelete(selectedIds);
       if (success) {
-        toast.success(`${selectedIds.length} voters deleted`);
+        showToast.success(`${selectedIds.length} voters deleted`);
       }
     } else {
-      toast.error("Bulk delete not available in offline mode");
+      showToast.error("Bulk delete not available in offline mode");
     }
+    setShowBulkDeleteDialog(false);
   };
 
   // Handle export
@@ -445,9 +463,9 @@ export function VotersTable({ data: propData }: VotersTableProps) {
         supportLevel:
           supportLevelFilter !== "all" ? supportLevelFilter : undefined,
       });
-      toast.success("Export started");
+      showToast.success("Export started");
     } else {
-      toast.error("Export not available in offline mode");
+      showToast.error("Export not available in offline mode");
     }
   };
 
@@ -798,9 +816,17 @@ export function VotersTable({ data: propData }: VotersTableProps) {
               <TableRow>
                 <TableCell
                   colSpan={7}
-                  className="text-center py-8 text-muted-foreground"
+                  className="h-[400px] text-center"
                 >
-                  No voters found. Try adjusting your filters.
+                  <EmptyState
+                    icon={Users}
+                    title="Nenhum eleitor encontrado"
+                    description="Tente ajustar seus filtros ou adicione um novo eleitor."
+                    action={{
+                      label: "Adicionar Eleitor",
+                      onClick: () => router.push("/voters/new"),
+                    }}
+                  />
                 </TableCell>
               </TableRow>
             ) : (
@@ -1025,6 +1051,25 @@ export function VotersTable({ data: propData }: VotersTableProps) {
           </Button>
         </div>
       </div>
+      <ConfirmDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title="Excluir Eleitor"
+        description="Tem certeza? Esta ação não pode ser desfeita."
+        onConfirm={confirmDeleteVoter}
+        variant="destructive"
+        confirmText="Excluir"
+      />
+
+      <ConfirmDialog
+        open={showBulkDeleteDialog}
+        onOpenChange={setShowBulkDeleteDialog}
+        title={`Excluir ${selectedIds.length} Eleitores`}
+        description="Tem certeza? Esta ação não pode ser desfeita."
+        onConfirm={confirmBulkDelete}
+        variant="destructive"
+        confirmText="Excluir"
+      />
     </div>
   );
 }

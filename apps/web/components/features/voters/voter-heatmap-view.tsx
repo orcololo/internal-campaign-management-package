@@ -5,6 +5,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useTheme } from "next-themes";
 import { Voter } from "@/types/voters";
+import { HeatmapMode, HeatmapFilters } from "./heatmap-panel";
 
 const MAP_STYLES = {
   light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
@@ -15,12 +16,20 @@ interface VoterHeatmapViewProps {
   voters: Voter[];
   center?: { lat: number; lng: number };
   zoom?: number;
+  intensity?: number;
+  radius?: number;
+  mode?: HeatmapMode;
+  filters?: HeatmapFilters;
 }
 
 export function VoterHeatmapView({
   voters,
   center = { lat: 0.0349, lng: -51.0694 }, // Macapá, Amapá
   zoom = 12,
+  intensity = 50,
+  radius = 30,
+  mode = "density",
+  filters,
 }: VoterHeatmapViewProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const mapRef = React.useRef<maplibregl.Map | null>(null);
@@ -30,8 +39,85 @@ export function VoterHeatmapView({
     return resolvedTheme === "dark" ? MAP_STYLES.dark : MAP_STYLES.light;
   }, [resolvedTheme]);
 
+  // Update heatmap properties
+  React.useEffect(() => {
+    if (!mapRef.current || !mapRef.current.getLayer("voters-heat")) return;
+
+    // Intensity multiplier
+    const intensityVal = intensity / 50; // 0.2 to 2.0
+
+    // Adjust visibility and properties based on mode
+    if (mode === 'density') {
+      mapRef.current.setLayoutProperty("voters-heat", "visibility", "visible");
+      
+      mapRef.current.setPaintProperty(
+          "voters-heat",
+          "heatmap-intensity",
+          ["interpolate", ["linear"], ["zoom"], 0, intensityVal, 15, intensityVal * 3]
+      );
+      mapRef.current.setPaintProperty(
+          "voters-heat",
+          "heatmap-radius",
+          ["interpolate", ["linear"], ["zoom"], 0, 2, 15, radius]
+      );
+    } else {
+      mapRef.current.setLayoutProperty("voters-heat", "visibility", "none");
+    }
+
+    // Point layer configuration
+    if (mapRef.current.getLayer("voters-point")) {
+      // In support mode, always show points. In density mode, show points only at high zoom
+      const minZoom = mode === 'density' ? 12 : 3;
+      mapRef.current.setLayerZoomRange("voters-point", minZoom, 24);
+      
+      if (mode === 'support') {
+        mapRef.current.setPaintProperty("voters-point", "circle-color", [
+          "match",
+          ["get", "supportLevel"],
+          "MUITO_FAVORAVEL", "#22c55e",
+          "FAVORAVEL", "#84cc16",
+          "NEUTRO", "#f59e0b",
+          "DESFAVORAVEL", "#f97316",
+          "MUITO_DESFAVORAVEL", "#ef4444",
+          "#6b7280" // default
+        ]);
+        mapRef.current.setPaintProperty("voters-point", "circle-radius", [
+          "interpolate", ["linear"], ["zoom"], 10, 3, 15, 6
+        ]);
+        mapRef.current.setPaintProperty("voters-point", "circle-opacity", 0.8);
+      } else {
+        // Density mode colors (matching heatmap)
+        mapRef.current.setPaintProperty("voters-point", "circle-color", [
+          "interpolate",
+          ["linear"],
+          ["heatmap-density"],
+          0, "rgba(33,102,172,0)",
+          0.2, "rgb(103,169,207)",
+          0.4, "rgb(209,229,240)",
+          0.6, "rgb(253,219,199)",
+          0.8, "rgb(239,138,98)",
+          1, "rgb(178,24,43)"
+        ]);
+        mapRef.current.setPaintProperty("voters-point", "circle-radius", [
+          "interpolate", ["linear"], ["zoom"], 12, 5, 22, 20
+        ]);
+      }
+    }
+
+  }, [intensity, radius, mode]);
+
   const votersWithLocation = React.useMemo(() => {
-    const filtered = voters.filter((v) => v.latitude && v.longitude);
+    let filtered = voters.filter((v) => v.latitude && v.longitude);
+    
+    // Apply filters
+    if (filters) {
+      if (filters.supportLevels.length > 0) {
+        filtered = filtered.filter(v => 
+          filters.supportLevels.includes(v.supportLevel || 'NAO_DEFINIDO')
+        );
+      }
+    }
+
     console.log(
       "[VoterHeatmapView] Total voters:",
       voters.length,
@@ -39,7 +125,7 @@ export function VoterHeatmapView({
       filtered.length
     );
     return filtered;
-  }, [voters]);
+  }, [voters, filters]);
 
   // Initialize map
   React.useEffect(() => {
@@ -76,7 +162,7 @@ export function VoterHeatmapView({
 
   // Add heatmap layer
   React.useEffect(() => {
-    if (!mapRef.current || votersWithLocation.length === 0) return;
+    if (!mapRef.current) return;
 
     const map = mapRef.current;
 
@@ -93,18 +179,18 @@ export function VoterHeatmapView({
           },
           geometry: {
             type: "Point",
-            coordinates: [voter.longitude as number, voter.latitude as number],
+            coordinates: [
+              Number(voter.longitude),
+              Number(voter.latitude),
+            ],
           },
         })),
       };
 
       // Remove existing source and layer if they exist
-      if (map.getLayer("voters-heat")) {
-        map.removeLayer("voters-heat");
-      }
-      if (map.getSource("voters")) {
-        map.removeSource("voters");
-      }
+      if (map.getLayer("voters-heat")) map.removeLayer("voters-heat");
+      if (map.getLayer("voters-point")) map.removeLayer("voters-point");
+      if (map.getSource("voters")) map.removeSource("voters");
 
       // Add source
       map.addSource("voters", {
@@ -112,94 +198,82 @@ export function VoterHeatmapView({
         data: geojsonData,
       });
 
-      // Add heatmap layer
+      // Add heatmap layer (default visible)
       map.addLayer({
         id: "voters-heat",
         type: "heatmap",
         source: "voters",
         maxzoom: 15,
+        layout: {
+          visibility: mode === 'density' ? 'visible' : 'none'
+        },
         paint: {
-          // Increase the heatmap weight based on frequency and property magnitude
           "heatmap-weight": [
             "interpolate",
             ["linear"],
             ["get", "mag"],
-            0,
-            0,
-            6,
-            1,
+            0, 0,
+            6, 1,
           ],
-          // Increase the heatmap color weight by zoom level
-          // heatmap-intensity is a multiplier on top of heatmap-weight
           "heatmap-intensity": [
             "interpolate",
             ["linear"],
             ["zoom"],
-            0,
-            1,
-            15,
-            3,
+            0, 1,
+            15, 3,
           ],
-          // Color ramp for heatmap
           "heatmap-color": [
             "interpolate",
             ["linear"],
             ["heatmap-density"],
-            0,
-            "rgba(33,102,172,0)",
-            0.2,
-            "rgb(103,169,207)",
-            0.4,
-            "rgb(209,229,240)",
-            0.6,
-            "rgb(253,219,199)",
-            0.8,
-            "rgb(239,138,98)",
-            1,
-            "rgb(178,24,43)",
+            0, "rgba(33,102,172,0)",
+            0.2, "rgb(103,169,207)",
+            0.4, "rgb(209,229,240)",
+            0.6, "rgb(253,219,199)",
+            0.8, "rgb(239,138,98)",
+            1, "rgb(178,24,43)",
           ],
-          // Adjust the heatmap radius by zoom level
           "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 15, 20],
-          // Transition from heatmap to circle layer by zoom level
           "heatmap-opacity": ["interpolate", ["linear"], ["zoom"], 7, 1, 15, 0],
         },
       });
 
-      // Add circle layer for higher zoom levels
+      // Add circle layer
       map.addLayer({
         id: "voters-point",
         type: "circle",
         source: "voters",
-        minzoom: 12,
+        minzoom: mode === 'density' ? 12 : 3,
         paint: {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 12, 5, 22, 20],
-          "circle-color": [
+          "circle-color": mode === 'support' ? [
+             "match",
+            ["get", "supportLevel"],
+            "MUITO_FAVORAVEL", "#22c55e",
+            "FAVORAVEL", "#84cc16",
+            "NEUTRO", "#f59e0b",
+            "DESFAVORAVEL", "#f97316",
+            "MUITO_DESFAVORAVEL", "#ef4444",
+            "#6b7280"
+          ] : [
             "interpolate",
             ["linear"],
             ["heatmap-density"],
-            0,
-            "rgba(33,102,172,0)",
-            0.2,
-            "rgb(103,169,207)",
-            0.4,
-            "rgb(209,229,240)",
-            0.6,
-            "rgb(253,219,199)",
-            0.8,
-            "rgb(239,138,98)",
-            1,
-            "rgb(178,24,43)",
+            0, "rgba(33,102,172,0)",
+            0.2, "rgb(103,169,207)",
+            0.4, "rgb(209,229,240)",
+            0.6, "rgb(253,219,199)",
+            0.8, "rgb(239,138,98)",
+            1, "rgb(178,24,43)",
           ],
           "circle-stroke-color": "white",
           "circle-stroke-width": 1,
-          "circle-opacity": [
+          "circle-opacity": mode === 'support' ? 0.8 : [
             "interpolate",
             ["linear"],
             ["zoom"],
-            12,
-            0,
-            15,
-            0.8,
+            12, 0,
+            15, 0.8,
           ],
         },
       });
@@ -211,26 +285,7 @@ export function VoterHeatmapView({
       map.on("load", onMapLoad);
     }
 
-    return () => {
-      // Check if map still exists and has a valid style before cleanup
-      if (!map || !map.getStyle()) return;
-
-      try {
-        if (map.getLayer("voters-heat")) {
-          map.removeLayer("voters-heat");
-        }
-        if (map.getLayer("voters-point")) {
-          map.removeLayer("voters-point");
-        }
-        if (map.getSource("voters")) {
-          map.removeSource("voters");
-        }
-      } catch (error) {
-        // Silently handle cleanup errors (map may already be destroyed)
-        console.debug("[VoterHeatmapView] Cleanup skipped:", error);
-      }
-    };
-  }, [votersWithLocation]);
+  }, [votersWithLocation, mode]); // Re-run when voters change or mode changes
 
   return (
     <div className="relative h-full w-full">

@@ -1,23 +1,22 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { VoterMapView } from "@/components/features/voters/voter-map-view";
 import { VoterMapsPanel } from "@/components/features/voters/voter-maps-panel";
 import { VoterHeatmapView } from "@/components/features/voters/voter-heatmap-view";
-import { HeatmapPanel } from "@/components/features/voters/heatmap-panel";
+import { HeatmapPanel, HeatmapMode, HeatmapFilters } from "@/components/features/voters/heatmap-panel";
 import { GeofenceMapView } from "@/components/features/geofences/geofence-map-view";
 import { GeofencePanel } from "@/components/features/geofences/geofence-panel";
 import { GeofenceSaveDialog } from "@/components/features/geofences/geofence-save-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { showToast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
-import { useVotersStore } from "@/store/voters-store";
-import {
-  geofences as initialGeofences,
-  isPointInPolygon,
-} from "@/mock-data/geofences";
-import { SupportLevel, Voter } from "@/types/voters";
+import { SupportLevel } from "@/types/voters";
 import { Geofence } from "@/types/geofence";
-import { MapPin, Layers, Activity } from "lucide-react";
-import { toast } from "sonner";
+import { useVotersStore } from "@/store/voters-store";
+import { geofencesApi } from "@/lib/api/geofences";
+import { isPointInPolygon } from "@/lib/geo-utils";
+import { MapPin, Activity, Layers } from "lucide-react";
 
 const SUPPORT_LEVEL_COLORS: Record<SupportLevel, string> = {
   MUITO_FAVORAVEL: "#22c55e",
@@ -37,13 +36,49 @@ const SUPPORT_LEVEL_LABELS: Record<SupportLevel, string> = {
   NAO_DEFINIDO: "Não Definido",
 };
 
+function transformGeofence(backendGeofence: any): Geofence {
+  // Backend stores as {lat, lng} array, frontend expects number[][][]
+  let coordinates: number[][][] = [];
+
+  if (backendGeofence.type === 'POLYGON' && backendGeofence.polygon) {
+    // Convert [{lat, lng}, ...] to [[[lng, lat], ...]]
+    // Backend stores {lat, lng}. GeoJSON needs [lng, lat].
+    const ring = backendGeofence.polygon.map((p: any) => [parseFloat(p.lng), parseFloat(p.lat)]);
+    // Close the polygon by repeating first point if not closed
+    if (ring.length > 0) {
+        const first = ring[0];
+        const last = ring[ring.length - 1];
+        if (first[0] !== last[0] || first[1] !== last[1]) {
+            ring.push(first);
+        }
+    }
+    coordinates = [ring];
+  }
+
+  return {
+    id: backendGeofence.id,
+    name: backendGeofence.name,
+    description: backendGeofence.description || "",
+    type: backendGeofence.type?.toLowerCase() || "polygon",
+    coordinates,
+    radius: backendGeofence.radiusKm ? backendGeofence.radiusKm * 1000 : undefined,
+    color: backendGeofence.color || "#3b82f6",
+    fillOpacity: 0.2,
+    strokeOpacity: 0.8,
+    active: !backendGeofence.deletedAt,
+    createdAt: new Date(backendGeofence.createdAt),
+    updatedAt: new Date(backendGeofence.updatedAt),
+  };
+}
+
 export default function MapsPage() {
   const { voters, fetchVoters } = useVotersStore();
   const [selectedVoterId, setSelectedVoterId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"voters" | "geofences" | "heatmap">(
     "voters"
   );
-  const [geofences, setGeofences] = useState<Geofence[]>(initialGeofences);
+  const [geofences, setGeofences] = useState<Geofence[]>([]);
+  const [isLoadingGeofences, setIsLoadingGeofences] = useState(true);
   const [selectedGeofenceId, setSelectedGeofenceId] = useState<string | null>(
     null
   );
@@ -52,6 +87,20 @@ export default function MapsPage() {
     null
   );
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  
+  // Delete confirmation
+  const [geofenceToDelete, setGeofenceToDelete] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  
+  // Heatmap settings
+  const [heatmapIntensity, setHeatmapIntensity] = useState(50);
+  const [heatmapRadius, setHeatmapRadius] = useState(30);
+  const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>('density');
+  const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
+    supportLevels: [],
+    showFavorable: true,
+    showUnfavorable: true
+  });
 
   useEffect(() => {
     const loadVoters = async () => {
@@ -62,6 +111,22 @@ export default function MapsPage() {
     };
     loadVoters();
   }, [fetchVoters]);
+
+  useEffect(() => {
+    const loadGeofences = async () => {
+      try {
+        setIsLoadingGeofences(true);
+        const data = await geofencesApi.getAll();
+        setGeofences(data.map(transformGeofence));
+      } catch (error) {
+        console.error("Failed to load geofences:", error);
+        showToast.error("Erro ao carregar geofences");
+      } finally {
+        setIsLoadingGeofences(false);
+      }
+    };
+    loadGeofences();
+  }, []);
 
   // Filter voters by active geofences
   const filteredVoters = useMemo(() => {
@@ -83,17 +148,39 @@ export default function MapsPage() {
         return false;
       });
     });
-  }, [geofences, viewMode]);
+  }, [geofences, voters, viewMode]);
 
-  const handleGeofenceToggle = (id: string) => {
-    setGeofences((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, active: !g.active } : g))
-    );
+  const handleGeofenceToggle = async (id: string) => {
+    try {
+      const updated = await geofencesApi.toggleActive(id);
+      setGeofences((prev) =>
+        prev.map((g) => (g.id === id ? transformGeofence(updated) : g))
+      );
+    } catch (error) {
+      console.error("Failed to toggle geofence:", error);
+      showToast.error("Erro ao alterar status da geofence");
+    }
   };
 
-  const handleGeofenceDelete = (id: string) => {
-    setGeofences((prev) => prev.filter((g) => g.id !== id));
-    toast.success("Geofence excluída");
+  const handleGeofenceDeleteRequest = (id: string) => {
+    setGeofenceToDelete(id);
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!geofenceToDelete) return;
+    
+    try {
+      await geofencesApi.delete(geofenceToDelete);
+      setGeofences((prev) => prev.filter((g) => g.id !== geofenceToDelete));
+      showToast.success("Geofence excluída");
+    } catch (error) {
+      console.error("Failed to delete geofence:", error);
+      showToast.error("Erro ao excluir geofence");
+    } finally {
+      setShowDeleteDialog(false);
+      setGeofenceToDelete(null);
+    }
   };
 
   const handleGeofenceDrawn = (coordinates: number[][][]) => {
@@ -102,30 +189,29 @@ export default function MapsPage() {
     setShowSaveDialog(true);
   };
 
-  const handleSaveGeofence = (data: {
+  const handleSaveGeofence = async (data: {
     name: string;
     description?: string;
     color: string;
   }) => {
     if (!drawnCoordinates) return;
 
-    const newGeofence: Geofence = {
-      id: String(Date.now()),
-      name: data.name,
-      description: data.description || "",
-      type: "polygon",
-      coordinates: drawnCoordinates,
-      color: data.color,
-      fillOpacity: 0.2,
-      strokeOpacity: 0.8,
-      active: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    try {
+      const newGeofence = await geofencesApi.create({
+        name: data.name,
+        description: data.description,
+        type: "polygon",
+        coordinates: drawnCoordinates,
+        color: data.color,
+      });
 
-    setGeofences((prev) => [...prev, newGeofence]);
-    setDrawnCoordinates(null);
-    toast.success(`Geofence "${data.name}" criada com sucesso!`);
+      setGeofences((prev) => [...prev, transformGeofence(newGeofence)]);
+      setDrawnCoordinates(null);
+      showToast.success(`Geofence "${data.name}" criada com sucesso!`);
+    } catch (error) {
+      console.error("Failed to save geofence:", error);
+      showToast.error("Erro ao salvar geofence");
+    }
   };
 
   const handleCancelSave = () => {
@@ -136,6 +222,40 @@ export default function MapsPage() {
   const handleDrawMode = () => {
     setIsDrawing(!isDrawing);
   };
+
+  const handleKeyboardSave = useCallback((e: KeyboardEvent) => {
+    // Check for Ctrl+S or Cmd+S
+    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      e.preventDefault();
+      
+      // If we have drawn coordinates and dialog is not open, open it
+      if (drawnCoordinates && !showSaveDialog) {
+        setShowSaveDialog(true);
+      }
+    }
+    
+    // Escape to cancel drawing
+    if (e.key === "Escape") {
+      if (isDrawing) {
+        setIsDrawing(false);
+        setDrawnCoordinates(null);
+      }
+      if (showSaveDialog) {
+        setShowSaveDialog(false);
+        setDrawnCoordinates(null);
+      }
+    }
+    
+    // D to start drawing (when not in input)
+    if (e.key === "d" && !isDrawing && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
+      setIsDrawing(true);
+    }
+  }, [drawnCoordinates, showSaveDialog, isDrawing]);
+  
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyboardSave);
+    return () => window.removeEventListener("keydown", handleKeyboardSave);
+  }, [handleKeyboardSave]);
 
   return (
     <div className="relative h-[calc(100vh-57px)] w-full overflow-hidden">
@@ -186,12 +306,26 @@ export default function MapsPage() {
       {/* Heatmap View */}
       {viewMode === "heatmap" && (
         <>
-          <VoterHeatmapView voters={voters} />
+          <VoterHeatmapView 
+            voters={voters} 
+            intensity={heatmapIntensity}
+            radius={heatmapRadius}
+            mode={heatmapMode}
+            filters={heatmapFilters}
+          />
           <HeatmapPanel
             votersCount={voters.length}
             votersWithLocationCount={
               voters.filter((v) => v.latitude && v.longitude).length
             }
+            intensity={heatmapIntensity}
+            radius={heatmapRadius}
+            mode={heatmapMode}
+            filters={heatmapFilters}
+            onIntensityChange={setHeatmapIntensity}
+            onRadiusChange={setHeatmapRadius}
+            onModeChange={setHeatmapMode}
+            onFiltersChange={setHeatmapFilters}
           />
         </>
       )}
@@ -214,7 +348,7 @@ export default function MapsPage() {
             selectedGeofenceId={selectedGeofenceId}
             onGeofenceSelect={setSelectedGeofenceId}
             onGeofenceToggle={handleGeofenceToggle}
-            onGeofenceDelete={handleGeofenceDelete}
+            onGeofenceDelete={handleGeofenceDeleteRequest}
             onDrawMode={handleDrawMode}
             isDrawing={isDrawing}
             filteredVotersCount={filteredVoters.length}
@@ -307,7 +441,7 @@ export default function MapsPage() {
                 % Cobertura:
               </span>
               <span className="text-sm font-bold">
-                {((filteredVoters.length / voters.length) * 100).toFixed(1)}%
+                {voters.length > 0 ? ((filteredVoters.length / voters.length) * 100).toFixed(1) : 0}%
               </span>
             </div>
           </div>
@@ -323,6 +457,16 @@ export default function MapsPage() {
         }}
         onSave={handleSaveGeofence}
         defaultName={`Geofence ${geofences.length + 1}`}
+      />
+
+      <ConfirmDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title="Excluir Geofence"
+        description="Tem certeza? Esta ação não pode ser desfeita e os eleitores serão desvinculados."
+        onConfirm={handleConfirmDelete}
+        variant="destructive"
+        confirmText="Excluir"
       />
     </div>
   );

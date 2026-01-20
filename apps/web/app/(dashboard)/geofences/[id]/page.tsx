@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useMemo, useEffect } from "react";
+import { use, useMemo, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -12,13 +12,47 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VotersTable } from "@/components/features/voters/voters-table";
-import { geofences, isPointInPolygon } from "@/mock-data/geofences";
 import { useVotersStore } from "@/store/voters-store";
-import { ArrowLeft, MapPin, Users, Calendar, TrendingUp } from "lucide-react";
+import { geofencesApi } from "@/lib/api/geofences";
+import { isPointInPolygon } from "@/lib/geo-utils";
+import { Geofence } from "@/types/geofence";
+import { showToast } from "@/lib/toast";
+import { ArrowLeft, MapPin, Users, TrendingUp } from "lucide-react";
 import { notFound } from "next/navigation";
 
 interface GeofenceDetailPageProps {
   params: Promise<{ id: string }>;
+}
+
+function transformGeofence(backendGeofence: any): Geofence {
+  let coordinates: number[][][] = [];
+
+  if (backendGeofence.type === 'POLYGON' && backendGeofence.polygon) {
+    const ring = backendGeofence.polygon.map((p: any) => [parseFloat(p.lng), parseFloat(p.lat)]);
+    if (ring.length > 0) {
+        const first = ring[0];
+        const last = ring[ring.length - 1];
+        if (first[0] !== last[0] || first[1] !== last[1]) {
+            ring.push(first);
+        }
+    }
+    coordinates = [ring];
+  }
+
+  return {
+    id: backendGeofence.id,
+    name: backendGeofence.name,
+    description: backendGeofence.description || "",
+    type: backendGeofence.type?.toLowerCase() || "polygon",
+    coordinates,
+    radius: backendGeofence.radiusKm ? backendGeofence.radiusKm * 1000 : undefined,
+    color: backendGeofence.color || "#3b82f6",
+    fillOpacity: 0.2,
+    strokeOpacity: 0.8,
+    active: !backendGeofence.deletedAt,
+    createdAt: new Date(backendGeofence.createdAt),
+    updatedAt: new Date(backendGeofence.updatedAt),
+  };
 }
 
 export default function GeofenceDetailPage({
@@ -27,12 +61,32 @@ export default function GeofenceDetailPage({
   const { id } = use(params);
   const router = useRouter();
   const { voters, fetchVoters } = useVotersStore();
+  const [geofence, setGeofence] = useState<Geofence | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchVoters({ page: 1, perPage: 1000 });
   }, [fetchVoters]);
 
-  const geofence = geofences.find((g) => g.id === id);
+  useEffect(() => {
+    const loadGeofence = async () => {
+      try {
+        setIsLoading(true);
+        const data = await geofencesApi.getById(id);
+        if (data) {
+          setGeofence(transformGeofence(data));
+        } else {
+          showToast.error("Geofence não encontrada");
+        }
+      } catch (error) {
+        console.error("Failed to load geofence:", error);
+        showToast.error("Erro ao carregar geofence");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadGeofence();
+  }, [id]);
 
   const filteredVoters = useMemo(() => {
     if (!geofence) return [];
@@ -48,10 +102,23 @@ export default function GeofenceDetailPage({
       }
       return false;
     });
-  }, [geofence]);
+  }, [geofence, voters]);
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-6">
+        <p className="text-muted-foreground">Carregando detalhes da geofence...</p>
+      </div>
+    );
+  }
 
   if (!geofence) {
-    notFound();
+    return (
+        <div className="flex-1 flex flex-col items-center justify-center p-6 gap-4">
+          <p className="text-muted-foreground">Geofence não encontrada</p>
+          <Button onClick={() => router.back()}>Voltar</Button>
+        </div>
+      );
   }
 
   // Calculate stats
@@ -194,7 +261,7 @@ export default function GeofenceDetailPage({
             <div>
               <p className="text-sm text-muted-foreground">Idade Média</p>
               <p className="text-lg font-medium">
-                {Math.round(averageAge)} anos
+                {Math.round(averageAge) || 0} anos
               </p>
             </div>
           </div>

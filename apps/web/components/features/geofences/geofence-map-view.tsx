@@ -441,12 +441,11 @@ export function GeofenceMapView({
       draw.current.changeMode("draw_polygon");
     } else {
       draw.current.changeMode("simple_select");
-      // Clear draw if no coordinates saved (user cancelled)
-      if (!drawnCoordinates) {
-        draw.current.deleteAll();
-      }
+      // Always clear draw instance when leaving drawing mode
+      // We render the drawn shape via the preview layer instead
+      draw.current.deleteAll();
     }
-  }, [isDrawing, drawnCoordinates]);
+  }, [isDrawing]);
 
   return (
     <div className="relative h-full w-full">

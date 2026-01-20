@@ -25,3 +25,7 @@ export * from './notification.schema';
 
 // Messaging schemas
 export * from './messaging.schema';
+
+// Settings schema
+export * from './settings.schema';
+

@@ -32,7 +32,10 @@ import {
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useReportsStore } from "@/store/reports-store";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { useState } from "react";
 
 export function ReportsPageClient() {
   const {
@@ -43,18 +46,35 @@ export function ReportsPageClient() {
     duplicateReport,
   } = useReportsStore();
 
+  const [reportToDelete, setReportToDelete] = useState<{id: string, name: string} | null>(null);
+
   useEffect(() => {
     fetchReports();
   }, [fetchReports]);
 
-  const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Tem certeza que deseja excluir o relatório "${name}"?`)) {
-      await deleteReport(id);
+  const handleDeleteRequest = (id: string, name: string) => {
+    setReportToDelete({ id, name });
+  };
+
+  const confirmDelete = async () => {
+    if (!reportToDelete) return;
+    try {
+      await deleteReport(reportToDelete.id);
+      showToast.success(`Relatório "${reportToDelete.name}" excluído`);
+    } catch (error) {
+      showToast.error("Erro ao excluir relatório");
+    } finally {
+      setReportToDelete(null);
     }
   };
 
   const handleDuplicate = async (id: string) => {
-    await duplicateReport(id);
+    try {
+      await duplicateReport(id);
+      showToast.success("Relatório duplicado com sucesso");
+    } catch (error) {
+      showToast.error("Erro ao duplicar relatório");
+    }
   };
 
   if (isLoading && savedReports.length === 0) {
@@ -187,7 +207,7 @@ export function ReportsPageClient() {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-destructive"
-                        onClick={() => handleDelete(report.id, report.name)}
+                        onClick={() => handleDeleteRequest(report.id, report.name)}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Excluir
@@ -255,25 +275,26 @@ export function ReportsPageClient() {
         </div>
       ) : (
         /* Empty State */
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <FileText className="h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">
-              Nenhum relatório criado
-            </h3>
-            <p className="text-sm text-muted-foreground text-center mb-6">
-              Crie seu primeiro relatório personalizado para exportar dados de
-              eleitores
-            </p>
-            <Link href="/reports/builder">
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Criar Primeiro Relatório
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={FileText}
+          title="Nenhum relatório criado"
+          description="Crie seu primeiro relatório personalizado para exportar dados de eleitores"
+          action={{
+            label: "Criar Primeiro Relatório",
+            onClick: () => window.location.href = "/reports/builder",
+          }}
+        />
       )}
+      
+      <ConfirmDialog
+        open={!!reportToDelete}
+        onOpenChange={(open) => !open && setReportToDelete(null)}
+        title="Excluir Relatório"
+        description={`Tem certeza que deseja excluir o relatório "${reportToDelete?.name}"? Esta ação não pode ser desfeita.`}
+        onConfirm={confirmDelete}
+        variant="destructive"
+        confirmText="Excluir"
+      />
     </div>
   );
 }

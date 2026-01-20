@@ -13,6 +13,7 @@ import { ReportsModule } from './reports/reports.module';
 import { AuditModule } from './audit/audit.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MessagingModule } from './messaging/messaging.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { MessagingModule } from './messaging/messaging.module';
     AuditModule,
     NotificationsModule,
     MessagingModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

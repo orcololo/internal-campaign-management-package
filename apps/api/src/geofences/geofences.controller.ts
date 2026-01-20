@@ -80,4 +80,12 @@ export class GeofencesController {
   findByPoint(@Query('lat') lat: string, @Query('lng') lng: string) {
     return this.geofencesService.findGeofencesContainingPoint(parseFloat(lat), parseFloat(lng));
   }
+
+  @Patch(':id/toggle')
+  @ApiOperation({ summary: 'Toggle geofence active status' })
+  @ApiParam({ name: 'id', description: 'Geofence UUID' })
+  @ApiResponse({ status: 200, description: 'Geofence toggled successfully' })
+  toggleActive(@Param('id') id: string) {
+    return this.geofencesService.toggleActive(id);
+  }
 }
