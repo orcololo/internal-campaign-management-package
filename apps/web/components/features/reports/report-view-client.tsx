@@ -38,11 +38,11 @@ interface ReportViewClientProps {
 export function ReportViewClient({ reportId }: ReportViewClientProps) {
   const router = useRouter();
   const { fetchReportById, previewReport, exportReport } = useReportsStore();
-  
+
   const [report, setReport] = useState<SavedReport | null>(null);
   const [data, setData] = useState<Voter[]>([]);
   const [meta, setMeta] = useState<ReportPreviewResponse['meta'] | undefined>(undefined);
-  
+
   const [isLoadingReport, setIsLoadingReport] = useState(true);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -66,7 +66,7 @@ export function ReportViewClient({ reportId }: ReportViewClientProps) {
   // Fetch preview data
   const loadPreview = useCallback(async (page = 1) => {
     if (!reportId) return;
-    
+
     setIsLoadingPreview(true);
     try {
       const result = await previewReport(reportId, { page, perPage: 20 });
@@ -91,8 +91,8 @@ export function ReportViewClient({ reportId }: ReportViewClientProps) {
     try {
       const response = await exportReport(reportId, exportFormat);
       if (response && response.downloadUrl) {
-         // Should have been handled in store but let's be sure
-         // Store handles download automatically
+        // Should have been handled in store but let's be sure
+        // Store handles download automatically
       }
     } finally {
       setIsExporting(false);
@@ -204,7 +204,7 @@ export function ReportViewClient({ reportId }: ReportViewClientProps) {
                 const fieldMeta = getFieldMetadata(filter.field as keyof Voter);
                 return (
                   <div
-                    key={filter.id}
+                    key={filter.id || `filter-${index}`}
                     className="flex items-start gap-2 text-sm"
                   >
                     {index > 0 && filter.logicalOperator && (

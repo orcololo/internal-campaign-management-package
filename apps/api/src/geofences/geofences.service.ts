@@ -19,7 +19,7 @@ export class GeofencesService {
     const values: any = {
       name: createGeofenceDto.name,
       description: createGeofenceDto.description,
-      type: createGeofenceDto.type,
+      type: createGeofenceDto.type.toUpperCase() as 'CIRCLE' | 'POLYGON',
       city: createGeofenceDto.city,
       state: createGeofenceDto.state,
       neighborhood: createGeofenceDto.neighborhood,

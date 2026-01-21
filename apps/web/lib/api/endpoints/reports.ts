@@ -62,6 +62,55 @@ export interface ReportPreviewResponse {
 const CAMPAIGN_ID = "1"; // TODO: Get from auth context when implemented
 
 /**
+ * Map frontend operator names to backend operator names
+ */
+const operatorMapping: Record<string, string> = {
+  equals: "equals",
+  notEquals: "not_equals",
+  contains: "contains",
+  notContains: "not_contains",
+  startsWith: "starts_with",
+  endsWith: "ends_with",
+  greaterThan: "greater_than",
+  lessThan: "less_than",
+  greaterThanOrEqual: "greater_than_or_equal",
+  lessThanOrEqual: "less_than_or_equal",
+  between: "between",
+  in: "in",
+  notIn: "not_in",
+  isEmpty: "is_null",
+  isNotEmpty: "is_not_null",
+};
+
+/**
+ * Transform frontend filters to backend format
+ * - Removes 'id' property
+ * - Converts camelCase operators to snake_case
+ * - Handles null values for is_null/is_not_null operators
+ */
+function transformFiltersForBackend(
+  filters: ReportFilter[]
+): Array<{ field: string; operator: string; value?: any }> {
+  return filters.map((filter) => {
+    const backendOperator = operatorMapping[filter.operator] || filter.operator;
+
+    // For is_null and is_not_null, value should be omitted
+    if (backendOperator === "is_null" || backendOperator === "is_not_null") {
+      return {
+        field: filter.field,
+        operator: backendOperator,
+      };
+    }
+
+    return {
+      field: filter.field,
+      operator: backendOperator,
+      value: filter.value,
+    };
+  });
+}
+
+/**
  * Reports API Client
  * Connects to backend reports endpoints
  */
@@ -88,7 +137,12 @@ export const reportsApi = {
    * Create a new saved report
    */
   async createReport(data: CreateReportDto): Promise<ApiResponse<SavedReport>> {
-    return apiClient.post<SavedReport>("/reports", data);
+    // Transform filters to backend format
+    const backendData = {
+      ...data,
+      filters: data.filters ? transformFiltersForBackend(data.filters) : [],
+    };
+    return apiClient.post<SavedReport>("/reports", backendData);
   },
 
   /**
@@ -98,7 +152,12 @@ export const reportsApi = {
     id: string,
     data: UpdateReportDto
   ): Promise<ApiResponse<SavedReport>> {
-    return apiClient.patch<SavedReport>(`/reports/${id}`, data);
+    // Transform filters to backend format if provided
+    const backendData = {
+      ...data,
+      filters: data.filters ? transformFiltersForBackend(data.filters) : undefined,
+    };
+    return apiClient.patch<SavedReport>(`/reports/${id}`, backendData);
   },
 
   /**
@@ -131,7 +190,12 @@ export const reportsApi = {
     page?: number;
     perPage?: number;
   }): Promise<ApiResponse<ReportPreviewResponse>> {
-    return apiClient.post<ReportPreviewResponse>("/reports/execute", data);
+    // Transform filters to backend format
+    const backendData = {
+      ...data,
+      filters: data.filters ? transformFiltersForBackend(data.filters) : [],
+    };
+    return apiClient.post<ReportPreviewResponse>("/reports/execute", backendData);
   },
 
   /**

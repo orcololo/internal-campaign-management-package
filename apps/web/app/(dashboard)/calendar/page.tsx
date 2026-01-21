@@ -313,6 +313,7 @@ export default function CalendarPage() {
         open={isEventDialogOpen}
         onClose={closeEventDialog}
         event={selectedEvent}
+        defaultDate={selectedDay || undefined}
         onSubmit={handleEventSubmit}
       />
 

@@ -104,6 +104,30 @@ interface ViaCepResponse {
   erro?: boolean;
 }
 
+/**
+ * Format CPF input as user types
+ * Input: 01902223284 -> Output: 019.022.232-84
+ */
+function formatCPF(value: string): string {
+  // Remove all non-numeric characters
+  const numbers = value.replace(/\D/g, "");
+
+  // Limit to 11 digits
+  const limited = numbers.slice(0, 11);
+
+  // Apply mask progressively
+  if (limited.length <= 3) {
+    return limited;
+  }
+  if (limited.length <= 6) {
+    return `${limited.slice(0, 3)}.${limited.slice(3)}`;
+  }
+  if (limited.length <= 9) {
+    return `${limited.slice(0, 3)}.${limited.slice(3, 6)}.${limited.slice(6)}`;
+  }
+  return `${limited.slice(0, 3)}.${limited.slice(3, 6)}.${limited.slice(6, 9)}-${limited.slice(9)}`;
+}
+
 export function VoterForm({ voter, mode }: VoterFormProps) {
   const router = useRouter();
   const { createVoter, updateVoter } = useVotersStore();
@@ -256,21 +280,21 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
         typeof voter?.contentPreference === "string"
           ? JSON.parse(voter.contentPreference || "[]")
           : Array.isArray(voter?.contentPreference)
-          ? voter.contentPreference
-          : [],
+            ? voter.contentPreference
+            : [],
       bestContactTime: voter?.bestContactTime,
       bestContactDay:
         typeof voter?.bestContactDay === "string"
           ? JSON.parse(voter.bestContactDay || "[]")
           : Array.isArray(voter?.bestContactDay)
-          ? voter.bestContactDay
-          : [],
+            ? voter.bestContactDay
+            : [],
       topIssues:
         typeof voter?.topIssues === "string"
           ? JSON.parse(voter.topIssues || "[]")
           : Array.isArray(voter?.topIssues)
-          ? voter.topIssues
-          : [],
+            ? voter.topIssues
+            : [],
       previousCandidateSupport: voter?.previousCandidateSupport,
       influencerScore: voter?.influencerScore,
       persuadability: voter?.persuadability as any,
@@ -536,7 +560,15 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
                     <FormItem>
                       <FormLabel>CPF *</FormLabel>
                       <FormControl>
-                        <Input placeholder="000.000.000-00" {...field} />
+                        <Input
+                          placeholder="000.000.000-00"
+                          {...field}
+                          onChange={(e) => {
+                            const formatted = formatCPF(e.target.value);
+                            field.onChange(formatted);
+                          }}
+                          maxLength={14}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1292,14 +1324,14 @@ export function VoterForm({ voter, mode }: VoterFormProps) {
                                   onCheckedChange={(checked) => {
                                     return checked
                                       ? field.onChange([
-                                          ...(field.value || []),
-                                          tag,
-                                        ])
+                                        ...(field.value || []),
+                                        tag,
+                                      ])
                                       : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== tag
-                                          )
-                                        );
+                                        field.value?.filter(
+                                          (value) => value !== tag
+                                        )
+                                      );
                                   }}
                                 />
                               </FormControl>

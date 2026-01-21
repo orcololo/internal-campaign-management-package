@@ -15,6 +15,7 @@ import {
   IsArray,
   IsObject,
   IsBoolean,
+  ValidateIf,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
@@ -290,7 +291,22 @@ export class CreateVoterDto {
 
   @ApiPropertyOptional({ description: 'Top issues', example: '["Education", "Health"]' })
   @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) && value.length === 0 ? undefined : value))
+  @Transform(({ value }) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    // Handle string-encoded arrays
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed) && parsed.length === 0) return undefined;
+        return parsed;
+      } catch {
+        return undefined;
+      }
+    }
+    if (Array.isArray(value) && value.length === 0) return undefined;
+    return value;
+  })
+  @ValidateIf((o) => o.topIssues !== undefined && o.topIssues !== null)
   @IsArray()
   topIssues?: string[];
 
@@ -361,7 +377,22 @@ export class CreateVoterDto {
     example: '["lideranca_local", "apoiador"]',
   })
   @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) && value.length === 0 ? undefined : value))
+  @Transform(({ value }) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    // Handle string-encoded arrays
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed) && parsed.length === 0) return undefined;
+        return parsed;
+      } catch {
+        return undefined;
+      }
+    }
+    if (Array.isArray(value) && value.length === 0) return undefined;
+    return value;
+  })
+  @ValidateIf((o) => o.tags !== undefined && o.tags !== null)
   @IsArray()
   tags?: string[];
 
@@ -499,7 +530,22 @@ export class CreateVoterDto {
 
   @ApiPropertyOptional({ description: 'Content preference', example: '["Video"]' })
   @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) && value.length === 0 ? undefined : value))
+  @Transform(({ value }) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    // Handle string-encoded arrays
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed) && parsed.length === 0) return undefined;
+        return parsed;
+      } catch {
+        return undefined;
+      }
+    }
+    if (Array.isArray(value) && value.length === 0) return undefined;
+    return value;
+  })
+  @ValidateIf((o) => o.contentPreference !== undefined && o.contentPreference !== null)
   @IsArray()
   contentPreference?: string[];
 
@@ -511,7 +557,22 @@ export class CreateVoterDto {
 
   @ApiPropertyOptional({ description: 'Best contact day', example: '["Monday"]' })
   @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) && value.length === 0 ? undefined : value))
+  @Transform(({ value }) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    // Handle string-encoded arrays
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed) && parsed.length === 0) return undefined;
+        return parsed;
+      } catch {
+        return undefined;
+      }
+    }
+    if (Array.isArray(value) && value.length === 0) return undefined;
+    return value;
+  })
+  @ValidateIf((o) => o.bestContactDay !== undefined && o.bestContactDay !== null)
   @IsArray()
   bestContactDay?: string[];
 

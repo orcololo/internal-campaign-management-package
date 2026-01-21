@@ -140,7 +140,7 @@ export function ReportPreview({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.length === 0 ? (
+            {(!data || data.length === 0) ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
@@ -150,8 +150,8 @@ export function ReportPreview({
                 </TableCell>
               </TableRow>
             ) : (
-              data.map((voter) => (
-                <TableRow key={voter.id}>
+              data.map((voter, index) => (
+                <TableRow key={voter.id || `row-${index}`}>
                   {columns.map((column) => (
                     <TableCell key={column as string}>
                       {formatCellValue(voter[column], column)}

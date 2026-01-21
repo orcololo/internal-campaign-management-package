@@ -90,6 +90,7 @@ interface EventFormDialogProps {
   open: boolean;
   onClose: () => void;
   event?: CalendarEvent | null;
+  defaultDate?: Date;
   onSubmit: (data: CreateEventInput) => Promise<void>;
 }
 
@@ -117,14 +118,62 @@ export function EventFormDialog({
   open,
   onClose,
   event,
+  defaultDate,
   onSubmit,
 }: EventFormDialogProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  // Use defaultDate if provided, otherwise use current date
+  const initialDate = defaultDate || new Date();
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema) as any,
     defaultValues: event
       ? {
+        title: event.title,
+        description: event.description || "",
+        category: event.category,
+        priority: event.priority,
+        startDate: new Date(event.startDate),
+        startTime: format(new Date(event.startDate), "HH:mm"),
+        endDate: new Date(event.endDate),
+        endTime: format(new Date(event.endDate), "HH:mm"),
+        allDay: event.allDay,
+        isVirtual: event.isVirtual,
+        meetingLink: event.meetingLink || "",
+        address: event.location?.address || "",
+        city: event.location?.city || "",
+        state: event.location?.state || "",
+        expectedAttendance: event.expectedAttendance,
+        tags: event.tags.join(", "),
+        notes: event.notes || "",
+      }
+      : {
+        title: "",
+        description: "",
+        category: "meeting",
+        priority: "medium",
+        startDate: initialDate,
+        startTime: "09:00",
+        endDate: initialDate,
+        endTime: "10:00",
+        allDay: false,
+        isVirtual: false,
+        meetingLink: "",
+        address: "",
+        city: "",
+        state: "AP",
+        tags: "",
+        notes: "",
+      },
+  });
+
+  // Reset form when dialog opens with event or default date
+  React.useEffect(() => {
+    if (open) {
+      if (event) {
+        // Editing existing event - pre-fill with event data
+        form.reset({
           title: event.title,
           description: event.description || "",
           category: event.category,
@@ -140,17 +189,20 @@ export function EventFormDialog({
           city: event.location?.city || "",
           state: event.location?.state || "",
           expectedAttendance: event.expectedAttendance,
-          tags: event.tags.join(", "),
+          tags: Array.isArray(event.tags) ? event.tags.join(", ") : "",
           notes: event.notes || "",
-        }
-      : {
+        });
+      } else {
+        // Creating new event - always reset to empty values
+        const dateToUse = defaultDate || new Date();
+        form.reset({
           title: "",
           description: "",
           category: "meeting",
           priority: "medium",
-          startDate: new Date(),
+          startDate: dateToUse,
           startTime: "09:00",
-          endDate: new Date(),
+          endDate: dateToUse,
           endTime: "10:00",
           allDay: false,
           isVirtual: false,
@@ -160,8 +212,10 @@ export function EventFormDialog({
           state: "AP",
           tags: "",
           notes: "",
-        },
-  });
+        });
+      }
+    }
+  }, [open, event, defaultDate, form]);
 
   const handleSubmit = async (data: EventFormData) => {
     setIsSubmitting(true);
@@ -189,17 +243,17 @@ export function EventFormDialog({
         location:
           data.address || data.city
             ? {
-                address: data.address || "",
-                city: data.city || "",
-                state: data.state || "AP",
-              }
+              address: data.address || "",
+              city: data.city || "",
+              state: data.state || "AP",
+            }
             : undefined,
         expectedAttendance: data.expectedAttendance,
         tags: data.tags
           ? data.tags
-              .split(",")
-              .map((t) => t.trim())
-              .filter(Boolean)
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean)
           : [],
         notes: data.notes,
       };

@@ -216,7 +216,14 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
     try {
       const response = await reportsApi.previewReport(id, params);
       set({ isLoading: false });
-      return response.data;
+
+      // HTTP adapter extracts data from backend response
+      // Backend returns { report, data, meta } but adapter returns { data: voters[], meta: {...} }
+      // We need to pass the correct structure to the component
+      return {
+        data: response.data as unknown as Voter[],
+        meta: response.meta,
+      };
     } catch (error: any) {
       const errorMsg = error.message || "Failed to preview report";
       set({ error: errorMsg, isLoading: false });
