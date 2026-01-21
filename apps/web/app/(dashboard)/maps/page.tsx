@@ -46,11 +46,11 @@ function transformGeofence(backendGeofence: any): Geofence {
     const ring = backendGeofence.polygon.map((p: any) => [parseFloat(p.lng), parseFloat(p.lat)]);
     // Close the polygon by repeating first point if not closed
     if (ring.length > 0) {
-        const first = ring[0];
-        const last = ring[ring.length - 1];
-        if (first[0] !== last[0] || first[1] !== last[1]) {
-            ring.push(first);
-        }
+      const first = ring[0];
+      const last = ring[ring.length - 1];
+      if (first[0] !== last[0] || first[1] !== last[1]) {
+        ring.push(first);
+      }
     }
     coordinates = [ring];
   }
@@ -74,6 +74,7 @@ function transformGeofence(backendGeofence: any): Geofence {
 export default function MapsPage() {
   const { voters, fetchVoters } = useVotersStore();
   const [selectedVoterId, setSelectedVoterId] = useState<string | null>(null);
+  const [filteredVotersForMap, setFilteredVotersForMap] = useState<typeof voters>(voters);
   const [viewMode, setViewMode] = useState<"voters" | "geofences" | "heatmap">(
     "voters"
   );
@@ -87,11 +88,11 @@ export default function MapsPage() {
     null
   );
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  
+
   // Delete confirmation
   const [geofenceToDelete, setGeofenceToDelete] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  
+
   // Heatmap settings
   const [heatmapIntensity, setHeatmapIntensity] = useState(50);
   const [heatmapRadius, setHeatmapRadius] = useState(30);
@@ -169,7 +170,7 @@ export default function MapsPage() {
 
   const handleConfirmDelete = async () => {
     if (!geofenceToDelete) return;
-    
+
     try {
       await geofencesApi.delete(geofenceToDelete);
       setGeofences((prev) => prev.filter((g) => g.id !== geofenceToDelete));
@@ -227,13 +228,13 @@ export default function MapsPage() {
     // Check for Ctrl+S or Cmd+S
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
-      
+
       // If we have drawn coordinates and dialog is not open, open it
       if (drawnCoordinates && !showSaveDialog) {
         setShowSaveDialog(true);
       }
     }
-    
+
     // Escape to cancel drawing
     if (e.key === "Escape") {
       if (isDrawing) {
@@ -245,13 +246,13 @@ export default function MapsPage() {
         setDrawnCoordinates(null);
       }
     }
-    
+
     // D to start drawing (when not in input)
     if (e.key === "d" && !isDrawing && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
       setIsDrawing(true);
     }
   }, [drawnCoordinates, showSaveDialog, isDrawing]);
-  
+
   useEffect(() => {
     window.addEventListener("keydown", handleKeyboardSave);
     return () => window.removeEventListener("keydown", handleKeyboardSave);
@@ -291,7 +292,7 @@ export default function MapsPage() {
       {viewMode === "voters" && (
         <>
           <VoterMapView
-            voters={voters}
+            voters={filteredVotersForMap}
             selectedVoterId={selectedVoterId}
             onVoterSelect={setSelectedVoterId}
           />
@@ -299,6 +300,7 @@ export default function MapsPage() {
             voters={voters}
             selectedVoterId={selectedVoterId}
             onVoterSelect={setSelectedVoterId}
+            onFilteredVotersChange={setFilteredVotersForMap}
           />
         </>
       )}
@@ -306,8 +308,8 @@ export default function MapsPage() {
       {/* Heatmap View */}
       {viewMode === "heatmap" && (
         <>
-          <VoterHeatmapView 
-            voters={voters} 
+          <VoterHeatmapView
+            voters={voters}
             intensity={heatmapIntensity}
             radius={heatmapRadius}
             mode={heatmapMode}

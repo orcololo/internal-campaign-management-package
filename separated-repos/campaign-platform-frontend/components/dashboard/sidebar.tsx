@@ -53,8 +53,6 @@ const campaignNavItems = [
 
 const mapsNavItems = [
   { id: "maps", title: "Mapa", icon: MapPin, href: "/maps" },
-  { id: "favorites", title: "Favoritos", icon: Heart, href: "/favorites" },
-  { id: "recents", title: "Recentes", icon: Clock, href: "/recents" },
 ];
 
 export function LocationsSidebar({

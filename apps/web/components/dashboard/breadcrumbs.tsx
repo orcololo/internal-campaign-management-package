@@ -21,8 +21,6 @@ const pathLabels: Record<string, string> = {
   calendar: "Calendário",
   maps: "Mapas",
   locations: "Localizações",
-  favorites: "Favoritos",
-  recents: "Recentes",
   settings: "Configurações",
   profile: "Perfil",
   new: "Novo",

@@ -49,16 +49,16 @@ export function VoterHeatmapView({
     // Adjust visibility and properties based on mode
     if (mode === 'density') {
       mapRef.current.setLayoutProperty("voters-heat", "visibility", "visible");
-      
+
       mapRef.current.setPaintProperty(
-          "voters-heat",
-          "heatmap-intensity",
-          ["interpolate", ["linear"], ["zoom"], 0, intensityVal, 15, intensityVal * 3]
+        "voters-heat",
+        "heatmap-intensity",
+        ["interpolate", ["linear"], ["zoom"], 0, intensityVal, 15, intensityVal * 3]
       );
       mapRef.current.setPaintProperty(
-          "voters-heat",
-          "heatmap-radius",
-          ["interpolate", ["linear"], ["zoom"], 0, 2, 15, radius]
+        "voters-heat",
+        "heatmap-radius",
+        ["interpolate", ["linear"], ["zoom"], 0, 2, 15, radius]
       );
     } else {
       mapRef.current.setLayoutProperty("voters-heat", "visibility", "none");
@@ -69,7 +69,7 @@ export function VoterHeatmapView({
       // In support mode, always show points. In density mode, show points only at high zoom
       const minZoom = mode === 'density' ? 12 : 3;
       mapRef.current.setLayerZoomRange("voters-point", minZoom, 24);
-      
+
       if (mode === 'support') {
         mapRef.current.setPaintProperty("voters-point", "circle-color", [
           "match",
@@ -108,11 +108,11 @@ export function VoterHeatmapView({
 
   const votersWithLocation = React.useMemo(() => {
     let filtered = voters.filter((v) => v.latitude && v.longitude);
-    
+
     // Apply filters
     if (filters) {
       if (filters.supportLevels.length > 0) {
-        filtered = filtered.filter(v => 
+        filtered = filtered.filter(v =>
           filters.supportLevels.includes(v.supportLevel || 'NAO_DEFINIDO')
         );
       }
@@ -198,6 +198,9 @@ export function VoterHeatmapView({
         data: geojsonData,
       });
 
+      // Calculate actual intensity based on prop
+      const intensityVal = intensity / 50; // 0.2 to 2.0
+
       // Add heatmap layer (default visible)
       map.addLayer({
         id: "voters-heat",
@@ -219,8 +222,8 @@ export function VoterHeatmapView({
             "interpolate",
             ["linear"],
             ["zoom"],
-            0, 1,
-            15, 3,
+            0, intensityVal,
+            15, intensityVal * 3,
           ],
           "heatmap-color": [
             "interpolate",
@@ -233,7 +236,7 @@ export function VoterHeatmapView({
             0.8, "rgb(239,138,98)",
             1, "rgb(178,24,43)",
           ],
-          "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 15, 20],
+          "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 15, radius],
           "heatmap-opacity": ["interpolate", ["linear"], ["zoom"], 7, 1, 15, 0],
         },
       });
@@ -247,7 +250,7 @@ export function VoterHeatmapView({
         paint: {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 12, 5, 22, 20],
           "circle-color": mode === 'support' ? [
-             "match",
+            "match",
             ["get", "supportLevel"],
             "MUITO_FAVORAVEL", "#22c55e",
             "FAVORAVEL", "#84cc16",

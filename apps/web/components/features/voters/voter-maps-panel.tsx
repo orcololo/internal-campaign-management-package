@@ -49,12 +49,14 @@ interface VoterMapsPanelProps {
   voters: Voter[];
   selectedVoterId: string | null;
   onVoterSelect: (voterId: string | null) => void;
+  onFilteredVotersChange?: (voters: Voter[]) => void;
 }
 
 export function VoterMapsPanel({
   voters,
   selectedVoterId,
   onVoterSelect,
+  onFilteredVotersChange,
 }: VoterMapsPanelProps) {
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -185,6 +187,11 @@ export function VoterMapsPanel({
   const votersWithLocation = filteredVoters.filter(
     (v) => v.latitude && v.longitude
   );
+
+  // Notify parent when filtered voters change
+  React.useEffect(() => {
+    onFilteredVotersChange?.(filteredVoters);
+  }, [filteredVoters, onFilteredVotersChange]);
 
   React.useEffect(() => {
     if (selectedVoterId && scrollContainerRef.current) {
@@ -461,131 +468,131 @@ export function VoterMapsPanel({
           selectedCities.length > 0 ||
           selectedStates.length > 0 ||
           selectedTags.length > 0) && (
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
-                Filtros ativos
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 text-xs"
-                onClick={() => {
-                  setSupportLevelFilter("all");
-                  setHasLocationFilter(false);
-                  setHasWhatsAppFilter(false);
-                  setHasEmailFilter(false);
-                  setHasPhoneFilter(false);
-                  setSelectedCities([]);
-                  setSelectedStates([]);
-                  setSelectedTags([]);
-                }}
-              >
-                Limpar tudo
-              </Button>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">
+                  Filtros ativos
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 text-xs"
+                  onClick={() => {
+                    setSupportLevelFilter("all");
+                    setHasLocationFilter(false);
+                    setHasWhatsAppFilter(false);
+                    setHasEmailFilter(false);
+                    setHasPhoneFilter(false);
+                    setSelectedCities([]);
+                    setSelectedStates([]);
+                    setSelectedTags([]);
+                  }}
+                >
+                  Limpar tudo
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {supportLevelFilter !== "all" && (
+                  <Badge variant="secondary" className="text-xs">
+                    {SUPPORT_LEVEL_LABELS[supportLevelFilter]} apoio
+                    <button
+                      onClick={() => setSupportLevelFilter("all")}
+                      className="ml-1 hover:bg-background rounded-full"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                )}
+                {selectedStates.map((state) => (
+                  <Badge key={state} variant="secondary" className="text-xs">
+                    {state}
+                    <button
+                      onClick={() =>
+                        setSelectedStates((prev) =>
+                          prev.filter((s) => s !== state)
+                        )
+                      }
+                      className="ml-1 hover:bg-background rounded-full"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                ))}
+                {selectedCities.map((city) => (
+                  <Badge key={city} variant="secondary" className="text-xs">
+                    {city}
+                    <button
+                      onClick={() =>
+                        setSelectedCities((prev) =>
+                          prev.filter((c) => c !== city)
+                        )
+                      }
+                      className="ml-1 hover:bg-background rounded-full"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                ))}
+                {selectedTags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="text-xs">
+                    {tag}
+                    <button
+                      onClick={() =>
+                        setSelectedTags((prev) => prev.filter((t) => t !== tag))
+                      }
+                      className="ml-1 hover:bg-background rounded-full"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                ))}
+                {hasLocationFilter && (
+                  <Badge variant="secondary" className="text-xs">
+                    Com localização
+                    <button
+                      onClick={() => setHasLocationFilter(false)}
+                      className="ml-1 hover:bg-background rounded-full"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                )}
+                {hasWhatsAppFilter && (
+                  <Badge variant="secondary" className="text-xs">
+                    Com WhatsApp
+                    <button
+                      onClick={() => setHasWhatsAppFilter(false)}
+                      className="ml-1 hover:bg-background rounded-full"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                )}
+                {hasEmailFilter && (
+                  <Badge variant="secondary" className="text-xs">
+                    Com Email
+                    <button
+                      onClick={() => setHasEmailFilter(false)}
+                      className="ml-1 hover:bg-background rounded-full"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                )}
+                {hasPhoneFilter && (
+                  <Badge variant="secondary" className="text-xs">
+                    Com Telefone
+                    <button
+                      onClick={() => setHasPhoneFilter(false)}
+                      className="ml-1 hover:bg-background rounded-full"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                )}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-1">
-              {supportLevelFilter !== "all" && (
-                <Badge variant="secondary" className="text-xs">
-                  {SUPPORT_LEVEL_LABELS[supportLevelFilter]} apoio
-                  <button
-                    onClick={() => setSupportLevelFilter("all")}
-                    className="ml-1 hover:bg-background rounded-full"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </Badge>
-              )}
-              {selectedStates.map((state) => (
-                <Badge key={state} variant="secondary" className="text-xs">
-                  {state}
-                  <button
-                    onClick={() =>
-                      setSelectedStates((prev) =>
-                        prev.filter((s) => s !== state)
-                      )
-                    }
-                    className="ml-1 hover:bg-background rounded-full"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </Badge>
-              ))}
-              {selectedCities.map((city) => (
-                <Badge key={city} variant="secondary" className="text-xs">
-                  {city}
-                  <button
-                    onClick={() =>
-                      setSelectedCities((prev) =>
-                        prev.filter((c) => c !== city)
-                      )
-                    }
-                    className="ml-1 hover:bg-background rounded-full"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </Badge>
-              ))}
-              {selectedTags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs">
-                  {tag}
-                  <button
-                    onClick={() =>
-                      setSelectedTags((prev) => prev.filter((t) => t !== tag))
-                    }
-                    className="ml-1 hover:bg-background rounded-full"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </Badge>
-              ))}
-              {hasLocationFilter && (
-                <Badge variant="secondary" className="text-xs">
-                  Com localização
-                  <button
-                    onClick={() => setHasLocationFilter(false)}
-                    className="ml-1 hover:bg-background rounded-full"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </Badge>
-              )}
-              {hasWhatsAppFilter && (
-                <Badge variant="secondary" className="text-xs">
-                  Com WhatsApp
-                  <button
-                    onClick={() => setHasWhatsAppFilter(false)}
-                    className="ml-1 hover:bg-background rounded-full"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </Badge>
-              )}
-              {hasEmailFilter && (
-                <Badge variant="secondary" className="text-xs">
-                  Com Email
-                  <button
-                    onClick={() => setHasEmailFilter(false)}
-                    className="ml-1 hover:bg-background rounded-full"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </Badge>
-              )}
-              {hasPhoneFilter && (
-                <Badge variant="secondary" className="text-xs">
-                  Com Telefone
-                  <button
-                    onClick={() => setHasPhoneFilter(false)}
-                    className="ml-1 hover:bg-background rounded-full"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </Badge>
-              )}
-            </div>
-          </div>
-        )}
+          )}
       </div>
 
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
@@ -644,9 +651,8 @@ export function VoterMapsPanel({
                           <Badge
                             className="text-xs"
                             style={{
-                              backgroundColor: `${
-                                SUPPORT_LEVEL_COLORS[voter.supportLevel]
-                              }20`,
+                              backgroundColor: `${SUPPORT_LEVEL_COLORS[voter.supportLevel]
+                                }20`,
                               color: SUPPORT_LEVEL_COLORS[voter.supportLevel],
                             }}
                           >
@@ -756,9 +762,8 @@ export function VoterMapsPanel({
                           backgroundColor:
                             SUPPORT_LEVEL_COLORS[voter.supportLevel],
                         }}
-                        title={`${
-                          SUPPORT_LEVEL_LABELS[voter.supportLevel]
-                        } Apoio`}
+                        title={`${SUPPORT_LEVEL_LABELS[voter.supportLevel]
+                          } Apoio`}
                       />
                     )}
                   </div>
