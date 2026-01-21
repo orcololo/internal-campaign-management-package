@@ -198,6 +198,7 @@ export class CreateVoterDto {
     example: 'DE_2_A_5_SALARIOS',
   })
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsEnum([
     'ATE_1_SALARIO',
     'DE_1_A_2_SALARIOS',
@@ -214,6 +215,7 @@ export class CreateVoterDto {
     example: 'CASADO',
   })
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsEnum(['SOLTEIRO', 'CASADO', 'DIVORCIADO', 'VIUVO', 'UNIAO_ESTAVEL', 'NAO_INFORMADO'])
   maritalStatus?: string;
 
@@ -288,6 +290,7 @@ export class CreateVoterDto {
 
   @ApiPropertyOptional({ description: 'Top issues', example: '["Education", "Health"]' })
   @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) && value.length === 0 ? undefined : value))
   @IsArray()
   topIssues?: string[];
 
@@ -358,6 +361,7 @@ export class CreateVoterDto {
     example: '["lideranca_local", "apoiador"]',
   })
   @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) && value.length === 0 ? undefined : value))
   @IsArray()
   tags?: string[];
 
@@ -495,6 +499,7 @@ export class CreateVoterDto {
 
   @ApiPropertyOptional({ description: 'Content preference', example: '["Video"]' })
   @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) && value.length === 0 ? undefined : value))
   @IsArray()
   contentPreference?: string[];
 
@@ -506,6 +511,7 @@ export class CreateVoterDto {
 
   @ApiPropertyOptional({ description: 'Best contact day', example: '["Monday"]' })
   @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) && value.length === 0 ? undefined : value))
   @IsArray()
   bestContactDay?: string[];
 
